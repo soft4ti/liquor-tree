@@ -401,19 +401,11 @@ export default class Node {
   }
 
   canExpand () {
-    if (this.disabled() || !this.hasChildren()) {
-      return false
-    }
-
     return this.collapsed() &&
       (!this.tree.autoDisableChildren || this.disabled())
   }
 
   canCollapse () {
-    if (this.disabled() || !this.hasChildren()) {
-      return false
-    }
-
     return this.expanded() &&
       (!this.tree.autoDisableChildren || this.disabled())
   }
