@@ -1,228 +1,167 @@
 
 /*!
- * LiquorTree v0.2.70
- * (c) 2020 amsik
+ * LiquorTree v0.3.0
+ * (c) 2024 amsik
  * Released under the MIT License.
  */
 
+import { resolveComponent, openBlock, createElementBlock, normalizeClass, withModifiers, createElementVNode, normalizeStyle, createCommentVNode, createVNode, Transition, withCtx, Fragment, renderList, createBlock, toDisplayString, resolveDynamicComponent } from 'vue';
+
 var NodeContent = {
-  name: 'node-content',
-  props: ['node'],
-  render: function render (h) {
-    var this$1 = this;
+    name: 'node-content',
+    props: ['node'],
+    render: function render (h) {
+      var this$1$1 = this;
 
-    var node = this.node;
-    var vm = this.node.tree.vm;
+      var node = this.node;
+      var vm = this.node.tree.vm;
 
-    if (node.isEditing) {
-      var nodeText = node.text;
+      if (node.isEditing) {
+        var nodeText = node.text;
 
-      this.$nextTick(function (_) {
-        this$1.$refs.editCtrl.focus();
-      });
+        this.$nextTick(function (_) {
+          this$1$1.$refs.editCtrl.focus();
+        });
 
-      return h('input', {
-        domProps: {
-          value: node.text,
-          type: 'text'
-        },
-        class: 'tree-input',
-        on: {
-          input: function input (e) {
-            nodeText = e.target.value;
+        return h('input', {
+          domProps: {
+            value: node.text,
+            type: 'text'
           },
-          blur: function blur () {
-            node.stopEditing(nodeText);
-          },
-          keyup: function keyup (e) {
-            if (e.keyCode === 13) {
+          class: 'tree-input',
+          on: {
+            input: function input (e) {
+              nodeText = e.target.value;
+            },
+            blur: function blur () {
               node.stopEditing(nodeText);
+            },
+            keyup: function keyup (e) {
+              if (e.keyCode === 13) {
+                node.stopEditing(nodeText);
+              }
+            },
+            mouseup: function mouseup (e) {
+              e.stopPropagation();
             }
           },
-          mouseup: function mouseup (e) {
-            e.stopPropagation();
-          }
-        },
-        ref: 'editCtrl'
+          ref: 'editCtrl'
+        })
+      }
+
+      if (vm.$scopedSlots.default) {
+        return vm.$scopedSlots.default({ node: this.node })
+      }
+
+      return h('span', {
+        domProps: {
+          innerHTML: node.text
+        }
       })
     }
+  };
 
-    if (vm.$scopedSlots.default) {
-      return vm.$scopedSlots.default({ node: this.node })
+  var _sfc_main$3 = NodeContent;
+
+function styleInject(css, ref) {
+  if ( ref === void 0 ) { ref = {}; }
+  var insertAt = ref.insertAt;
+
+  if (!css || typeof document === 'undefined') { return; }
+
+  var head = document.head || document.getElementsByTagName('head')[0];
+  var style = document.createElement('style');
+  style.type = 'text/css';
+
+  if (insertAt === 'top') {
+    if (head.firstChild) {
+      head.insertBefore(style, head.firstChild);
+    } else {
+      head.appendChild(style);
     }
-
-    return h('span', {
-      domProps: {
-        innerHTML: node.text
-      }
-    })
+  } else {
+    head.appendChild(style);
   }
-};
 
-function normalizeComponent(compiledTemplate, injectStyle, defaultExport, scopeId, isFunctionalTemplate, moduleIdentifier /* server only */, isShadowMode, createInjector, createInjectorSSR, createInjectorShadow) {
-    if (typeof isShadowMode === 'function') {
-        createInjectorSSR = createInjector;
-        createInjector = isShadowMode;
-        isShadowMode = false;
-    }
-    // Vue.extend constructor export interop
-    var options = typeof defaultExport === 'function' ? defaultExport.options : defaultExport;
-    // render functions
-    if (compiledTemplate && compiledTemplate.render) {
-        options.render = compiledTemplate.render;
-        options.staticRenderFns = compiledTemplate.staticRenderFns;
-        options._compiled = true;
-        // functional template
-        if (isFunctionalTemplate) {
-            options.functional = true;
-        }
-    }
-    // scopedId
-    if (scopeId) {
-        options._scopeId = scopeId;
-    }
-    var hook;
-    if (moduleIdentifier) {
-        // server build
-        hook = function (context) {
-            // 2.3 injection
-            context =
-                context || // cached call
-                    (this.$vnode && this.$vnode.ssrContext) || // stateful
-                    (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext); // functional
-            // 2.2 with runInNewContext: true
-            if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
-                context = __VUE_SSR_CONTEXT__;
-            }
-            // inject component styles
-            if (injectStyle) {
-                injectStyle.call(this, createInjectorSSR(context));
-            }
-            // register component module identifier for async chunk inference
-            if (context && context._registeredComponents) {
-                context._registeredComponents.add(moduleIdentifier);
-            }
-        };
-        // used by ssr in case component is cached and beforeCreate
-        // never gets called
-        options._ssrRegister = hook;
-    }
-    else if (injectStyle) {
-        hook = isShadowMode
-            ? function () {
-                injectStyle.call(this, createInjectorShadow(this.$root.$options.shadowRoot));
-            }
-            : function (context) {
-                injectStyle.call(this, createInjector(context));
-            };
-    }
-    if (hook) {
-        if (options.functional) {
-            // register for functional component in vue file
-            var originalRender = options.render;
-            options.render = function renderWithStyleInjection(h, context) {
-                hook.call(context);
-                return originalRender(h, context);
-            };
-        }
-        else {
-            // inject component registration as beforeCreate hook
-            var existing = options.beforeCreate;
-            options.beforeCreate = existing ? [].concat(existing, hook) : [hook];
-        }
-    }
-    return defaultExport;
+  if (style.styleSheet) {
+    style.styleSheet.cssText = css;
+  } else {
+    style.appendChild(document.createTextNode(css));
+  }
 }
 
-/* script */
-var __vue_script__ = NodeContent;
-// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
-NodeContent.__file = "NodeContent.vue";
+var css_248z$2 = "\n.tree-node {\n  white-space: nowrap;\n  display: flex;\n  flex-direction: column;\n  position: relative;\n  box-sizing: border-box;\n}\n.tree-content {\n  display: flex;\n  align-items: center;\n  padding: 3px;\n  cursor: pointer;\n  width: 100%;\n  box-sizing: border-box;\n}\n.tree-node:not(.selected) > .tree-content:hover {\n  background: #f6f8fb;\n}\n.tree-node.selected > .tree-content {\n  background-color: #e7eef7;\n}\n.tree-node.disabled > .tree-content:hover {\n  background: inherit;\n}\n.tree-arrow {\n  flex-shrink: 0;\n  height: 30px;\n  cursor: pointer;\n  margin-left: 30px;\n  width: 0;\n}\n.tree-arrow.has-child {\n  margin-left: 0;\n  width: 30px;\n  position: relative;\n}\n.tree-arrow.has-child:after {\n  border: 1.5px solid #494646;\n  position: absolute;\n  border-left: 0;\n  border-top: 0;\n  left: 9px;\n  top: 50%;\n  height: 9px;\n  width: 9px;\n  transform: rotate(-45deg) translateY(-50%) translateX(0);\n  transition: transform 0.25s;\n  transform-origin: center;\n}\n.tree-arrow.has-child.rtl:after {\n  border: 1.5px solid #494646;\n  position: absolute;\n  border-right: 0;\n  border-bottom: 0;\n  right: 0px;\n  top: 50%;\n  height: 9px;\n  width: 9px;\n  transform: rotate(-45deg) translateY(-50%) translateX(0);\n  transition: transform 0.25s;\n  transform-origin: center;\n}\n.tree-arrow.expanded.has-child:after {\n  transform: rotate(45deg) translateY(-50%) translateX(-5px);\n}\n.tree-checkbox {\n  flex-shrink: 0;\n  position: relative;\n  width: 30px;\n  height: 30px;\n  box-sizing: border-box;\n  border: 1px solid #dadada;\n  border-radius: 2px;\n  background: #fff;\n  transition:\n    border-color 0.25s,\n    background-color 0.25s;\n}\n.tree-checkbox:after,\n.tree-arrow:after {\n  position: absolute;\n  display: block;\n  content: \"\";\n}\n.tree-checkbox.checked,\n.tree-checkbox.indeterminate {\n  background-color: #3a99fc;\n  border-color: #218eff;\n}\n.tree-checkbox.checked:after {\n  box-sizing: content-box;\n  border: 1.5px solid #fff; /* probably width would be rounded in most cases */\n  border-left: 0;\n  border-top: 0;\n  left: 9px;\n  top: 3px;\n  height: 15px;\n  width: 8px;\n  transform: rotate(45deg) scaleY(0);\n  transition: transform 0.25s;\n  transform-origin: center;\n}\n.tree-checkbox.checked:after {\n  transform: rotate(45deg) scaleY(1);\n}\n.tree-checkbox.indeterminate:after {\n  background-color: #fff;\n  top: 50%;\n  left: 20%;\n  right: 20%;\n  height: 2px;\n}\n.tree-anchor {\n  flex-grow: 2;\n  outline: none;\n  display: flex;\n  text-decoration: none;\n  color: #343434;\n  vertical-align: top;\n  margin-left: 3px;\n  line-height: 24px;\n  padding: 3px 6px;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.tree-node.selected > .tree-content > .tree-anchor {\n  outline: none;\n}\n.tree-node.disabled > .tree-content > .tree-anchor {\n  color: #989191;\n  background: #fff;\n  opacity: 0.6;\n  cursor: default;\n  outline: none;\n}\n.tree-input {\n  display: block;\n  width: 100%;\n  height: 24px;\n  line-height: 24px;\n  outline: none;\n  border: 1px solid #3498db;\n  padding: 0 4px;\n}\n.l-fade-enter-active,\n.l-fade-leave-active {\n  transition:\n    opacity 0.3s,\n    transform 0.3s;\n  transform: translateX(0);\n}\n.l-fade-enter,\n.l-fade-leave-to {\n  opacity: 0;\n  transform: translateX(-2em);\n}\n.tree--small .tree-anchor {\n  line-height: 19px;\n}\n.tree--small .tree-checkbox {\n  width: 23px;\n  height: 23px;\n}\n.tree--small .tree-arrow {\n  height: 23px;\n}\n.tree--small .tree-checkbox.checked:after {\n  left: 7px;\n  top: 3px;\n  height: 11px;\n  width: 5px;\n}\n.tree-node.has-child.loading > .tree-content > .tree-arrow,\n.tree-node.has-child.loading > .tree-content > .tree-arrow:after {\n  border-radius: 50%;\n  width: 15px;\n  height: 15px;\n  border: 0;\n}\n.tree-node.has-child.loading > .tree-content > .tree-arrow {\n  font-size: 3px;\n  position: relative;\n  border-top: 1.1em solid rgba(45, 45, 45, 0.2);\n  border-right: 1.1em solid rgba(45, 45, 45, 0.2);\n  border-bottom: 1.1em solid rgba(45, 45, 45, 0.2);\n  border-left: 1.1em solid #2d2d2d;\n  -webkit-transform: translateZ(0);\n  -ms-transform: translateZ(0);\n  transform: translateZ(0);\n  left: 5px;\n  -webkit-animation: loading 1.1s infinite linear;\n  animation: loading 1.1s infinite linear;\n  margin-right: 8px;\n}\n@-webkit-keyframes loading {\n0% {\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg);\n}\n100% {\n    -webkit-transform: rotate(360deg);\n    transform: rotate(360deg);\n}\n}\n@keyframes loading {\n0% {\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg);\n}\n100% {\n    -webkit-transform: rotate(360deg);\n    transform: rotate(360deg);\n}\n}\n";
+styleInject(css_248z$2);
 
-/* template */
-
-  /* style */
-  var __vue_inject_styles__ = undefined;
-  /* scoped */
-  var __vue_scope_id__ = undefined;
-  /* module identifier */
-  var __vue_module_identifier__ = undefined;
-  /* functional template */
-  var __vue_is_functional_template__ = undefined;
-  /* style inject */
-  
-  /* style inject SSR */
-  
-
-  
-  var NodeContent$1 = normalizeComponent(
-    {},
-    __vue_inject_styles__,
-    __vue_script__,
-    __vue_scope_id__,
-    __vue_is_functional_template__,
-    __vue_module_identifier__,
-    undefined,
-    undefined
-  );
-
-//
+var _export_sfc = (sfc, props) => {
+  const target = sfc.__vccOpts || sfc;
+  for (const [key, val] of props) {
+    target[key] = val;
+  }
+  return target;
+};
 
 var TreeNode = {
-  name: 'Node',
-  inject: ['tree'],
-  props: ['node', 'options'],
+  name: "Node",
+  inject: ["tree"],
+  props: ["node", "options"],
 
   components: {
-    NodeContent: NodeContent$1
+    NodeContent: _sfc_main$3,
   },
 
   watch: {
     node: function node() {
       this.node.vm = this;
-    }
+    },
   },
 
   data: function data() {
     this.node.vm = this;
 
     return {
-      loading: false
-    }
+      loading: false,
+    };
   },
 
   computed: {
     padding: function padding() {
-      return this.node.depth * (this.options.paddingLeft ? this.options.paddingLeft : this.options.nodeIndent) + 'px'
+      return (
+        this.node.depth *
+          (this.options.paddingLeft
+            ? this.options.paddingLeft
+            : this.options.nodeIndent) +
+        "px"
+      );
     },
 
     nodeClass: function nodeClass() {
       var state = this.node.states;
       var hasChildren = this.hasChildren();
       var classes = {
-        'has-child': hasChildren,
-        'expanded': hasChildren && state.expanded,
-        'selected': state.selected,
-        'disabled': state.disabled,
-        'matched': state.matched,
-        'dragging': state.dragging,
-        'loading': this.loading,
-        'draggable': state.draggable
+        "has-child": hasChildren,
+        expanded: hasChildren && state.expanded,
+        selected: state.selected,
+        disabled: state.disabled,
+        matched: state.matched,
+        dragging: state.dragging,
+        loading: this.loading,
+        draggable: state.draggable,
       };
 
       if (this.options.checkbox) {
-        classes['checked'] = state.checked;
-        classes['indeterminate'] = state.indeterminate;
+        classes["checked"] = state.checked;
+        classes["indeterminate"] = state.indeterminate;
       }
 
-      return classes
+      return classes;
     },
 
     visibleChildren: function visibleChildren() {
-      return this.node.children.filter(function(child) {
-        return child && child.visible()
-      })
-    }
+      return this.node.children.filter(function (child) {
+        return child && child.visible();
+      });
+    },
   },
 
   methods: {
@@ -251,22 +190,22 @@ var TreeNode = {
       var tree = this.tree;
       var node = this.node;
 
-      tree.$emit('node:clicked', node);
+      tree.$emit("node:clicked", node);
 
       if (opts.editing && node.isEditing) {
-        return
+        return;
       }
 
       if (opts.editing && node.editable()) {
-        return this.startEditing()
+        return this.startEditing();
       }
 
       if (opts.checkbox && opts.checkOnSelect) {
         if (!opts.parentSelect && this.hasChildren()) {
-          return this.toggleExpand()
+          return this.toggleExpand();
         }
 
-        return this.check(ctrlKey)
+        return this.check(ctrlKey);
       }
 
       // 'parentSelect' behaviour.
@@ -304,7 +243,7 @@ var TreeNode = {
     },
 
     hasChildren: function hasChildren() {
-      return this.node.hasChildren()
+      return this.node.hasChildren();
     },
 
     startEditing: function startEditing() {
@@ -321,159 +260,138 @@ var TreeNode = {
 
     handleMouseDown: function handleMouseDown(event) {
       if (!this.options.dnd) {
-        return
+        return;
       }
 
       this.tree.vm.startDragging(this.node, event);
-    }
-  }
+    },
+  },
 };
 
-var isOldIE = typeof navigator !== 'undefined' &&
-    /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
-function createInjector(context) {
-    return function (id, style) { return addStyle(id, style); };
+var _sfc_main$2 = TreeNode;
+
+var _hoisted_1$1 = ["data-id"];
+var _hoisted_2 = {
+  key: 0,
+  class: "tree-children"
+};
+
+function _sfc_render$2(_ctx, _cache, $props, $setup, $data, $options) {
+  var _component_node_content = resolveComponent("node-content");
+  var _component_node = resolveComponent("node");
+
+  return (openBlock(), createElementBlock("li", {
+    role: "treeitem",
+    class: normalizeClass(["tree-node", _ctx.nodeClass]),
+    "data-id": _ctx.node.id,
+    onMousedown: _cache[5] || (_cache[5] = withModifiers(function () {
+      var args = [], len = arguments.length;
+      while ( len-- ) args[ len ] = arguments[ len ];
+
+      return (_ctx.handleMouseDown && _ctx.handleMouseDown.apply(_ctx, args));
+  }, ["stop"]))
+  }, [
+    createElementVNode("div", {
+      class: "tree-content",
+      style: normalizeStyle([
+        _ctx.options.direction == 'ltr'
+          ? { 'padding-left': _ctx.padding }
+          : { 'padding-right': _ctx.padding } ]),
+      onClick: _cache[4] || (_cache[4] = withModifiers(function () {
+        var args = [], len = arguments.length;
+        while ( len-- ) args[ len ] = arguments[ len ];
+
+        return (_ctx.select && _ctx.select.apply(_ctx, args));
+  }, ["stop"]))
+    }, [
+      createElementVNode("i", {
+        class: normalizeClass(["tree-arrow", [
+          {
+            expanded: _ctx.node.states.expanded,
+            'has-child': _ctx.node.children.length || _ctx.node.isBatch,
+          },
+          _ctx.options.direction ]]),
+        onClick: _cache[0] || (_cache[0] = withModifiers(function () {
+          var args = [], len = arguments.length;
+          while ( len-- ) args[ len ] = arguments[ len ];
+
+          return (_ctx.toggleExpand && _ctx.toggleExpand.apply(_ctx, args));
+  }, ["stop"]))
+      }, null, 2 /* CLASS */),
+      (_ctx.options.checkbox)
+        ? (openBlock(), createElementBlock("i", {
+            key: 0,
+            class: normalizeClass(["tree-checkbox", {
+          checked: _ctx.node.states.checked,
+          indeterminate: _ctx.node.states.indeterminate,
+        }]),
+            onClick: _cache[1] || (_cache[1] = withModifiers(function () {
+              var args = [], len = arguments.length;
+              while ( len-- ) args[ len ] = arguments[ len ];
+
+              return (_ctx.check && _ctx.check.apply(_ctx, args));
+  }, ["stop"]))
+          }, null, 2 /* CLASS */))
+        : createCommentVNode("v-if", true),
+      createElementVNode("span", {
+        ref: "anchor",
+        class: "tree-anchor",
+        tabindex: "-1",
+        onFocus: _cache[2] || (_cache[2] = function () {
+          var args = [], len = arguments.length;
+          while ( len-- ) args[ len ] = arguments[ len ];
+
+          return (_ctx.onNodeFocus && _ctx.onNodeFocus.apply(_ctx, args));
+  }),
+        onDblclick: _cache[3] || (_cache[3] = function ($event) { return (_ctx.tree.$emit('node:dblclick', _ctx.node)); })
+      }, [
+        createVNode(_component_node_content, { node: _ctx.node }, null, 8 /* PROPS */, ["node"])
+      ], 544 /* NEED_HYDRATION, NEED_PATCH */)
+    ], 4 /* STYLE */),
+    createVNode(Transition, { name: "l-fade" }, {
+      default: withCtx(function () { return [
+        (_ctx.hasChildren() && _ctx.node.states.expanded)
+          ? (openBlock(), createElementBlock("ul", _hoisted_2, [
+              (openBlock(true), createElementBlock(Fragment, null, renderList(_ctx.visibleChildren, function (child) {
+                return (openBlock(), createBlock(_component_node, {
+                  key: child.id,
+                  node: child,
+                  options: _ctx.options
+                }, null, 8 /* PROPS */, ["node", "options"]))
+              }), 128 /* KEYED_FRAGMENT */))
+            ]))
+          : createCommentVNode("v-if", true)
+      ]; }),
+      _: 1 /* STABLE */
+    })
+  ], 42 /* CLASS, PROPS, NEED_HYDRATION */, _hoisted_1$1))
 }
-var HEAD = document.head || document.getElementsByTagName('head')[0];
-var styles = {};
-function addStyle(id, css) {
-    var group = isOldIE ? css.media || 'default' : id;
-    var style = styles[group] || (styles[group] = { ids: new Set(), styles: [] });
-    if (!style.ids.has(id)) {
-        style.ids.add(id);
-        var code = css.source;
-        if (css.map) {
-            // https://developer.chrome.com/devtools/docs/javascript-debugging
-            // this makes source maps inside style tags work properly in Chrome
-            code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
-            // http://stackoverflow.com/a/26603875
-            code +=
-                '\n/*# sourceMappingURL=data:application/json;base64,' +
-                    btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
-                    ' */';
+var TreeNode$1 = /*#__PURE__*/_export_sfc(_sfc_main$2, [['render',_sfc_render$2]]);
+
+var css_248z$1 = "\n.tree-dragnode {\n    padding: 10px;\n    border: 1px solid #e7eef7;\n    position: fixed;\n    border-radius: 8px;\n    background: #fff;\n    transform: translate(-50%, -110%);\n    z-index: 10;\n}\n";
+styleInject(css_248z$1);
+
+var _sfc_main$1 = {
+    name: 'DragNode',
+    props: ['target'],
+    computed: {
+      style: function style() {
+        if (undefined === this.target.top) {
+          return 'display: none'
         }
-        if (!style.element) {
-            style.element = document.createElement('style');
-            style.element.type = 'text/css';
-            if (css.media)
-                { style.element.setAttribute('media', css.media); }
-            HEAD.appendChild(style.element);
-        }
-        if ('styleSheet' in style.element) {
-            style.styles.push(code);
-            style.element.styleSheet.cssText = style.styles
-                .filter(Boolean)
-                .join('\n');
-        }
-        else {
-            var index = style.ids.size - 1;
-            var textNode = document.createTextNode(code);
-            var nodes = style.element.childNodes;
-            if (nodes[index])
-                { style.element.removeChild(nodes[index]); }
-            if (nodes.length)
-                { style.element.insertBefore(textNode, nodes[index]); }
-            else
-                { style.element.appendChild(textNode); }
-        }
-    }
-}
 
-/* script */
-var __vue_script__$1 = TreeNode;
-// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
-TreeNode.__file = "TreeNode.vue";
-
-/* template */
-var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',{staticClass:"tree-node",class:_vm.nodeClass,attrs:{"role":"treeitem","data-id":_vm.node.id},on:{"mousedown":function($event){$event.stopPropagation();return _vm.handleMouseDown($event)}}},[_c('div',{staticClass:"tree-content",style:([_vm.options.direction == 'ltr' ? {'padding-left': _vm.padding} : {'padding-right': _vm.padding}]),on:{"click":function($event){$event.stopPropagation();return _vm.select($event)}}},[_c('i',{staticClass:"tree-arrow",class:[{'expanded': _vm.node.states.expanded, 'has-child': _vm.node.children.length || _vm.node.isBatch}, _vm.options.direction],on:{"click":function($event){$event.stopPropagation();return _vm.toggleExpand($event)}}}),_vm._v(" "),(_vm.options.checkbox)?_c('i',{staticClass:"tree-checkbox",class:{'checked': _vm.node.states.checked, 'indeterminate': _vm.node.states.indeterminate},on:{"click":function($event){$event.stopPropagation();return _vm.check($event)}}}):_vm._e(),_vm._v(" "),_c('span',{ref:"anchor",staticClass:"tree-anchor",attrs:{"tabindex":"-1"},on:{"focus":_vm.onNodeFocus,"dblclick":function($event){return _vm.tree.$emit('node:dblclick', _vm.node)}}},[_c('node-content',{attrs:{"node":_vm.node}})],1)]),_vm._v(" "),_c('transition',{attrs:{"name":"l-fade"}},[(_vm.hasChildren() && _vm.node.states.expanded)?_c('ul',{staticClass:"tree-children"},_vm._l((_vm.visibleChildren),function(child){return _c('node',{key:child.id,attrs:{"node":child,"options":_vm.options}})}),1):_vm._e()])],1)};
-var __vue_staticRenderFns__ = [];
-
-  /* style */
-  var __vue_inject_styles__$1 = function (inject) {
-    if (!inject) { return }
-    inject("data-v-c58df0ac_0", { source: ".tree-node{white-space:nowrap;display:flex;flex-direction:column;position:relative;box-sizing:border-box}.tree-content{display:flex;align-items:center;padding:3px;cursor:pointer;width:100%;box-sizing:border-box}.tree-node:not(.selected)>.tree-content:hover{background:#f6f8fb}.tree-node.selected>.tree-content{background-color:#e7eef7}.tree-node.disabled>.tree-content:hover{background:inherit}.tree-arrow{flex-shrink:0;height:30px;cursor:pointer;margin-left:30px;width:0}.tree-arrow.has-child{margin-left:0;width:30px;position:relative}.tree-arrow.has-child:after{border:1.5px solid #494646;position:absolute;border-left:0;border-top:0;left:9px;top:50%;height:9px;width:9px;transform:rotate(-45deg) translateY(-50%) translateX(0);transition:transform .25s;transform-origin:center}.tree-arrow.has-child.rtl:after{border:1.5px solid #494646;position:absolute;border-right:0;border-bottom:0;right:0;top:50%;height:9px;width:9px;transform:rotate(-45deg) translateY(-50%) translateX(0);transition:transform .25s;transform-origin:center}.tree-arrow.expanded.has-child:after{transform:rotate(45deg) translateY(-50%) translateX(-5px)}.tree-checkbox{flex-shrink:0;position:relative;width:30px;height:30px;box-sizing:border-box;border:1px solid #dadada;border-radius:2px;background:#fff;transition:border-color .25s,background-color .25s}.tree-arrow:after,.tree-checkbox:after{position:absolute;display:block;content:\"\"}.tree-checkbox.checked,.tree-checkbox.indeterminate{background-color:#3a99fc;border-color:#218eff}.tree-checkbox.checked:after{box-sizing:content-box;border:1.5px solid #fff;border-left:0;border-top:0;left:9px;top:3px;height:15px;width:8px;transform:rotate(45deg) scaleY(0);transition:transform .25s;transform-origin:center}.tree-checkbox.checked:after{transform:rotate(45deg) scaleY(1)}.tree-checkbox.indeterminate:after{background-color:#fff;top:50%;left:20%;right:20%;height:2px}.tree-anchor{flex-grow:2;outline:0;display:flex;text-decoration:none;color:#343434;vertical-align:top;margin-left:3px;line-height:24px;padding:3px 6px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.tree-node.selected>.tree-content>.tree-anchor{outline:0}.tree-node.disabled>.tree-content>.tree-anchor{color:#989191;background:#fff;opacity:.6;cursor:default;outline:0}.tree-input{display:block;width:100%;height:24px;line-height:24px;outline:0;border:1px solid #3498db;padding:0 4px}.l-fade-enter-active,.l-fade-leave-active{transition:opacity .3s,transform .3s;transform:translateX(0)}.l-fade-enter,.l-fade-leave-to{opacity:0;transform:translateX(-2em)}.tree--small .tree-anchor{line-height:19px}.tree--small .tree-checkbox{width:23px;height:23px}.tree--small .tree-arrow{height:23px}.tree--small .tree-checkbox.checked:after{left:7px;top:3px;height:11px;width:5px}.tree-node.has-child.loading>.tree-content>.tree-arrow,.tree-node.has-child.loading>.tree-content>.tree-arrow:after{border-radius:50%;width:15px;height:15px;border:0}.tree-node.has-child.loading>.tree-content>.tree-arrow{font-size:3px;position:relative;border-top:1.1em solid rgba(45,45,45,.2);border-right:1.1em solid rgba(45,45,45,.2);border-bottom:1.1em solid rgba(45,45,45,.2);border-left:1.1em solid #2d2d2d;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);left:5px;-webkit-animation:loading 1.1s infinite linear;animation:loading 1.1s infinite linear;margin-right:8px}@-webkit-keyframes loading{0%{-webkit-transform:rotate(0);transform:rotate(0)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes loading{0%{-webkit-transform:rotate(0);transform:rotate(0)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}", map: undefined, media: undefined });
-
-  };
-  /* scoped */
-  var __vue_scope_id__$1 = undefined;
-  /* module identifier */
-  var __vue_module_identifier__$1 = undefined;
-  /* functional template */
-  var __vue_is_functional_template__$1 = false;
-  /* style inject SSR */
-  
-
-  
-  var TreeNode$1 = normalizeComponent(
-    { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ },
-    __vue_inject_styles__$1,
-    __vue_script__$1,
-    __vue_scope_id__$1,
-    __vue_is_functional_template__$1,
-    __vue_module_identifier__$1,
-    createInjector,
-    undefined
-  );
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-var script = {
-  name: 'DragNode',
-  props: ['target'],
-  computed: {
-    style: function style() {
-      if (undefined === this.target.top) {
-        return 'display: none'
+        return ("top: " + (this.target.top) + "px; left: " + (this.target.left) + "px")
       }
-
-      return ("top: " + (this.target.top) + "px; left: " + (this.target.left) + "px")
     }
-  }
-};
-
-/* script */
-var __vue_script__$2 = script;
-// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
-script.__file = "DraggableNode.vue";
-
-/* template */
-var __vue_render__$1 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"tree-dragnode",style:(_vm.style)},[_vm._v("\n  "+_vm._s(_vm.target.node.text)+"\n")])};
-var __vue_staticRenderFns__$1 = [];
-
-  /* style */
-  var __vue_inject_styles__$2 = function (inject) {
-    if (!inject) { return }
-    inject("data-v-6cd9e211_0", { source: ".tree-dragnode{padding:10px;border:1px solid #e7eef7;position:fixed;border-radius:8px;background:#fff;transform:translate(-50%,-110%);z-index:10}", map: undefined, media: undefined });
-
   };
-  /* scoped */
-  var __vue_scope_id__$2 = undefined;
-  /* module identifier */
-  var __vue_module_identifier__$2 = undefined;
-  /* functional template */
-  var __vue_is_functional_template__$2 = false;
-  /* style inject SSR */
-  
 
-  
-  var DraggableNode = normalizeComponent(
-    { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
-    __vue_inject_styles__$2,
-    __vue_script__$2,
-    __vue_scope_id__$2,
-    __vue_is_functional_template__$2,
-    __vue_module_identifier__$2,
-    createInjector,
-    undefined
-  );
+function _sfc_render$1(_ctx, _cache, $props, $setup, $data, $options) {
+  return (openBlock(), createElementBlock("div", {
+    class: "tree-dragnode",
+    style: normalizeStyle($options.style)
+  }, toDisplayString($props.target.node.text), 5 /* TEXT, STYLE */))
+}
+var DraggableNode = /*#__PURE__*/_export_sfc(_sfc_main$1, [['render',_sfc_render$1]]);
 
 function recurseDown (obj, fn) {
   var res;
@@ -904,7 +822,7 @@ Node.prototype.checked = function checked () {
 };
 
 Node.prototype.check = function check () {
-    var this$1 = this;
+    var this$1$1 = this;
 
   if (this.checked() || this.disabled()) {
     return this
@@ -926,7 +844,7 @@ Node.prototype.check = function check () {
       }
 
       if (!node.checked()) {
-        this$1.tree.check(node);
+        this$1$1.tree.check(node);
 
         node.state('checked', true);
         node.$emit('checked', node.id === targetNode.id ? undefined : targetNode);
@@ -947,7 +865,7 @@ Node.prototype.check = function check () {
 };
 
 Node.prototype.uncheck = function uncheck () {
-    var this$1 = this;
+    var this$1$1 = this;
 
   if (!this.indeterminate() && !this.checked() || this.disabled()) {
     return this
@@ -960,7 +878,7 @@ Node.prototype.uncheck = function uncheck () {
       node.state('indeterminate', false);
 
       if (node.checked()) {
-        this$1.tree.uncheck(node);
+        this$1$1.tree.uncheck(node);
 
         node.state('checked', false);
         node.$emit('unchecked', node.id === targetNode.id ? undefined : targetNode);
@@ -1059,19 +977,19 @@ Node.prototype.disabled = function disabled () {
 };
 
 Node.prototype.expandTop = function expandTop (ignoreEvent) {
-    var this$1 = this;
+    var this$1$1 = this;
 
   this.recurseUp(function (parent) {
     parent.state('expanded', true);
 
     if (ignoreEvent !== true) {
-      this$1.$emit('expanded', parent);
+      this$1$1.$emit('expanded', parent);
     }
   });
 };
 
 Node.prototype.expand = function expand () {
-    var this$1 = this;
+    var this$1$1 = this;
 
   if (!this.canExpand()) {
     return this
@@ -1079,8 +997,8 @@ Node.prototype.expand = function expand () {
 
   if (this.isBatch) {
     this.tree.loadChildren(this).then(function (_) {
-      this$1.state('expanded', true);
-      this$1.$emit('expanded');
+      this$1$1.state('expanded', true);
+      this$1$1.$emit('expanded');
     });
   } else {
     this.state('expanded', true);
@@ -1271,7 +1189,7 @@ Node.prototype.prev = function prev () {
 };
 
 Node.prototype.insertAt = function insertAt (node, index) {
-    var this$1 = this;
+    var this$1$1 = this;
     if ( index === void 0 ) index = this.children.length;
 
   if (!node) {
@@ -1283,7 +1201,7 @@ Node.prototype.insertAt = function insertAt (node, index) {
   if (Array.isArray(node)) {
     node
       .reverse()
-      .map(function (n) { return this$1.insertAt(n, index); });
+      .map(function (n) { return this$1$1.insertAt(n, index); });
 
     return new Selection(this.tree, [].concat( node ))
   }
@@ -1381,13 +1299,13 @@ Node.prototype.clone = function clone () {
 };
 
 Node.prototype.toJSON = function toJSON () {
-    var this$1 = this;
+    var this$1$1 = this;
 
   return {
     text: this.text,
     data: this.data,
     state: this.states,
-    children: this.children.map(function (node) { return this$1.tree.objectToNode(node).toJSON(); })
+    children: this.children.map(function (node) { return this$1$1.tree.objectToNode(node).toJSON(); })
   }
 };
 
@@ -1668,7 +1586,7 @@ function fetchDelay (ms) {
 }
 
 var Tree = function Tree (vm) {
-  var this$1 = this;
+  var this$1$1 = this;
 
   this.vm = vm;
   this.options = vm.opts;
@@ -1683,7 +1601,7 @@ var Tree = function Tree (vm) {
       var urlTemplate = createTemplate(template);
 
       return function (node) {
-        return get(urlTemplate(node)).catch(this$1.options.onFetchError)
+        return get(urlTemplate(node)).catch(this$1$1.options.onFetchError)
       }
     })(fetchData);
   }
@@ -1746,7 +1664,7 @@ Tree.prototype.sortTree = function sortTree (compareFn, deep) {
 };
 
 Tree.prototype.sort = function sort (query, compareFn, deep) {
-    var this$1 = this;
+    var this$1$1 = this;
 
   var targetNode = this.find(query, true);
 
@@ -1755,7 +1673,7 @@ Tree.prototype.sort = function sort (query, compareFn, deep) {
   }
 
   targetNode.forEach(function (node) {
-    this$1._sort(node.children, compareFn, deep);
+    this$1$1._sort(node.children, compareFn, deep);
   });
 };
 
@@ -1844,7 +1762,7 @@ Tree.prototype.checked = function checked () {
 };
 
 Tree.prototype.loadChildren = function loadChildren (node) {
-    var this$1 = this;
+    var this$1$1 = this;
 
   if (!node) {
     return
@@ -1861,7 +1779,7 @@ Tree.prototype.loadChildren = function loadChildren (node) {
       node.append(children);
       node.isBatch = false;
 
-      if (this$1.options.autoCheckChildren) {
+      if (this$1$1.options.autoCheckChildren) {
         if (node.checked()) {
           node.recurseDown(function (child) {
             child.state('checked', true);
@@ -1871,7 +1789,7 @@ Tree.prototype.loadChildren = function loadChildren (node) {
         node.refreshIndeterminateState();
       }
 
-      this$1.$emit('tree:data:received', node);
+      this$1$1.$emit('tree:data:received', node);
     });
 
   return Promise.all([
@@ -1887,7 +1805,7 @@ Tree.prototype.loadChildren = function loadChildren (node) {
 };
 
 Tree.prototype.fetch = function fetch (node, parseData) {
-    var this$1 = this;
+    var this$1$1 = this;
 
   var result = this.options.fetchData(node);
 
@@ -1903,7 +1821,7 @@ Tree.prototype.fetch = function fetch (node, parseData) {
   return result
     .then(function (data) {
       try {
-        return this$1.parse(data, this$1.options.modelParse)
+        return this$1$1.parse(data, this$1$1.options.modelParse)
       } catch (e) {
         throw new Error(e)
       }
@@ -1922,14 +1840,14 @@ Tree.prototype.fetchInitData = function fetchInitData () {
 };
 
 Tree.prototype.setModel = function setModel (data) {
-    var this$1 = this;
+    var this$1$1 = this;
 
   return new Promise(function (resolve) {
-    this$1.model = this$1.parse(data, this$1.options.modelParse);
+    this$1$1.model = this$1$1.parse(data, this$1$1.options.modelParse);
 
     /* eslint-disable */
     requestAnimationFrame(function (_) {
-      this$1.vm.model = this$1.model;
+      this$1$1.vm.model = this$1$1.model;
       resolve();
     });
     /* eslint-enable */
@@ -1938,48 +1856,48 @@ Tree.prototype.setModel = function setModel (data) {
     * VueJS transform properties to reactives when constructor is running
     * And we lose List object (extended from Array)
     */
-    this$1.selectedNodes = new List();
-    this$1.checkedNodes = new List();
+    this$1$1.selectedNodes = new List();
+    this$1$1.checkedNodes = new List();
 
-    recurseDown(this$1.model, function (node) {
-      node.tree = this$1;
+    recurseDown(this$1$1.model, function (node) {
+      node.tree = this$1$1;
 
       if (node.selected()) {
-        this$1.selectedNodes.add(node);
+        this$1$1.selectedNodes.add(node);
       }
 
       if (node.checked()) {
-        this$1.checkedNodes.add(node);
+        this$1$1.checkedNodes.add(node);
 
         if (node.parent) {
           node.parent.refreshIndeterminateState();
         }
       }
 
-      if (this$1.options.autoDisableChildren && node.disabled()) {
+      if (this$1$1.options.autoDisableChildren && node.disabled()) {
         node.recurseDown(function (child) {
           child.state('disabled', true);
         });
       }
     });
 
-    if (!this$1.options.multiple && this$1.selectedNodes.length) {
-      var top = this$1.selectedNodes.top();
+    if (!this$1$1.options.multiple && this$1$1.selectedNodes.length) {
+      var top = this$1$1.selectedNodes.top();
 
-      this$1.selectedNodes.forEach(function (node) {
+      this$1$1.selectedNodes.forEach(function (node) {
         if (top !== node) {
           node.state('selected', false);
         }
       });
 
-      this$1.selectedNodes
+      this$1$1.selectedNodes
         .empty()
         .add(top);
     }
 
     // Nodes can't be selected on init. By it's possible to select through API
-    if (this$1.options.checkOnSelect && this$1.options.checkbox) {
-      this$1.unselectAll();
+    if (this$1$1.options.checkOnSelect && this$1$1.options.checkbox) {
+      this$1$1.unselectAll();
     }
   })
 };
@@ -2013,7 +1931,7 @@ Tree.prototype.select = function select (node, extendList) {
 };
 
 Tree.prototype.selectAll = function selectAll () {
-    var this$1 = this;
+    var this$1$1 = this;
 
   if (!this.options.multiple) {
     return false
@@ -2022,7 +1940,7 @@ Tree.prototype.selectAll = function selectAll () {
   this.selectedNodes.empty();
 
   this.recurseDown(function (node) {
-    this$1.selectedNodes.add(
+    this$1$1.selectedNodes.add(
       node.select(true)
     );
   });
@@ -2205,14 +2123,14 @@ Tree.prototype.prevVisibleNode = function prevVisibleNode (node) {
 };
 
 Tree.prototype.addToModel = function addToModel (node, index) {
-    var this$1 = this;
+    var this$1$1 = this;
     if ( index === void 0 ) index = this.model.length;
 
   node = this.objectToNode(node);
 
   this.model.splice(index, 0, node);
   this.recurseDown(node, function (n) {
-    n.tree = this$1;
+    n.tree = this$1$1;
   });
 
   this.$emit('node:added', node);
@@ -2560,7 +2478,7 @@ function assert (truth, message) {
   }
 }
 
-function initEvents (vm) {
+function initEvents(vm) {
   var ref = vm.opts;
   var multiple = ref.multiple;
   var checkbox = ref.checkbox;
@@ -2609,14 +2527,14 @@ function initEvents (vm) {
 }
 
 var TreeMixin = {
-  mounted: function mounted () {
-    var this$1 = this;
+  mounted: function mounted() {
+    var this$1$1 = this;
 
     var tree = new Tree(this);
     var dataProvider;
 
     this.tree = tree;
-    this._provided.tree = tree;
+    // this._provided.tree = tree
 
     if (!this.data && this.opts.fetchData) {
       // Get initial data if we don't have a data directly
@@ -2635,19 +2553,19 @@ var TreeMixin = {
         data = [];
       }
 
-      if (this$1.opts.store) {
-        this$1.connectStore(this$1.opts.store);
+      if (this$1$1.opts.store) {
+        this$1$1.connectStore(this$1$1.opts.store);
       } else {
-        this$1.tree.setModel(data);
+        this$1$1.tree.setModel(data);
       }
 
-      if (this$1.loading) {
-        this$1.loading = false;
+      if (this$1$1.loading) {
+        this$1$1.loading = false;
       }
 
-      this$1.$emit('tree:mounted', this$1);
+      this$1$1.$emit('tree:mounted', this$1$1);
 
-      initEvents(this$1);
+      initEvents(this$1$1);
     });
 
     if (this.opts.keyboardNavigation !== false) {
@@ -2656,8 +2574,8 @@ var TreeMixin = {
   },
 
   methods: {
-    connectStore: function connectStore (store) {
-      var this$1 = this;
+    connectStore: function connectStore(store) {
+      var this$1$1 = this;
 
       var Store = store.store;
       var mutations = store.mutations;
@@ -2673,34 +2591,34 @@ var TreeMixin = {
 
       Store.subscribe(function (action, state) {
         if (!mutations) {
-          this$1.tree.setModel(getter());
+          this$1$1.tree.setModel(getter());
         } else if (mutations.includes(action.type)) {
-          this$1.tree.setModel(getter());
+          this$1$1.tree.setModel(getter());
         }
       });
 
       this.tree.setModel(getter());
 
       this.$on('LIQUOR_NOISE', function () {
-        this$1.$nextTick(function (_) {
-          dispatcher(this$1.toJSON());
+        this$1$1.$nextTick(function (_) {
+          dispatcher(this$1$1.toJSON());
         });
       });
     },
 
-    recurseDown: function recurseDown (fn) {
+    recurseDown: function recurseDown(fn) {
       this.tree.recurseDown(fn);
     },
 
-    selected: function selected () {
+    selected: function selected() {
       return this.tree.selected()
     },
 
-    checked: function checked () {
+    checked: function checked() {
       return this.tree.checked()
     },
 
-    append: function append (criteria, node) {
+    append: function append(criteria, node) {
       // append to model
       if (!node) {
         return this.tree.addToModel(criteria, this.tree.model.length)
@@ -2709,7 +2627,7 @@ var TreeMixin = {
       return this.tree.append(criteria, node)
     },
 
-    prepend: function prepend (criteria, node) {
+    prepend: function prepend(criteria, node) {
       if (!node) {
         return this.tree.addToModel(criteria, 0)
       }
@@ -2717,15 +2635,15 @@ var TreeMixin = {
       return this.tree.prepend(criteria, node)
     },
 
-    addChild: function addChild (criteria, node) {
+    addChild: function addChild(criteria, node) {
       return this.append(criteria, node)
     },
 
-    remove: function remove (criteria, multiple) {
+    remove: function remove(criteria, multiple) {
       return this.tree.remove(criteria, multiple)
     },
 
-    before: function before (criteria, node) {
+    before: function before(criteria, node) {
       if (!node) {
         return this.prepend(criteria)
       }
@@ -2733,7 +2651,7 @@ var TreeMixin = {
       return this.tree.before(criteria, node)
     },
 
-    after: function after (criteria, node) {
+    after: function after(criteria, node) {
       if (!node) {
         return this.append(criteria)
       }
@@ -2741,31 +2659,31 @@ var TreeMixin = {
       return this.tree.after(criteria, node)
     },
 
-    find: function find (criteria, multiple) {
+    find: function find(criteria, multiple) {
       return this.tree.find(criteria, multiple)
     },
 
-    findAll: function findAll (criteria) {
+    findAll: function findAll(criteria) {
       return this.tree.find(criteria, true)
     },
 
-    expandAll: function expandAll () {
+    expandAll: function expandAll() {
       return this.tree.expandAll()
     },
 
-    updateData: function updateData (criteria, callback) {
+    updateData: function updateData(criteria, callback) {
       return this.tree.updateData(criteria, callback)
     },
 
-    collapseAll: function collapseAll () {
+    collapseAll: function collapseAll() {
       return this.tree.collapseAll()
     },
 
-    sortTree: function sortTree (compareFn, deep) {
+    sortTree: function sortTree(compareFn, deep) {
       return this.tree.sortTree(compareFn, deep)
     },
 
-    sort: function sort () {
+    sort: function sort() {
       var ref;
 
       var args = [], len = arguments.length;
@@ -2773,25 +2691,25 @@ var TreeMixin = {
       return (ref = this.tree).sort.apply(ref, args)
     },
 
-    setModel: function setModel (data) {
+    setModel: function setModel(data) {
       return this.tree.setModel(data)
     },
 
-    getRootNode: function getRootNode () {
+    getRootNode: function getRootNode() {
       return this.tree.model.length === 1
         ? this.tree.model[0]
         : this.tree.model
     },
 
-    toJSON: function toJSON () {
+    toJSON: function toJSON() {
       return JSON.parse(
         JSON.stringify(this.model)
       )
     }
   }
 
-/*eslint semi: 0 */
-/* https://github.com/vuejs/rollup-plugin-vue/issues/169 */
+  /*eslint semi: 0 */
+  /* https://github.com/vuejs/rollup-plugin-vue/issues/169 */
 };
 
 var DropPosition = {
@@ -2936,7 +2854,7 @@ var TreeDnd = {
     },
 
     initDragListeners: function initDragListeners () {
-      var this$1 = this;
+      var this$1$1 = this;
 
       var dropPosition;
 
@@ -2946,79 +2864,79 @@ var TreeDnd = {
       };
 
       var onMouseUp = function (e) {
-        if (!this$1.$$startDragPosition) {
+        if (!this$1$1.$$startDragPosition) {
           e.stopPropagation();
         }
 
-        if (this$1.draggableNode) {
-          this$1.draggableNode.node.state('dragging', false);
+        if (this$1$1.draggableNode) {
+          this$1$1.draggableNode.node.state('dragging', false);
         }
 
-        if (this$1.$$dropDestination && this$1.tree.isNode(this$1.$$dropDestination) && this$1.$$dropDestination.vm) {
-          updateHelperClasses(this$1.$$dropDestination.vm.$el, null);
+        if (this$1$1.$$dropDestination && this$1$1.tree.isNode(this$1$1.$$dropDestination) && this$1$1.$$dropDestination.vm) {
+          updateHelperClasses(this$1$1.$$dropDestination.vm.$el, null);
 
           var cbResult = callDndCb(
-            [this$1.draggableNode.node, this$1.$$dropDestination, dropPosition],
-            this$1.tree.options.dnd,
+            [this$1$1.draggableNode.node, this$1$1.$$dropDestination, dropPosition],
+            this$1$1.tree.options.dnd,
             'onDragFinish'
           );
 
-          if (cbResult !== false && !(!this$1.$$dropDestination.isDropable() && dropPosition === DropPosition.ON || !dropPosition)) {
-            this$1.draggableNode.node.finishDragging(this$1.$$dropDestination, dropPosition);
-            this$1.draggableNode.node.parent = this$1.$$dropDestination;
+          if (cbResult !== false && !(!this$1$1.$$dropDestination.isDropable() && dropPosition === DropPosition.ON || !dropPosition)) {
+            this$1$1.draggableNode.node.finishDragging(this$1$1.$$dropDestination, dropPosition);
+            this$1$1.draggableNode.node.parent = this$1$1.$$dropDestination;
           }
 
-          this$1.$$dropDestination = null;
+          this$1$1.$$dropDestination = null;
         }
 
-        this$1.$$possibleDragNode = null;
-        this$1.$set(this$1, 'draggableNode', null);
+        this$1$1.$$possibleDragNode = null;
+        this$1$1.$set(this$1$1, 'draggableNode', null);
 
         removeListeners();
       };
 
       var onMouseMove = function (e) {
-        if (this$1.$$startDragPosition && !isMovingStarted(e, this$1.$$startDragPosition)) {
+        if (this$1$1.$$startDragPosition && !isMovingStarted(e, this$1$1.$$startDragPosition)) {
           return
         } else {
-          this$1.$$startDragPosition = null;
+          this$1$1.$$startDragPosition = null;
         }
 
-        if (this$1.$$possibleDragNode) {
-          if (this$1.$$possibleDragNode.startDragging() === false) {
+        if (this$1$1.$$possibleDragNode) {
+          if (this$1$1.$$possibleDragNode.startDragging() === false) {
             removeListeners();
-            this$1.$$possibleDragNode = null;
+            this$1$1.$$possibleDragNode = null;
 
             return
           }
 
-          this$1.$set(this$1, 'draggableNode', { node: this$1.$$possibleDragNode, left: 0, top: 0 });
-          this$1.$$possibleDragNode = null;
+          this$1$1.$set(this$1$1, 'draggableNode', { node: this$1$1.$$possibleDragNode, left: 0, top: 0 });
+          this$1$1.$$possibleDragNode = null;
         }
 
-        this$1.draggableNode.left = e.clientX;
-        this$1.draggableNode.top = e.clientY;
+        this$1$1.draggableNode.left = e.clientX;
+        this$1$1.draggableNode.top = e.clientY;
 
         var dropDestination = getDropDestination(e);
 
-        clearDropClasses(this$1.$el);
+        clearDropClasses(this$1$1.$el);
 
         if (dropDestination) {
           var dropDestinationId = dropDestination.getAttribute('data-id');
 
-          if (this$1.draggableNode.node.id === dropDestinationId) {
+          if (this$1$1.draggableNode.node.id === dropDestinationId) {
             return
           }
 
-          if (!this$1.$$dropDestination || this$1.$$dropDestination.id !== dropDestinationId) {
-            this$1.$$dropDestination = this$1.tree.getNodeById(dropDestinationId);
+          if (!this$1$1.$$dropDestination || this$1$1.$$dropDestination.id !== dropDestinationId) {
+            this$1$1.$$dropDestination = this$1$1.tree.getNodeById(dropDestinationId);
           }
 
-          if (this$1.$$dropDestination && this$1.draggableNode.node) {
-            var path = this$1.$$dropDestination.getPath();
+          if (this$1$1.$$dropDestination && this$1$1.draggableNode.node) {
+            var path = this$1$1.$$dropDestination.getPath();
 
-            if (path.includes(this$1.draggableNode.node)) {
-              this$1.$$dropDestination = null;
+            if (path.includes(this$1$1.draggableNode.node)) {
+              this$1$1.$$dropDestination = null;
               return
             }
           }
@@ -3026,12 +2944,12 @@ var TreeDnd = {
           dropPosition = getDropPosition(e, dropDestination);
 
           var cbResult = callDndCb(
-            [this$1.draggableNode.node, this$1.$$dropDestination, dropPosition],
-            this$1.tree.options.dnd,
+            [this$1$1.draggableNode.node, this$1$1.$$dropDestination, dropPosition],
+            this$1$1.tree.options.dnd,
             'onDragOn'
           );
 
-          var isDropable = this$1.$$dropDestination.isDropable() && cbResult !== false;
+          var isDropable = this$1$1.$$dropDestination.isDropable() && cbResult !== false;
 
           if (!isDropable && dropPosition === DropPosition.ON) {
             dropPosition = null;
@@ -3047,10 +2965,11 @@ var TreeDnd = {
   }
 };
 
-//
+var css_248z = "\n.tree {\n  overflow: auto;\n}\n.tree-root,\n.tree-children {\n  list-style: none;\n  padding: 0;\n}\n.tree > .tree-root,\n.tree > .tree-filter-empty {\n  padding: 3px;\n  box-sizing: border-box;\n}\n.tree.tree--draggable .tree-node:not(.selected) > .tree-content:hover {\n  background: transparent;\n}\n.drag-above,\n.drag-below,\n.drag-on {\n  position: relative;\n  z-index: 1;\n}\n.drag-on > .tree-content {\n  background: #fafcff;\n  outline: 1px solid #7baff2;\n}\n.drag-above > .tree-content::before,\n.drag-below > .tree-content::after {\n  display: block;\n  content: \"\";\n  position: absolute;\n  height: 8px;\n  left: 0;\n  right: 0;\n  z-index: 2;\n  box-sizing: border-box;\n  background-color: #3367d6;\n  border: 3px solid #3367d6;\n  background-clip: padding-box;\n  border-bottom-color: transparent;\n  border-top-color: transparent;\n  border-radius: 0;\n}\n.drag-above > .tree-content::before {\n  top: 0;\n  transform: translateY(-50%);\n}\n.drag-below > .tree-content::after {\n  bottom: 0;\n  transform: translateY(50%);\n}\n";
+styleInject(css_248z);
 
 var defaults = {
-  direction: 'ltr',
+  direction: "ltr",
   multiple: true,
   checkbox: false,
   checkOnSelect: false,
@@ -3066,37 +2985,39 @@ var defaults = {
   deletion: false,
   dnd: false,
   editing: false,
-  onFetchError: function(err) { throw err }
+  onFetchError: function (err) {
+    throw err;
+  },
 };
 
 var filterDefaults = {
-  emptyText: 'Nothing found!',
+  emptyText: "Nothing found!",
   matcher: function matcher(query, node) {
-    var isMatched = new RegExp(query, 'i').test(node.text);
+    var isMatched = new RegExp(query, "i").test(node.text);
 
     if (isMatched) {
-      if (node.parent && new RegExp(query, 'i').test(node.parent.text)) {
-        return false
+      if (node.parent && new RegExp(query, "i").test(node.parent.text)) {
+        return false;
       }
     }
 
-    return isMatched
+    return isMatched;
   },
   plainList: false,
-  showChildren: true
+  showChildren: true,
 };
 
-var script$1 = {
-  name: 'Tree',
+var _sfc_main = {
+  name: "Tree",
   components: {
     TreeNode: TreeNode$1,
-    DraggableNode: DraggableNode
+    DraggableNode: DraggableNode,
   },
 
   mixins: [TreeMixin, TreeDnd],
 
   provide: function (_) { return ({
-    tree: null
+    tree: null,
   }); },
 
   props: {
@@ -3104,28 +3025,24 @@ var script$1 = {
 
     options: {
       type: Object,
-      default: function (_) { return ({}); }
+      default: function (_) { return ({}); },
     },
 
     filter: String,
 
     tag: {
       type: String,
-      default: 'div'
-    }
+      default: "div",
+    },
   },
 
-  data: function data () {
+  data: function data() {
     // we should not mutating a prop directly...
     // that's why we have to create a new object
     // TODO: add method for changing options
     var opts = Object.assign({}, defaults, this.options);
 
-    opts.filter = Object.assign(
-      {},
-      filterDefaults,
-      opts.filter
-    );
+    opts.filter = Object.assign({}, filterDefaults, opts.filter);
 
     return {
       model: [],
@@ -3133,75 +3050,103 @@ var script$1 = {
       loading: false,
       opts: opts,
       matches: [],
-      draggableNode: null
-    }
+      draggableNode: null,
+    };
   },
 
   computed: {
     visibleModel: function visibleModel() {
-      return this.model.filter(function(node) {
-        return node && node.visible()
-      }) 
+      return this.model.filter(function (node) {
+        return node && node.visible();
+      });
     },
     visibleMatches: function visibleMatches() {
-      return this.matches.filter(function(node) {
-        return node && node.visible()
-      })
-    }
+      return this.matches.filter(function (node) {
+        return node && node.visible();
+      });
+    },
   },
-  
+
   watch: {
-    filter: function filter (term) {
+    filter: function filter(term) {
       this.tree.filter(term);
-    }
+    },
   },
 };
 
-/* script */
-var __vue_script__$3 = script$1;
-// For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
-script$1.__file = "TreeRoot.vue";
+var _hoisted_1 = ["innerHTML"];
 
-/* template */
-var __vue_render__$2 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c(_vm.tag,{tag:"component",class:{'tree': true, 'tree-loading': this.loading, 'tree--draggable' : !!this.draggableNode},attrs:{"role":"tree"}},[(_vm.filter && _vm.matches.length == 0)?[_c('div',{staticClass:"tree-filter-empty",domProps:{"innerHTML":_vm._s(_vm.opts.filter.emptyText)}})]:[_c('ul',{staticClass:"tree-root",on:{"dragstart":_vm.onDragStart}},[(_vm.opts.filter.plainList && _vm.matches.length > 0)?_vm._l((_vm.visibleMatches),function(node){return _c('TreeNode',{key:node.id,attrs:{"node":node,"options":_vm.opts}})}):_vm._l((_vm.visibleModel),function(node){return _c('TreeNode',{key:node.id,attrs:{"node":node,"options":_vm.opts}})})],2)],_vm._v(" "),(_vm.draggableNode)?_c('DraggableNode',{attrs:{"target":_vm.draggableNode}}):_vm._e()],2)};
-var __vue_staticRenderFns__$2 = [];
+function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
+  var _component_TreeNode = resolveComponent("TreeNode");
+  var _component_DraggableNode = resolveComponent("DraggableNode");
 
-  /* style */
-  var __vue_inject_styles__$3 = function (inject) {
-    if (!inject) { return }
-    inject("data-v-4e922099_0", { source: ".tree{overflow:auto}.tree-children,.tree-root{list-style:none;padding:0}.tree>.tree-filter-empty,.tree>.tree-root{padding:3px;box-sizing:border-box}.tree.tree--draggable .tree-node:not(.selected)>.tree-content:hover{background:0 0}.drag-above,.drag-below,.drag-on{position:relative;z-index:1}.drag-on>.tree-content{background:#fafcff;outline:1px solid #7baff2}.drag-above>.tree-content::before,.drag-below>.tree-content::after{display:block;content:'';position:absolute;height:8px;left:0;right:0;z-index:2;box-sizing:border-box;background-color:#3367d6;border:3px solid #3367d6;background-clip:padding-box;border-bottom-color:transparent;border-top-color:transparent;border-radius:0}.drag-above>.tree-content::before{top:0;transform:translateY(-50%)}.drag-below>.tree-content::after{bottom:0;transform:translateY(50%)}", map: undefined, media: undefined });
+  return (openBlock(), createBlock(resolveDynamicComponent($props.tag), {
+    role: "tree",
+    class: normalizeClass({
+      tree: true,
+      'tree-loading': $data.loading,
+      'tree--draggable': !!$data.draggableNode,
+    })
+  }, {
+    default: withCtx(function () { return [
+      ($props.filter && $data.matches.length == 0)
+        ? (openBlock(), createElementBlock("div", {
+            key: 0,
+            class: "tree-filter-empty",
+            innerHTML: $data.opts.filter.emptyText
+          }, null, 8 /* PROPS */, _hoisted_1))
+        : (openBlock(), createElementBlock("ul", {
+            key: 1,
+            class: "tree-root",
+            onDragstart: _cache[0] || (_cache[0] = function () {
+              var args = [], len = arguments.length;
+              while ( len-- ) args[ len ] = arguments[ len ];
 
-  };
-  /* scoped */
-  var __vue_scope_id__$3 = undefined;
-  /* module identifier */
-  var __vue_module_identifier__$3 = undefined;
-  /* functional template */
-  var __vue_is_functional_template__$3 = false;
-  /* style inject SSR */
-  
+              return (_ctx.onDragStart && _ctx.onDragStart.apply(_ctx, args));
+      })
+          }, [
+            ($data.opts.filter.plainList && $data.matches.length > 0)
+              ? (openBlock(true), createElementBlock(Fragment, { key: 0 }, renderList($options.visibleMatches, function (node) {
+                  return (openBlock(), createBlock(_component_TreeNode, {
+                    key: node.id,
+                    node: node,
+                    options: $data.opts
+                  }, null, 8 /* PROPS */, ["node", "options"]))
+                }), 128 /* KEYED_FRAGMENT */))
+              : (openBlock(true), createElementBlock(Fragment, { key: 1 }, renderList($options.visibleModel, function (node) {
+                  return (openBlock(), createBlock(_component_TreeNode, {
+                    key: node.id,
+                    node: node,
+                    options: $data.opts
+                  }, null, 8 /* PROPS */, ["node", "options"]))
+                }), 128 /* KEYED_FRAGMENT */))
+          ], 32 /* NEED_HYDRATION */)),
+      ($data.draggableNode)
+        ? (openBlock(), createBlock(_component_DraggableNode, {
+            key: 2,
+            target: $data.draggableNode
+          }, null, 8 /* PROPS */, ["target"]))
+        : createCommentVNode("v-if", true)
+    ]; }),
+    _: 1 /* STABLE */
+  }, 8 /* PROPS */, ["class"]))
+}
+var TreeRoot = /*#__PURE__*/_export_sfc(_sfc_main, [['render',_sfc_render]]);
 
-  
-  var TreeRoot = normalizeComponent(
-    { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
-    __vue_inject_styles__$3,
-    __vue_script__$3,
-    __vue_scope_id__$3,
-    __vue_is_functional_template__$3,
-    __vue_module_identifier__$3,
-    createInjector,
-    undefined
-  );
+// const install = (app) => {
+//   app.component(TreeRoot.name, TreeRoot);
+// };
 
-var install = function (Vue) {
-  Vue.component(TreeRoot.name, TreeRoot);
+// TreeRoot.install = install;
+
+// if (typeof window !== 'undefined' && window.Vue) {
+//   window.Vue.use(TreeRoot);
+// }
+
+var main = {
+  install: function install(app) {
+    app.component(TreeRoot.name, TreeRoot);  },
 };
 
-TreeRoot.install = install;
-
-if (typeof window !== 'undefined' && window.Vue) {
-  window.Vue.use(TreeRoot);
-}
-
-export default TreeRoot;
+export { main as default };
 //# sourceMappingURL=liquor-tree.esm.js.map

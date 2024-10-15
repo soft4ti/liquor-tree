@@ -1,38 +1,42 @@
-import pkg from './package.json'
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');
 import vue from '@vitejs/plugin-vue';
-import buble from 'rollup-plugin-buble'
-import { terser } from '@rollup/plugin-terser'
-import alias from '@rollup/plugin-alias'
-import serve from 'rollup-plugin-serve'
-import postcss from 'rollup-plugin-postcss'
+import { babel } from '@rollup/plugin-babel';
+import { terser } from 'rollup-plugin-terser';
+import alias from '@rollup/plugin-alias';
+import serve from 'rollup-plugin-serve';
+import styles from '@rollup/plugin-styles';
 
-const version = pkg.version
+const version = pkg.version;
 const banner = `
 /*!
  * LiquorTree v${version}
  * (c) ${new Date().getFullYear()} amsik
  * Released under the MIT License.
  */
-`
+`;
 
 const plugins = [
   alias({
     resolve: ['.vue', '.js'],
   }),
   vue(),
-  postcss(),
-  buble({
-    objectAssign: 'Object.assign',
-    exclude: '**/*.css'
-  })
-]
+  styles(),
+  babel({
+    babelHelpers: 'bundled',
+    exclude: 'node_modules/**',
+    presets: ['@babel/preset-env']
+  }),
+  terser()
+];
 
 const outputES = {
   file: pkg.module,
   format: 'es',
   sourcemap: true,
   banner
-}
+};
 
 const outputUMD = {
   file: pkg.main,
@@ -43,7 +47,7 @@ const outputUMD = {
   globals: {
     vue: 'Vue'
   }
-}
+};
 
 const config = [
   {
@@ -57,27 +61,17 @@ const config = [
     input: 'src/main.js',
     output: outputUMD,
     cache: false,
-    plugins: plugins.concat('production' !== process.env.NODE_ENV ? [] : terser({
-      output: {
-        comments: function (node, comment) {
-          var text = comment.value;
-          var type = comment.type;
-          if (type == "comment2") {
-            return /license/i.test(text);
-          }
-        }
-      }
-    })),
+    plugins,
     external: ['vue']
   },
-]
+];
 
 if ('development' == process.env.NODE_ENV) {
-  config[0].plugins.push(serve({
+  config.plugins.push(serve({
     contentBase: ['dist', 'demo'],
     port: 8081,
     open: true
-  }))
+  }));
 }
 
-export default config
+export default config;
