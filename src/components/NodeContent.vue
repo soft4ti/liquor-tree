@@ -1,55 +1,63 @@
 <script>
-  const NodeContent = {
-    name: 'node-content',
-    props: ['node'],
-    render (h) {
-      const node = this.node
-      const vm = this.node.tree.vm
+import { h, ref, nextTick } from "vue";
 
-      if (node.isEditing) {
-        let nodeText = node.text
-
-        this.$nextTick(_ => {
-          this.$refs.editCtrl.focus()
-        })
-
-        return h('input', {
-          domProps: {
-            value: node.text,
-            type: 'text'
-          },
-          class: 'tree-input',
-          on: {
-            input (e) {
-              nodeText = e.target.value
-            },
-            blur () {
-              node.stopEditing(nodeText)
-            },
-            keyup (e) {
-              if (e.keyCode === 13) {
-                node.stopEditing(nodeText)
-              }
-            },
-            mouseup (e) {
-              e.stopPropagation()
-            }
-          },
-          ref: 'editCtrl'
-        })
+const NodeContent = {
+  name: "node-content",
+  props: ["node"],
+  data() {
+    return {
+      nodeText: this.node.text,
+    };
+  },
+  methods: {
+    focusInput() {
+      nextTick(() => {
+        this.$refs.editCtrl.focus();
+      });
+    },
+    handleInput(e) {
+      this.nodeText = e.target.value;
+    },
+    handleBlur() {
+      this.node.stopEditing(this.nodeText);
+    },
+    handleKeyup(e) {
+      if (e.keyCode === 13) {
+        this.node.stopEditing(this.nodeText);
       }
+    },
+    handleMouseup(e) {
+      e.stopPropagation();
+    },
+  },
+  render() {
+    const node = this.node;
+    const vm = this.node.tree.vm;
 
-      if (vm.$scopedSlots.default) {
-        return vm.$scopedSlots.default({ node: this.node })
-      }
+    if (node.isEditing) {
+      this.focusInput();
 
-      return h('span', {
-        domProps: {
-          innerHTML: node.text
-        }
-      })
+      return h("input", {
+        value: this.nodeText,
+        type: "text",
+        class: "tree-input",
+        onInput: this.handleInput,
+        onBlur: this.handleBlur,
+        onKeyup: this.handleKeyup,
+        onMouseup: this.handleMouseup,
+        ref: "editCtrl",
+      });
     }
-  }
 
-  export default NodeContent
+    if (vm.$slots.default) {
+      return vm.$slots.default({ node: this.node });
+    }
+
+    return h("span", {
+      innerHTML: node.text,
+    });
+  },
+};
+
+export default NodeContent;
 </script>

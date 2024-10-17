@@ -96,14 +96,17 @@ export default {
   }),
 
   props: {
-    data: {},
+    data: {
+      type: Object,
+      default: (_) => ({}),
+    },
 
     options: {
       type: Object,
       default: (_) => ({}),
     },
 
-    filter: String,
+    filter: { type: String, default: "" },
 
     tag: {
       type: String,

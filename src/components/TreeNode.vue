@@ -49,7 +49,10 @@
     </div>
 
     <transition name="l-fade">
-      <ul v-if="hasChildren() && node.states.expanded" class="tree-children">
+      <ul
+        v-if="hasChildren() && node.states.expanded"
+        class="tree-children"
+      >
         <node
           v-for="child in visibleChildren"
           :key="child.id"

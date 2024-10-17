@@ -1,698 +1,706 @@
-import { recurseDown } from '../utils/recurse'
-import find from '../utils/find'
-import uuidV4 from '../utils/uuidV4'
-import Selection from '../lib/Selection'
+import { recurseDown } from "../utils/recurse";
+import find from "../utils/find";
+import uuidV4 from "../utils/uuidV4";
+import Selection from "../lib/Selection";
 
 export default class Node {
-  constructor (tree, item) {
+  constructor(tree, item) {
     if (!item) {
-      throw new Error('Node can not be empty')
+      throw new Error("Node can not be empty");
     }
 
-    this.id = item.id || uuidV4()
-    this.states = item.state || {}
+    this.id = item.id || uuidV4();
+    this.states = item.state || {};
 
-    this.showChildren = true
-    this.children = item.children || []
-    this.parent = item.parent || null
+    this.showChildren = true;
+    this.children = item.children || [];
+    this.parent = item.parent || null;
 
-    this.isBatch = item.isBatch || false
-    this.isEditing = false
+    this.isBatch = item.isBatch || false;
+    this.isEditing = false;
 
     this.data = Object.assign({}, item.data || {}, {
-      text: item.text
-    })
+      text: item.text,
+    });
 
     if (!tree) {
-      throw new Error('Node must have a Tree context!')
+      throw new Error("Node must have a Tree context!");
     }
 
-    this.tree = tree
+    this.tree = tree;
   }
 
-  $emit (evnt, ...args) {
-    this.tree.$emit(`node:${evnt}`, this, ...args)
+  $emit(evnt, ...args) {
+    this.tree.$emit(`node:${evnt}`, this, ...args);
   }
 
-  getPath () {
+  getPath() {
     if (!this.parent) {
-      return [this]
+      return [this];
     }
 
-    const path = [this]
-    let el = this
+    const path = [this];
+    let el = this;
 
     while ((el = el.parent) !== null) {
-      path.push(el)
+      path.push(el);
     }
 
-    return path
+    return path;
   }
 
-  get key () {
-    return this.id + this.text
+  get key() {
+    return this.id + this.text;
   }
 
-  get depth () {
-    let depth = 0
-    let parent = this.parent
+  get depth() {
+    let depth = 0;
+    let parent = this.parent;
 
     if (!parent || this.showChildren === false) {
-      return depth
+      return depth;
     }
 
     do {
-      depth++
-    } while (parent = parent.parent)
+      depth++;
+    } while ((parent = parent.parent));
 
-    return depth
+    return depth;
   }
 
-  get text () {
-    return this.data.text
+  get text() {
+    return this.data.text;
   }
 
-  set text (text) {
-    const oldText = this.text
+  set text(text) {
+    const oldText = this.text;
 
     if (oldText !== text) {
-      this.data.text = text
-      this.$emit('text:changed', text, oldText)
+      this.data.text = text;
+      this.$emit("text:changed", text, oldText);
     }
   }
 
-  setData (data) {
-    this.data = Object.assign({}, this.data, data)
+  setData(data) {
+    this.data = Object.assign({}, this.data, data);
 
-    this.$emit('data:changed', this.data)
+    this.$emit("data:changed", this.data);
 
-    return this.data
+    return this.data;
   }
 
-  state (name, value) {
+  state(name, value) {
     if (undefined === value) {
-      return this.states[name]
+      return this.states[name];
     }
 
     // TODO: check if it for example `selectable` state it should unselect node
 
-    this.states[name] = value
+    this.states[name] = value;
 
-    return this
+    return this;
   }
 
-  recurseUp (fn, node = this) {
+  recurseUp(fn, node = this) {
     if (!node.parent) {
-      return
+      return;
     }
 
     if (fn(node.parent) !== false) {
-      return this.recurseUp(fn, node.parent)
+      return this.recurseUp(fn, node.parent);
     }
   }
 
-  recurseDown (fn, ignoreThis) {
+  recurseDown(fn, ignoreThis) {
     if (ignoreThis !== true) {
-      fn(this)
+      fn(this);
     }
 
     if (this.hasChildren()) {
-      recurseDown(this.children, fn)
+      recurseDown(this.children, fn);
     }
   }
 
-  refreshIndeterminateState () {
+  refreshIndeterminateState() {
     if (!this.tree.options.autoCheckChildren) {
-      return this
+      return this;
     }
 
-    this.state('indeterminate', false)
+    this.state("indeterminate", false);
 
     if (this.hasChildren()) {
-      const childrenCount = this.children.length
-      let checked = 0
-      let indeterminate = 0
-      let disabled = 0
+      const childrenCount = this.children.length;
+      let checked = 0;
+      let indeterminate = 0;
+      let disabled = 0;
 
-      this.children.forEach(child => {
+      this.children.forEach((child) => {
         if (child.checked()) {
-          checked++
+          checked++;
         }
 
         if (child.disabled()) {
-          disabled++
+          disabled++;
         }
 
         if (child.indeterminate()) {
-          indeterminate++
+          indeterminate++;
         }
-      })
+      });
 
       if (checked > 0 && checked === childrenCount - disabled) {
         if (!this.checked()) {
-          this.state('checked', true)
-          this.tree.check(this)
+          this.state("checked", true);
+          this.tree.check(this);
 
-          this.$emit('checked')
+          this.$emit("checked");
         }
       } else {
         if (this.checked()) {
-          this.state('checked', false)
-          this.tree.uncheck(this)
+          this.state("checked", false);
+          this.tree.uncheck(this);
 
-          this.$emit('unchecked')
+          this.$emit("unchecked");
         }
 
         this.state(
-          'indeterminate',
-          indeterminate > 0 || (checked > 0 && checked < childrenCount)
-        )
+          "indeterminate",
+          indeterminate > 0 || (checked > 0 && checked < childrenCount),
+        );
       }
     }
 
     if (this.parent) {
-      this.parent.refreshIndeterminateState()
+      this.parent.refreshIndeterminateState();
     }
   }
 
-  indeterminate () {
-    return this.state('indeterminate')
+  indeterminate() {
+    return this.state("indeterminate");
   }
 
-  editable () {
-    return !this.state('disabled') && this.state('editable')
+  editable() {
+    return !this.state("disabled") && this.state("editable");
   }
 
-  selectable () {
-    return !this.state('disabled') && this.state('selectable')
+  selectable() {
+    return !this.state("disabled") && this.state("selectable");
   }
 
-  selected () {
-    return this.state('selected')
+  selected() {
+    return this.state("selected");
   }
 
-  select (extendList) {
+  select(extendList) {
     if (!this.selectable() || this.selected()) {
-      return this
+      return this;
     }
 
-    this.tree.select(this, extendList)
+    this.tree.select(this, extendList);
 
-    this.state('selected', true)
-    this.$emit('selected')
+    this.state("selected", true);
+    this.$emit("selected");
 
-    return this
+    return this;
   }
 
-  unselect () {
+  unselect() {
     if (!this.selectable() || !this.selected()) {
-      return this
+      return this;
     }
 
-    this.tree.unselect(this)
+    this.tree.unselect(this);
 
-    this.state('selected', false)
-    this.$emit('unselected')
+    this.state("selected", false);
+    this.$emit("unselected");
 
-    return this
+    return this;
   }
 
-  checked () {
-    return this.state('checked')
+  checked() {
+    return this.state("checked");
   }
 
-  check () {
+  check() {
     if (this.checked() || this.disabled()) {
-      return this
+      return this;
     }
 
     if (this.indeterminate()) {
-      return this.uncheck()
+      return this.uncheck();
     }
 
-    const checkDisabledChildren = this.tree.options.checkDisabledChildren
-    const targetNode = this
+    const checkDisabledChildren = this.tree.options.checkDisabledChildren;
+    const targetNode = this;
 
     if (this.tree.options.autoCheckChildren) {
-      this.recurseDown(node => {
-        node.state('indeterminate', false)
+      this.recurseDown((node) => {
+        node.state("indeterminate", false);
 
         if (node.disabled() && !checkDisabledChildren) {
-          return
+          return;
         }
 
         if (!node.checked()) {
-          this.tree.check(node)
+          this.tree.check(node);
 
-          node.state('checked', true)
-          node.$emit('checked', node.id === targetNode.id ? undefined : targetNode)
+          node.state("checked", true);
+          node.$emit(
+            "checked",
+            node.id === targetNode.id ? undefined : targetNode,
+          );
         }
-      })
+      });
 
       if (this.parent) {
-        this.parent.refreshIndeterminateState()
+        this.parent.refreshIndeterminateState();
       }
     } else {
-      this.tree.check(this)
+      this.tree.check(this);
 
-      this.state('checked', true)
-      this.$emit('checked')
+      this.state("checked", true);
+      this.$emit("checked");
     }
 
-    return this
+    return this;
   }
 
-  uncheck () {
-    if (!this.indeterminate() && !this.checked() || this.disabled()) {
-      return this
+  uncheck() {
+    if ((!this.indeterminate() && !this.checked()) || this.disabled()) {
+      return this;
     }
 
-    const targetNode = this
+    const targetNode = this;
 
     if (this.tree.options.autoCheckChildren) {
-      this.recurseDown(node => {
-        node.state('indeterminate', false)
+      this.recurseDown((node) => {
+        node.state("indeterminate", false);
 
         if (node.checked()) {
-          this.tree.uncheck(node)
+          this.tree.uncheck(node);
 
-          node.state('checked', false)
-          node.$emit('unchecked', node.id === targetNode.id ? undefined : targetNode)
+          node.state("checked", false);
+          node.$emit(
+            "unchecked",
+            node.id === targetNode.id ? undefined : targetNode,
+          );
         }
-      })
+      });
 
       if (this.parent) {
-        this.parent.refreshIndeterminateState()
+        this.parent.refreshIndeterminateState();
       }
     } else {
-      this.tree.uncheck(this)
+      this.tree.uncheck(this);
 
-      this.state('checked', false)
-      this.$emit('unchecked')
+      this.state("checked", false);
+      this.$emit("unchecked");
     }
 
-    return this
+    return this;
   }
 
-  show () {
+  show() {
     if (this.visible()) {
-      return this
+      return this;
     }
 
-    this.state('visible', true)
-    this.$emit('shown')
+    this.state("visible", true);
+    this.$emit("shown");
 
-    return this
+    return this;
   }
 
-  hide () {
+  hide() {
     if (this.hidden()) {
-      return this
+      return this;
     }
 
-    this.state('visible', false)
-    this.$emit('hidden')
+    this.state("visible", false);
+    this.$emit("hidden");
 
-    return this
+    return this;
   }
 
-  visible () {
-    return this.state('visible')
+  visible() {
+    return this.state("visible");
   }
 
-  hidden () {
-    return !this.state('visible')
+  hidden() {
+    return !this.state("visible");
   }
 
-  enable () {
+  enable() {
     if (this.enabled()) {
-      return this
+      return this;
     }
 
     if (this.tree.options.autoDisableChildren) {
-      this.recurseDown(node => {
+      this.recurseDown((node) => {
         if (node.disabled()) {
-          node.state('disabled', false)
-          node.$emit('enabled')
+          node.state("disabled", false);
+          node.$emit("enabled");
         }
-      })
+      });
     } else {
-      this.state('disabled', false)
-      this.$emit('enabled')
+      this.state("disabled", false);
+      this.$emit("enabled");
     }
 
-    return this
+    return this;
   }
 
-  enabled () {
-    return !this.state('disabled')
+  enabled() {
+    return !this.state("disabled");
   }
 
-  disable () {
+  disable() {
     if (this.disabled()) {
-      return this
+      return this;
     }
 
     if (this.tree.options.autoDisableChildren) {
-      this.recurseDown(node => {
+      this.recurseDown((node) => {
         if (node.enabled()) {
-          node.state('disabled', true)
-          node.$emit('disabled')
+          node.state("disabled", true);
+          node.$emit("disabled");
         }
-      })
+      });
     } else {
-      this.state('disabled', true)
-      this.$emit('disabled')
+      this.state("disabled", true);
+      this.$emit("disabled");
     }
 
-    return this
+    return this;
   }
 
-  disabled () {
-    return this.state('disabled')
+  disabled() {
+    return this.state("disabled");
   }
 
-  expandTop (ignoreEvent) {
-    this.recurseUp(parent => {
-      parent.state('expanded', true)
+  expandTop(ignoreEvent) {
+    this.recurseUp((parent) => {
+      parent.state("expanded", true);
 
       if (ignoreEvent !== true) {
-        this.$emit('expanded', parent)
+        this.$emit("expanded", parent);
       }
-    })
+    });
   }
 
-  expand () {
+  expand() {
     if (!this.canExpand()) {
-      return this
+      return this;
     }
 
     if (this.isBatch) {
-      this.tree.loadChildren(this).then(_ => {
-        this.state('expanded', true)
-        this.$emit('expanded')
-      })
+      this.tree.loadChildren(this).then((_) => {
+        this.state("expanded", true);
+        this.$emit("expanded");
+      });
     } else {
-      this.state('expanded', true)
-      this.$emit('expanded')
+      this.state("expanded", true);
+      this.$emit("expanded");
     }
 
-    return this
+    return this;
   }
 
-  canExpand () {
-    return this.collapsed() &&
-      (!this.tree.autoDisableChildren || this.disabled())
+  canExpand() {
+    return (
+      this.collapsed() && (!this.tree.autoDisableChildren || this.disabled())
+    );
   }
 
-  canCollapse () {
-    return this.expanded() &&
-      (!this.tree.autoDisableChildren || this.disabled())
+  canCollapse() {
+    return (
+      this.expanded() && (!this.tree.autoDisableChildren || this.disabled())
+    );
   }
 
-  expanded () {
-    return this.state('expanded')
+  expanded() {
+    return this.state("expanded");
   }
 
-  collapse () {
+  collapse() {
     if (!this.canCollapse()) {
-      return this
+      return this;
     }
 
-    this.state('expanded', false)
-    this.$emit('collapsed')
+    this.state("expanded", false);
+    this.$emit("collapsed");
 
-    return this
+    return this;
   }
 
-  collapsed () {
-    return !this.state('expanded')
+  collapsed() {
+    return !this.state("expanded");
   }
 
-  toggleExpand () {
-    return this._toggleOpenedState()
+  toggleExpand() {
+    return this._toggleOpenedState();
   }
 
-  toggleCollapse () {
-    return this._toggleOpenedState()
+  toggleCollapse() {
+    return this._toggleOpenedState();
   }
 
-  _toggleOpenedState () {
+  _toggleOpenedState() {
     if (this.canCollapse()) {
-      return this.collapse()
+      return this.collapse();
     } else if (this.canExpand()) {
-      return this.expand()
+      return this.expand();
     }
   }
 
-  isDropable () {
-    return this.enabled() && this.state('dropable')
+  isDropable() {
+    return this.enabled() && this.state("dropable");
   }
 
-  isDraggable () {
-    return this.enabled() && this.state('draggable') && !this.isEditing
+  isDraggable() {
+    return this.enabled() && this.state("draggable") && !this.isEditing;
   }
 
-  startDragging () {
-    if (!this.isDraggable() || this.state('dragging')) {
-      return false
+  startDragging() {
+    if (!this.isDraggable() || this.state("dragging")) {
+      return false;
     }
 
     // root element
     if (this.isRoot() && this.tree.model.length === 1) {
-      return false
+      return false;
     }
 
     if (this.tree.options.store) {
-      this.tree.__silence = true
+      this.tree.__silence = true;
     }
 
-    this.select()
-    this.state('dragging', true)
-    this.$emit('dragging:start')
+    this.select();
+    this.state("dragging", true);
+    this.$emit("dragging:start");
 
-    this.tree.__silence = false
+    this.tree.__silence = false;
 
-    return true
+    return true;
   }
 
-  finishDragging (destination, destinationPosition) {
-    if (!destination.isDropable() && destinationPosition === 'drag-on') {
-      return
+  finishDragging(destination, destinationPosition) {
+    if (!destination.isDropable() && destinationPosition === "drag-on") {
+      return;
     }
 
-    const tree = this.tree
-    const clone = this.clone()
-    const parent = this.parent
+    const tree = this.tree;
+    const clone = this.clone();
+    const parent = this.parent;
 
-    clone.id = this.id
-    tree.__silence = true
+    clone.id = this.id;
+    tree.__silence = true;
 
-    this.remove()
+    this.remove();
 
-    if (destinationPosition === 'drag-on') {
-      tree.append(destination, clone)
-    } else if (destinationPosition === 'drag-below') {
-      tree.after(destination, clone)
-    } else if (destinationPosition === 'drag-above') {
-      tree.before(destination, clone)
+    if (destinationPosition === "drag-on") {
+      tree.append(destination, clone);
+    } else if (destinationPosition === "drag-below") {
+      tree.after(destination, clone);
+    } else if (destinationPosition === "drag-above") {
+      tree.before(destination, clone);
     }
 
-    destination.refreshIndeterminateState()
+    destination.refreshIndeterminateState();
 
-    parent && parent.refreshIndeterminateState()
-    tree.__silence = false
+    parent && parent.refreshIndeterminateState();
+    tree.__silence = false;
 
-    clone.state('dragging', false)
-    this.state('dragging', false)
+    clone.state("dragging", false);
+    this.state("dragging", false);
     // need to call emit on the clone, because we need to have node.parent filled in the event listener
-    clone.$emit('dragging:finish', destination, destinationPosition)
+    clone.$emit("dragging:finish", destination, destinationPosition);
 
-    if (clone.state('selected')) {
-      tree.selectedNodes.remove(this)
-      tree.selectedNodes.add(clone)
+    if (clone.state("selected")) {
+      tree.selectedNodes.remove(this);
+      tree.selectedNodes.add(clone);
 
-      tree.vm.$set(this.state, 'selected', false)
-      tree.vm.$set(clone.state, 'selected', true)
+      this.state.selected = false;
+      clone.state.selected = true;
+      // tree.vm.$set(this.state, 'selected', false)
+      // tree.vm.$set(clone.state, 'selected', true)
     }
 
     if (this.tree.options.store) {
-      this.tree.vm.$emit('LIQUOR_NOISE')
+      this.tree.vm.$emit("LIQUOR_NOISE");
     }
   }
 
-  startEditing () {
+  startEditing() {
     if (this.disabled()) {
-      return false
+      return false;
     }
 
     if (!this.isEditing) {
-      this.tree._editingNode = this
-      this.tree.activeElement = this
-      this.isEditing = true
-      this.$emit('editing:start')
+      this.tree._editingNode = this;
+      this.tree.activeElement = this;
+      this.isEditing = true;
+      this.$emit("editing:start");
     }
   }
 
-  stopEditing (newText) {
+  stopEditing(newText) {
     if (!this.isEditing) {
-      return
+      return;
     }
 
-    this.isEditing = false
-    this.tree._editingNode = null
-    this.tree.activeElement = null
+    this.isEditing = false;
+    this.tree._editingNode = null;
+    this.tree.activeElement = null;
 
-    const prevText = this.text
+    const prevText = this.text;
 
     if (newText && newText !== false && this.text !== newText) {
-      this.text = newText
+      this.text = newText;
     }
 
-    this.$emit('editing:stop', prevText)
+    this.$emit("editing:stop", prevText);
   }
 
-  index (verbose) {
-    return this.tree.index(this, verbose)
+  index(verbose) {
+    return this.tree.index(this, verbose);
   }
 
-  first () {
+  first() {
     if (!this.hasChildren()) {
-      return null
+      return null;
     }
 
-    return this.children[0]
+    return this.children[0];
   }
 
-  last () {
+  last() {
     if (!this.hasChildren()) {
-      return null
+      return null;
     }
 
-    return this.children[this.children.length - 1]
+    return this.children[this.children.length - 1];
   }
 
-  next () {
-    return this.tree.nextNode(this)
+  next() {
+    return this.tree.nextNode(this);
   }
 
-  prev () {
-    return this.tree.prevNode(this)
+  prev() {
+    return this.tree.prevNode(this);
   }
 
-  insertAt (node, index = this.children.length) {
+  insertAt(node, index = this.children.length) {
     if (!node) {
-      return
+      return;
     }
 
-    node = this.tree.objectToNode(node)
+    node = this.tree.objectToNode(node);
 
     if (Array.isArray(node)) {
-      node
-        .reverse()
-        .map(n => this.insertAt(n, index))
+      node.reverse().map((n) => this.insertAt(n, index));
 
-      return new Selection(this.tree, [...node])
+      return new Selection(this.tree, [...node]);
     }
 
-    node.parent = this
+    node.parent = this;
 
-    this.children.splice(
-      index, 0, node
-    )
+    this.children.splice(index, 0, node);
 
     if (node.disabled() && node.hasChildren()) {
-      node.recurseDown(child => {
-        child.state('disabled', true)
-      })
+      node.recurseDown((child) => {
+        child.state("disabled", true);
+      });
     }
 
     if (!this.isBatch) {
-      this.$emit('added', node)
+      this.$emit("added", node);
     }
 
-    return node
+    return node;
   }
 
-  addChild (node) {
-    return this.insertAt(node)
+  addChild(node) {
+    return this.insertAt(node);
   }
 
-  append (node) {
-    return this.addChild(node)
+  append(node) {
+    return this.addChild(node);
   }
 
-  prepend (node) {
-    return this.insertAt(node, 0)
+  prepend(node) {
+    return this.insertAt(node, 0);
   }
 
-  before (node) {
-    return this.tree.before(this, node)
+  before(node) {
+    return this.tree.before(this, node);
   }
 
-  after (node) {
-    return this.tree.after(this, node)
+  after(node) {
+    return this.tree.after(this, node);
   }
 
-  empty () {
-    let node
+  empty() {
+    let node;
 
-    while (node = this.children.pop()) {
-      node.remove()
+    while ((node = this.children.pop())) {
+      node.remove();
     }
 
-    return this
+    return this;
   }
 
-  remove () {
-    return this.tree.removeNode(this)
+  remove() {
+    return this.tree.removeNode(this);
   }
 
-  removeChild (criteria) {
-    const node = this.find(criteria)
+  removeChild(criteria) {
+    const node = this.find(criteria);
 
     if (node) {
-      return this.tree.removeNode(node)
+      return this.tree.removeNode(node);
     }
 
-    return null
+    return null;
   }
 
-  find (criteria, deep) {
+  find(criteria, deep) {
     if (this.tree.isNode(criteria)) {
-      return criteria
+      return criteria;
     }
 
-    return find(this.children, criteria, deep)
+    return find(this.children, criteria, deep);
   }
 
-  focus () {
+  focus() {
     if (this.vm) {
-      this.vm.focus()
+      this.vm.focus();
     }
   }
 
-  hasChildren () {
-    return this.showChildren && this.isBatch || this.children.length > 0
+  hasChildren() {
+    return (this.showChildren && this.isBatch) || this.children.length > 0;
   }
 
   /**
-  * Sometimes it's no need to have a parent. It possible to have more than 1 parent
-  */
-  isRoot () {
-    return this.parent === null
+   * Sometimes it's no need to have a parent. It possible to have more than 1 parent
+   */
+  isRoot() {
+    return this.parent === null;
   }
 
-  clone () {
-    return this.tree.objectToNode(this.toJSON())
+  clone() {
+    return this.tree.objectToNode(this.toJSON());
   }
 
-  toJSON () {
+  toJSON() {
     return {
       text: this.text,
       data: this.data,
       state: this.states,
-      children: this.children.map(node => this.tree.objectToNode(node).toJSON())
-    }
+      children: this.children.map((node) =>
+        this.tree.objectToNode(node).toJSON(),
+      ),
+    };
   }
 }

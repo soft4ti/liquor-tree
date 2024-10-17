@@ -1,5 +1,7 @@
-import TreeRoot from './components/TreeRoot.vue';
+import TreeRoot from "./components/TreeRoot.vue";
+// import { mitt } from "mitt";
 
+// const emitter = mitt;
 // const install = (app) => {
 //   app.component(TreeRoot.name, TreeRoot);
 // };
@@ -12,6 +14,7 @@ import TreeRoot from './components/TreeRoot.vue';
 
 export default {
   install(app) {
-    app.component(TreeRoot.name, TreeRoot);;
+    // app.config.globalProperties.$emitter = emitter;
+    app.component(TreeRoot.name, TreeRoot);
   },
 };

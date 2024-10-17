@@ -5,63 +5,69 @@
  * Released under the MIT License.
  */
 
-import { resolveComponent, openBlock, createElementBlock, normalizeClass, withModifiers, createElementVNode, normalizeStyle, createCommentVNode, createVNode, Transition, withCtx, Fragment, renderList, createBlock, toDisplayString, resolveDynamicComponent } from 'vue';
+import { nextTick, h, resolveComponent, openBlock, createElementBlock, normalizeClass, withModifiers, createElementVNode, normalizeStyle, createCommentVNode, createVNode, Transition, withCtx, Fragment, renderList, createBlock, toDisplayString, resolveDynamicComponent } from 'vue';
 
 var NodeContent = {
-    name: 'node-content',
-    props: ['node'],
-    render: function render (h) {
+  name: "node-content",
+  props: ["node"],
+  data: function data() {
+    return {
+      nodeText: this.node.text,
+    };
+  },
+  methods: {
+    focusInput: function focusInput() {
       var this$1$1 = this;
 
-      var node = this.node;
-      var vm = this.node.tree.vm;
-
-      if (node.isEditing) {
-        var nodeText = node.text;
-
-        this.$nextTick(function (_) {
-          this$1$1.$refs.editCtrl.focus();
-        });
-
-        return h('input', {
-          domProps: {
-            value: node.text,
-            type: 'text'
-          },
-          class: 'tree-input',
-          on: {
-            input: function input (e) {
-              nodeText = e.target.value;
-            },
-            blur: function blur () {
-              node.stopEditing(nodeText);
-            },
-            keyup: function keyup (e) {
-              if (e.keyCode === 13) {
-                node.stopEditing(nodeText);
-              }
-            },
-            mouseup: function mouseup (e) {
-              e.stopPropagation();
-            }
-          },
-          ref: 'editCtrl'
-        })
+      nextTick(function () {
+        this$1$1.$refs.editCtrl.focus();
+      });
+    },
+    handleInput: function handleInput(e) {
+      this.nodeText = e.target.value;
+    },
+    handleBlur: function handleBlur() {
+      this.node.stopEditing(this.nodeText);
+    },
+    handleKeyup: function handleKeyup(e) {
+      if (e.keyCode === 13) {
+        this.node.stopEditing(this.nodeText);
       }
+    },
+    handleMouseup: function handleMouseup(e) {
+      e.stopPropagation();
+    },
+  },
+  render: function render() {
+    var node = this.node;
+    var vm = this.node.tree.vm;
 
-      if (vm.$scopedSlots.default) {
-        return vm.$scopedSlots.default({ node: this.node })
-      }
+    if (node.isEditing) {
+      this.focusInput();
 
-      return h('span', {
-        domProps: {
-          innerHTML: node.text
-        }
-      })
+      return h("input", {
+        value: this.nodeText,
+        type: "text",
+        class: "tree-input",
+        onInput: this.handleInput,
+        onBlur: this.handleBlur,
+        onKeyup: this.handleKeyup,
+        onMouseup: this.handleMouseup,
+        ref: "editCtrl",
+      });
     }
-  };
 
-  var _sfc_main$3 = NodeContent;
+    if (vm.$slots.default) {
+      return vm.$slots.default({ node: this.node });
+    }
+
+    return h("span", {
+      innerHTML: node.text,
+    });
+  },
+};
+
+var _sfc_main$3 = NodeContent;
 
 function styleInject(css, ref) {
   if ( ref === void 0 ) { ref = {}; }
@@ -596,9 +602,9 @@ var Selection = /*@__PURE__*/(function (Array) {
   return Selection;
 }(Array));
 
-var Node = function Node (tree, item) {
+var Node = function Node(tree, item) {
   if (!item) {
-    throw new Error('Node can not be empty')
+    throw new Error("Node can not be empty");
   }
 
   this.id = item.id || uuidV4();
@@ -612,11 +618,11 @@ var Node = function Node (tree, item) {
   this.isEditing = false;
 
   this.data = Object.assign({}, item.data || {}, {
-    text: item.text
+    text: item.text,
   });
 
   if (!tree) {
-    throw new Error('Node must have a Tree context!')
+    throw new Error("Node must have a Tree context!");
   }
 
   this.tree = tree;
@@ -634,7 +640,7 @@ Node.prototype.$emit = function $emit (evnt) {
 
 Node.prototype.getPath = function getPath () {
   if (!this.parent) {
-    return [this]
+    return [this];
   }
 
   var path = [this];
@@ -644,11 +650,11 @@ Node.prototype.getPath = function getPath () {
     path.push(el);
   }
 
-  return path
+  return path;
 };
 
 prototypeAccessors.key.get = function () {
-  return this.id + this.text
+  return this.id + this.text;
 };
 
 prototypeAccessors.depth.get = function () {
@@ -656,18 +662,18 @@ prototypeAccessors.depth.get = function () {
   var parent = this.parent;
 
   if (!parent || this.showChildren === false) {
-    return depth
+    return depth;
   }
 
   do {
     depth++;
-  } while (parent = parent.parent)
+  } while ((parent = parent.parent));
 
-  return depth
+  return depth;
 };
 
 prototypeAccessors.text.get = function () {
-  return this.data.text
+  return this.data.text;
 };
 
 prototypeAccessors.text.set = function (text) {
@@ -675,39 +681,39 @@ prototypeAccessors.text.set = function (text) {
 
   if (oldText !== text) {
     this.data.text = text;
-    this.$emit('text:changed', text, oldText);
+    this.$emit("text:changed", text, oldText);
   }
 };
 
 Node.prototype.setData = function setData (data) {
   this.data = Object.assign({}, this.data, data);
 
-  this.$emit('data:changed', this.data);
+  this.$emit("data:changed", this.data);
 
-  return this.data
+  return this.data;
 };
 
 Node.prototype.state = function state (name, value) {
   if (undefined === value) {
-    return this.states[name]
+    return this.states[name];
   }
 
   // TODO: check if it for example `selectable` state it should unselect node
 
   this.states[name] = value;
 
-  return this
+  return this;
 };
 
 Node.prototype.recurseUp = function recurseUp (fn, node) {
     if ( node === void 0 ) node = this;
 
   if (!node.parent) {
-    return
+    return;
   }
 
   if (fn(node.parent) !== false) {
-    return this.recurseUp(fn, node.parent)
+    return this.recurseUp(fn, node.parent);
   }
 };
 
@@ -723,10 +729,10 @@ Node.prototype.recurseDown = function recurseDown$1 (fn, ignoreThis) {
 
 Node.prototype.refreshIndeterminateState = function refreshIndeterminateState () {
   if (!this.tree.options.autoCheckChildren) {
-    return this
+    return this;
   }
 
-  this.state('indeterminate', false);
+  this.state("indeterminate", false);
 
   if (this.hasChildren()) {
     var childrenCount = this.children.length;
@@ -750,21 +756,21 @@ Node.prototype.refreshIndeterminateState = function refreshIndeterminateState ()
 
     if (checked > 0 && checked === childrenCount - disabled) {
       if (!this.checked()) {
-        this.state('checked', true);
+        this.state("checked", true);
         this.tree.check(this);
 
-        this.$emit('checked');
+        this.$emit("checked");
       }
     } else {
       if (this.checked()) {
-        this.state('checked', false);
+        this.state("checked", false);
         this.tree.uncheck(this);
 
-        this.$emit('unchecked');
+        this.$emit("unchecked");
       }
 
       this.state(
-        'indeterminate',
+        "indeterminate",
         indeterminate > 0 || (checked > 0 && checked < childrenCount)
       );
     }
@@ -776,60 +782,60 @@ Node.prototype.refreshIndeterminateState = function refreshIndeterminateState ()
 };
 
 Node.prototype.indeterminate = function indeterminate () {
-  return this.state('indeterminate')
+  return this.state("indeterminate");
 };
 
 Node.prototype.editable = function editable () {
-  return !this.state('disabled') && this.state('editable')
+  return !this.state("disabled") && this.state("editable");
 };
 
 Node.prototype.selectable = function selectable () {
-  return !this.state('disabled') && this.state('selectable')
+  return !this.state("disabled") && this.state("selectable");
 };
 
 Node.prototype.selected = function selected () {
-  return this.state('selected')
+  return this.state("selected");
 };
 
 Node.prototype.select = function select (extendList) {
   if (!this.selectable() || this.selected()) {
-    return this
+    return this;
   }
 
   this.tree.select(this, extendList);
 
-  this.state('selected', true);
-  this.$emit('selected');
+  this.state("selected", true);
+  this.$emit("selected");
 
-  return this
+  return this;
 };
 
 Node.prototype.unselect = function unselect () {
   if (!this.selectable() || !this.selected()) {
-    return this
+    return this;
   }
 
   this.tree.unselect(this);
 
-  this.state('selected', false);
-  this.$emit('unselected');
+  this.state("selected", false);
+  this.$emit("unselected");
 
-  return this
+  return this;
 };
 
 Node.prototype.checked = function checked () {
-  return this.state('checked')
+  return this.state("checked");
 };
 
 Node.prototype.check = function check () {
     var this$1$1 = this;
 
   if (this.checked() || this.disabled()) {
-    return this
+    return this;
   }
 
   if (this.indeterminate()) {
-    return this.uncheck()
+    return this.uncheck();
   }
 
   var checkDisabledChildren = this.tree.options.checkDisabledChildren;
@@ -837,17 +843,20 @@ Node.prototype.check = function check () {
 
   if (this.tree.options.autoCheckChildren) {
     this.recurseDown(function (node) {
-      node.state('indeterminate', false);
+      node.state("indeterminate", false);
 
       if (node.disabled() && !checkDisabledChildren) {
-        return
+        return;
       }
 
       if (!node.checked()) {
         this$1$1.tree.check(node);
 
-        node.state('checked', true);
-        node.$emit('checked', node.id === targetNode.id ? undefined : targetNode);
+        node.state("checked", true);
+        node.$emit(
+          "checked",
+          node.id === targetNode.id ? undefined : targetNode
+        );
       }
     });
 
@@ -857,31 +866,34 @@ Node.prototype.check = function check () {
   } else {
     this.tree.check(this);
 
-    this.state('checked', true);
-    this.$emit('checked');
+    this.state("checked", true);
+    this.$emit("checked");
   }
 
-  return this
+  return this;
 };
 
 Node.prototype.uncheck = function uncheck () {
     var this$1$1 = this;
 
-  if (!this.indeterminate() && !this.checked() || this.disabled()) {
-    return this
+  if ((!this.indeterminate() && !this.checked()) || this.disabled()) {
+    return this;
   }
 
   var targetNode = this;
 
   if (this.tree.options.autoCheckChildren) {
     this.recurseDown(function (node) {
-      node.state('indeterminate', false);
+      node.state("indeterminate", false);
 
       if (node.checked()) {
         this$1$1.tree.uncheck(node);
 
-        node.state('checked', false);
-        node.$emit('unchecked', node.id === targetNode.id ? undefined : targetNode);
+        node.state("checked", false);
+        node.$emit(
+          "unchecked",
+          node.id === targetNode.id ? undefined : targetNode
+        );
       }
     });
 
@@ -891,99 +903,99 @@ Node.prototype.uncheck = function uncheck () {
   } else {
     this.tree.uncheck(this);
 
-    this.state('checked', false);
-    this.$emit('unchecked');
+    this.state("checked", false);
+    this.$emit("unchecked");
   }
 
-  return this
+  return this;
 };
 
 Node.prototype.show = function show () {
   if (this.visible()) {
-    return this
+    return this;
   }
 
-  this.state('visible', true);
-  this.$emit('shown');
+  this.state("visible", true);
+  this.$emit("shown");
 
-  return this
+  return this;
 };
 
 Node.prototype.hide = function hide () {
   if (this.hidden()) {
-    return this
+    return this;
   }
 
-  this.state('visible', false);
-  this.$emit('hidden');
+  this.state("visible", false);
+  this.$emit("hidden");
 
-  return this
+  return this;
 };
 
 Node.prototype.visible = function visible () {
-  return this.state('visible')
+  return this.state("visible");
 };
 
 Node.prototype.hidden = function hidden () {
-  return !this.state('visible')
+  return !this.state("visible");
 };
 
 Node.prototype.enable = function enable () {
   if (this.enabled()) {
-    return this
+    return this;
   }
 
   if (this.tree.options.autoDisableChildren) {
     this.recurseDown(function (node) {
       if (node.disabled()) {
-        node.state('disabled', false);
-        node.$emit('enabled');
+        node.state("disabled", false);
+        node.$emit("enabled");
       }
     });
   } else {
-    this.state('disabled', false);
-    this.$emit('enabled');
+    this.state("disabled", false);
+    this.$emit("enabled");
   }
 
-  return this
+  return this;
 };
 
 Node.prototype.enabled = function enabled () {
-  return !this.state('disabled')
+  return !this.state("disabled");
 };
 
 Node.prototype.disable = function disable () {
   if (this.disabled()) {
-    return this
+    return this;
   }
 
   if (this.tree.options.autoDisableChildren) {
     this.recurseDown(function (node) {
       if (node.enabled()) {
-        node.state('disabled', true);
-        node.$emit('disabled');
+        node.state("disabled", true);
+        node.$emit("disabled");
       }
     });
   } else {
-    this.state('disabled', true);
-    this.$emit('disabled');
+    this.state("disabled", true);
+    this.$emit("disabled");
   }
 
-  return this
+  return this;
 };
 
 Node.prototype.disabled = function disabled () {
-  return this.state('disabled')
+  return this.state("disabled");
 };
 
 Node.prototype.expandTop = function expandTop (ignoreEvent) {
     var this$1$1 = this;
 
   this.recurseUp(function (parent) {
-    parent.state('expanded', true);
+    parent.state("expanded", true);
 
     if (ignoreEvent !== true) {
-      this$1$1.$emit('expanded', parent);
+      this$1$1.$emit("expanded", parent);
     }
   });
 };
@@ -992,83 +1004,85 @@ Node.prototype.expand = function expand () {
     var this$1$1 = this;
 
   if (!this.canExpand()) {
-    return this
+    return this;
   }
 
   if (this.isBatch) {
     this.tree.loadChildren(this).then(function (_) {
-      this$1$1.state('expanded', true);
-      this$1$1.$emit('expanded');
+      this$1$1.state("expanded", true);
+      this$1$1.$emit("expanded");
     });
   } else {
-    this.state('expanded', true);
-    this.$emit('expanded');
+    this.state("expanded", true);
+    this.$emit("expanded");
   }
 
-  return this
+  return this;
 };
 
 Node.prototype.canExpand = function canExpand () {
-  return this.collapsed() &&
-    (!this.tree.autoDisableChildren || this.disabled())
+  return (
+    this.collapsed() && (!this.tree.autoDisableChildren || this.disabled())
+  );
 };
 
 Node.prototype.canCollapse = function canCollapse () {
-  return this.expanded() &&
-    (!this.tree.autoDisableChildren || this.disabled())
+  return (
+    this.expanded() && (!this.tree.autoDisableChildren || this.disabled())
+  );
 };
 
 Node.prototype.expanded = function expanded () {
-  return this.state('expanded')
+  return this.state("expanded");
 };
 
 Node.prototype.collapse = function collapse () {
   if (!this.canCollapse()) {
-    return this
+    return this;
   }
 
-  this.state('expanded', false);
-  this.$emit('collapsed');
+  this.state("expanded", false);
+  this.$emit("collapsed");
 
-  return this
+  return this;
 };
 
 Node.prototype.collapsed = function collapsed () {
-  return !this.state('expanded')
+  return !this.state("expanded");
 };
 
 Node.prototype.toggleExpand = function toggleExpand () {
-  return this._toggleOpenedState()
+  return this._toggleOpenedState();
 };
 
 Node.prototype.toggleCollapse = function toggleCollapse () {
-  return this._toggleOpenedState()
+  return this._toggleOpenedState();
 };
 
 Node.prototype._toggleOpenedState = function _toggleOpenedState () {
   if (this.canCollapse()) {
-    return this.collapse()
+    return this.collapse();
   } else if (this.canExpand()) {
-    return this.expand()
+    return this.expand();
   }
 };
 
 Node.prototype.isDropable = function isDropable () {
-  return this.enabled() && this.state('dropable')
+  return this.enabled() && this.state("dropable");
 };
 
 Node.prototype.isDraggable = function isDraggable () {
-  return this.enabled() && this.state('draggable') && !this.isEditing
+  return this.enabled() && this.state("draggable") && !this.isEditing;
 };
 
 Node.prototype.startDragging = function startDragging () {
-  if (!this.isDraggable() || this.state('dragging')) {
-    return false
+  if (!this.isDraggable() || this.state("dragging")) {
+    return false;
   }
 
   // root element
   if (this.isRoot() && this.tree.model.length === 1) {
-    return false
+    return false;
   }
 
   if (this.tree.options.store) {
@@ -1076,17 +1090,17 @@ Node.prototype.startDragging = function startDragging () {
   }
 
   this.select();
-  this.state('dragging', true);
-  this.$emit('dragging:start');
+  this.state("dragging", true);
+  this.$emit("dragging:start");
 
   this.tree.__silence = false;
 
-  return true
+  return true;
 };
 
 Node.prototype.finishDragging = function finishDragging (destination, destinationPosition) {
-  if (!destination.isDropable() && destinationPosition === 'drag-on') {
-    return
+  if (!destination.isDropable() && destinationPosition === "drag-on") {
+    return;
   }
 
   var tree = this.tree;
@@ -1098,11 +1112,11 @@ Node.prototype.finishDragging = function finishDragging (destination, destinatio
 
   this.remove();
 
-  if (destinationPosition === 'drag-on') {
+  if (destinationPosition === "drag-on") {
     tree.append(destination, clone);
-  } else if (destinationPosition === 'drag-below') {
+  } else if (destinationPosition === "drag-below") {
     tree.after(destination, clone);
-  } else if (destinationPosition === 'drag-above') {
+  } else if (destinationPosition === "drag-above") {
     tree.before(destination, clone);
   }
 
@@ -1111,40 +1125,42 @@ Node.prototype.finishDragging = function finishDragging (destination, destinatio
   parent && parent.refreshIndeterminateState();
   tree.__silence = false;
 
-  clone.state('dragging', false);
-  this.state('dragging', false);
+  clone.state("dragging", false);
+  this.state("dragging", false);
   // need to call emit on the clone, because we need to have node.parent filled in the event listener
-  clone.$emit('dragging:finish', destination, destinationPosition);
+  clone.$emit("dragging:finish", destination, destinationPosition);
 
-  if (clone.state('selected')) {
+  if (clone.state("selected")) {
     tree.selectedNodes.remove(this);
     tree.selectedNodes.add(clone);
 
-    tree.vm.$set(this.state, 'selected', false);
-    tree.vm.$set(clone.state, 'selected', true);
+    this.state.selected = false;
+    clone.state.selected = true;
+    // tree.vm.$set(this.state, 'selected', false)
+    // tree.vm.$set(clone.state, 'selected', true)
   }
 
   if (this.tree.options.store) {
-    this.tree.vm.$emit('LIQUOR_NOISE');
+    this.tree.vm.$emit("LIQUOR_NOISE");
   }
 };
 
 Node.prototype.startEditing = function startEditing () {
   if (this.disabled()) {
-    return false
+    return false;
   }
 
   if (!this.isEditing) {
     this.tree._editingNode = this;
     this.tree.activeElement = this;
     this.isEditing = true;
-    this.$emit('editing:start');
+    this.$emit("editing:start");
   }
 };
 
 Node.prototype.stopEditing = function stopEditing (newText) {
   if (!this.isEditing) {
-    return
+    return;
   }
 
   this.isEditing = false;
@@ -1157,35 +1173,35 @@ Node.prototype.stopEditing = function stopEditing (newText) {
     this.text = newText;
   }
 
-  this.$emit('editing:stop', prevText);
+  this.$emit("editing:stop", prevText);
 };
 
 Node.prototype.index = function index (verbose) {
-  return this.tree.index(this, verbose)
+  return this.tree.index(this, verbose);
 };
 
 Node.prototype.first = function first () {
   if (!this.hasChildren()) {
-    return null
+    return null;
   }
 
-  return this.children[0]
+  return this.children[0];
 };
 
 Node.prototype.last = function last () {
   if (!this.hasChildren()) {
-    return null
+    return null;
   }
 
-  return this.children[this.children.length - 1]
+  return this.children[this.children.length - 1];
 };
 
 Node.prototype.next = function next () {
-  return this.tree.nextNode(this)
+  return this.tree.nextNode(this);
 };
 
 Node.prototype.prev = function prev () {
-  return this.tree.prevNode(this)
+  return this.tree.prevNode(this);
 };
 
 Node.prototype.insertAt = function insertAt (node, index) {
@@ -1193,88 +1209,84 @@ Node.prototype.insertAt = function insertAt (node, index) {
     if ( index === void 0 ) index = this.children.length;
 
   if (!node) {
-    return
+    return;
   }
 
   node = this.tree.objectToNode(node);
 
   if (Array.isArray(node)) {
-    node
-      .reverse()
-      .map(function (n) { return this$1$1.insertAt(n, index); });
+    node.reverse().map(function (n) { return this$1$1.insertAt(n, index); });
 
-    return new Selection(this.tree, [].concat( node ))
+    return new Selection(this.tree, [].concat( node ));
   }
 
   node.parent = this;
 
-  this.children.splice(
-    index, 0, node
-  );
+  this.children.splice(index, 0, node);
 
   if (node.disabled() && node.hasChildren()) {
     node.recurseDown(function (child) {
-      child.state('disabled', true);
+      child.state("disabled", true);
     });
   }
 
   if (!this.isBatch) {
-    this.$emit('added', node);
+    this.$emit("added", node);
   }
 
-  return node
+  return node;
 };
 
 Node.prototype.addChild = function addChild (node) {
-  return this.insertAt(node)
+  return this.insertAt(node);
 };
 
 Node.prototype.append = function append (node) {
-  return this.addChild(node)
+  return this.addChild(node);
 };
 
 Node.prototype.prepend = function prepend (node) {
-  return this.insertAt(node, 0)
+  return this.insertAt(node, 0);
 };
 
 Node.prototype.before = function before (node) {
-  return this.tree.before(this, node)
+  return this.tree.before(this, node);
 };
 
 Node.prototype.after = function after (node) {
-  return this.tree.after(this, node)
+  return this.tree.after(this, node);
 };
 
 Node.prototype.empty = function empty () {
   var node;
 
-  while (node = this.children.pop()) {
+  while ((node = this.children.pop())) {
     node.remove();
   }
 
-  return this
+  return this;
 };
 
 Node.prototype.remove = function remove () {
-  return this.tree.removeNode(this)
+  return this.tree.removeNode(this);
 };
 
 Node.prototype.removeChild = function removeChild (criteria) {
   var node = this.find(criteria);
 
   if (node) {
-    return this.tree.removeNode(node)
+    return this.tree.removeNode(node);
   }
 
-  return null
+  return null;
 };
 
 Node.prototype.find = function find$1 (criteria, deep) {
   if (this.tree.isNode(criteria)) {
-    return criteria
+    return criteria;
   }
 
-  return find(this.children, criteria, deep)
+  return find(this.children, criteria, deep);
 };
 
 Node.prototype.focus = function focus () {
@@ -1284,18 +1296,18 @@ Node.prototype.focus = function focus () {
 };
 
 Node.prototype.hasChildren = function hasChildren () {
-  return this.showChildren && this.isBatch || this.children.length > 0
+  return (this.showChildren && this.isBatch) || this.children.length > 0;
 };
 
 /**
-* Sometimes it's no need to have a parent. It possible to have more than 1 parent
-*/
+ * Sometimes it's no need to have a parent. It possible to have more than 1 parent
+ */
 Node.prototype.isRoot = function isRoot () {
-  return this.parent === null
+  return this.parent === null;
 };
 
 Node.prototype.clone = function clone () {
-  return this.tree.objectToNode(this.toJSON())
+  return this.tree.objectToNode(this.toJSON());
 };
 
 Node.prototype.toJSON = function toJSON () {
@@ -1305,8 +1317,9 @@ Node.prototype.toJSON = function toJSON () {
     text: this.text,
     data: this.data,
     state: this.states,
-    children: this.children.map(function (node) { return this$1$1.tree.objectToNode(node).toJSON(); })
-  }
+    children: this.children.map(function (node) { return this$1$1.tree.objectToNode(node).toJSON(); }
+    ),
+  };
 };
 
 Object.defineProperties( Node.prototype, prototypeAccessors );
@@ -1585,24 +1598,23 @@ function fetchDelay (ms) {
   })
 }
 
-var Tree = function Tree (vm) {
+var Tree = function Tree(vm) {
   var this$1$1 = this;
 
   this.vm = vm;
   this.options = vm.opts;
-
   this.activeElement = null;
 
   // We have to convert 'fetchData' to function. It must return Promise always
   var fetchData = this.options.fetchData;
 
-  if (typeof fetchData === 'string') {
+  if (typeof fetchData === "string") {
     this.options.fetchData = (function (template) {
       var urlTemplate = createTemplate(template);
 
       return function (node) {
-        return get(urlTemplate(node)).catch(this$1$1.options.onFetchError)
-      }
+        return get(urlTemplate(node)).catch(this$1$1.options.onFetchError);
+      };
     })(fetchData);
   }
 };
@@ -1612,7 +1624,7 @@ Tree.prototype.$on = function $on (name) {
 
     var args = [], len = arguments.length - 1;
     while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
-  (ref = this.vm).$on.apply(ref, [ name ].concat( args ));
+  (ref = this.vm.$emitter).on.apply(ref, [ name ].concat( args ));
 };
 
 Tree.prototype.$once = function $once (name) {
@@ -1620,7 +1632,7 @@ Tree.prototype.$once = function $once (name) {
 
     var args = [], len = arguments.length - 1;
     while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
-  (ref = this.vm).$once.apply(ref, [ name ].concat( args ));
+  (ref = this.vm.$emitter).on.apply(ref, [ name ].concat( args ));
 };
 
 Tree.prototype.$off = function $off (name) {
@@ -1628,7 +1640,7 @@ Tree.prototype.$off = function $off (name) {
 
     var args = [], len = arguments.length - 1;
     while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
-  (ref = this.vm).$off.apply(ref, [ name ].concat( args ));
+  (ref = this.vm.$emitter).on.apply(ref, [ name ].concat( args ));
 };
 
 Tree.prototype.$emit = function $emit (name) {
@@ -1637,13 +1649,13 @@ Tree.prototype.$emit = function $emit (name) {
     var args = [], len = arguments.length - 1;
     while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
   if (this.__silence) {
-    return
+    return;
   }
 
   (ref = this.vm).$emit.apply(ref, [ name ].concat( args ));
 
   if (this.options.store) {
-    this.vm.$emit('LIQUOR_NOISE');
+    this.vm.$emit("LIQUOR_NOISE");
   }
 };
 
@@ -1669,7 +1681,7 @@ Tree.prototype.sort = function sort (query, compareFn, deep) {
   var targetNode = this.find(query, true);
 
   if (!targetNode || !compareFn) {
-    return
+    return;
   }
 
   targetNode.forEach(function (node) {
@@ -1679,21 +1691,21 @@ Tree.prototype.sort = function sort (query, compareFn, deep) {
 
 Tree.prototype.clearFilter = function clearFilter () {
   this.recurseDown(function (node) {
-    node.state('matched', false);
-    node.state('visible', true);
-    node.state('expanded', node.__expanded);
+    node.state("matched", false);
+    node.state("visible", true);
+    node.state("expanded", node.__expanded);
 
     node.__expanded = undefined;
     node.showChildren = true;
   });
 
   this.vm.matches.length = 0;
-  this.vm.$emit('tree:filtered', [], '');
+  this.vm.$emit("tree:filtered", [], "");
 };
 
 Tree.prototype.filter = function filter (query) {
   if (!query) {
-    return this.clearFilter()
+    return this.clearFilter();
   }
 
   var matches = [];
@@ -1712,96 +1724,94 @@ Tree.prototype.filter = function filter (query) {
 
     // save prev `expanded` state
     if (undefined === node.__expanded) {
-      node.__expanded = node.state('expanded');
+      node.__expanded = node.state("expanded");
     }
 
-    node.state('visible', false);
-    node.state('matched', false);
-    node.state('expanded', true);
+    node.state("visible", false);
+    node.state("matched", false);
+    node.state("expanded", true);
   });
 
   matches.reverse().forEach(function (node) {
-    node.state('matched', true);
-    node.state('visible', true);
+    node.state("matched", true);
+    node.state("visible", true);
 
     node.showChildren = !plainList;
 
     if (node.hasChildren()) {
       node.recurseDown(function (n) {
-        n.state('visible', !!showChildren);
+        n.state("visible", !!showChildren);
       }, true);
     }
 
     node.recurseUp(function (parent) {
-      parent.state('visible', true);
-      parent.state('expanded', true);
+      parent.state("visible", true);
+      parent.state("expanded", true);
     });
 
     if (node.hasChildren()) {
-      node.state('expanded', false);
+      node.state("expanded", false);
     }
   });
 
   this.vm.matches = matches;
 
-  this.vm.$emit('tree:filtered', matches, query);
+  this.vm.$emit("tree:filtered", matches, query);
 
-  return matches
+  return matches;
 };
 
 Tree.prototype.selected = function selected () {
-  return new (Function.prototype.bind.apply( Selection, [ null ].concat( [this], this.selectedNodes) ))
+  return new (Function.prototype.bind.apply( Selection, [ null ].concat( [this], this.selectedNodes) ));
 };
 
 Tree.prototype.checked = function checked () {
   if (!this.options.checkbox) {
-    return null
+    return null;
   }
 
-  return new (Function.prototype.bind.apply( Selection, [ null ].concat( [this], this.checkedNodes) ))
+  return new (Function.prototype.bind.apply( Selection, [ null ].concat( [this], this.checkedNodes) ));
 };
 
 Tree.prototype.loadChildren = function loadChildren (node) {
     var this$1$1 = this;
 
   if (!node) {
-    return
+    return;
   }
 
-  this.$emit('tree:data:fetch', node);
+  this.$emit("tree:data:fetch", node);
 
   if (this.options.minFetchDelay > 0 && node.vm) {
     node.vm.loading = true;
   }
 
-  var result = this.fetch(node)
-    .then(function (children) {
-      node.append(children);
-      node.isBatch = false;
+  var result = this.fetch(node).then(function (children) {
+    node.append(children);
+    node.isBatch = false;
 
-      if (this$1$1.options.autoCheckChildren) {
-        if (node.checked()) {
-          node.recurseDown(function (child) {
-            child.state('checked', true);
-          });
-        }
-
-        node.refreshIndeterminateState();
+    if (this$1$1.options.autoCheckChildren) {
+      if (node.checked()) {
+        node.recurseDown(function (child) {
+          child.state("checked", true);
+        });
       }
 
-      this$1$1.$emit('tree:data:received', node);
-    });
-
-  return Promise.all([
-    fetchDelay(this.options.minFetchDelay),
-    result
-  ]).then(function (_) {
-    if (node.vm) {
-      node.vm.loading = false;
+      node.refreshIndeterminateState();
     }
 
-    return result
-  })
+    this$1$1.$emit("tree:data:received", node);
+  });
+
+  return Promise.all([fetchDelay(this.options.minFetchDelay), result]).then(
+    function (_) {
+      if (node.vm) {
+        node.vm.loading = false;
+      }
+
+      return result;
+    }
+  );
 };
 
 Tree.prototype.fetch = function fetch (node, parseData) {
@@ -1810,33 +1820,32 @@ Tree.prototype.fetch = function fetch (node, parseData) {
   var result = this.options.fetchData(node);
 
   if (!result.then) {
-    result = get(result)
-      .catch(this.options.onFetchError);
+    result = get(result).catch(this.options.onFetchError);
   }
 
   if (parseData === false) {
-    return result
+    return result;
   }
 
   return result
     .then(function (data) {
       try {
-        return this$1$1.parse(data, this$1$1.options.modelParse)
+        return this$1$1.parse(data, this$1$1.options.modelParse);
       } catch (e) {
-        throw new Error(e)
+        throw new Error(e);
       }
     })
-    .catch(this.options.onFetchError)
+    .catch(this.options.onFetchError);
 };
 
 Tree.prototype.fetchInitData = function fetchInitData () {
   // simulate root node
   var node = {
-    id: 'root',
-    name: 'root'
+    id: "root",
+    name: "root",
   };
 
-  return this.fetch(node, false)
+  return this.fetch(node, false);
 };
 
 Tree.prototype.setModel = function setModel (data) {
@@ -1853,9 +1862,9 @@ Tree.prototype.setModel = function setModel (data) {
     /* eslint-enable */
 
     /**
-    * VueJS transform properties to reactives when constructor is running
-    * And we lose List object (extended from Array)
-    */
+     * VueJS transform properties to reactives when constructor is running
+     * And we lose List object (extended from Array)
+     */
     this$1$1.selectedNodes = new List();
     this$1$1.checkedNodes = new List();
 
@@ -1876,7 +1885,7 @@ Tree.prototype.setModel = function setModel (data) {
 
       if (this$1$1.options.autoDisableChildren && node.disabled()) {
         node.recurseDown(function (child) {
-          child.state('disabled', true);
+          child.state("disabled", true);
         });
       }
     });
@@ -1886,20 +1895,18 @@ Tree.prototype.setModel = function setModel (data) {
 
       this$1$1.selectedNodes.forEach(function (node) {
         if (top !== node) {
-          node.state('selected', false);
+          node.state("selected", false);
         }
       });
 
-      this$1$1.selectedNodes
-        .empty()
-        .add(top);
+      this$1$1.selectedNodes.empty().add(top);
     }
 
     // Nodes can't be selected on init. By it's possible to select through API
     if (this$1$1.options.checkOnSelect && this$1$1.options.checkbox) {
       this$1$1.unselectAll();
     }
-  })
+  });
 };
 
 Tree.prototype.recurseDown = function recurseDown$1 (node, fn) {
@@ -1908,66 +1915,62 @@ Tree.prototype.recurseDown = function recurseDown$1 (node, fn) {
     node = this.model;
   }
 
-  return recurseDown(node, fn)
+  return recurseDown(node, fn);
 };
 
 Tree.prototype.select = function select (node, extendList) {
   var treeNode = this.getNode(node);
 
   if (!treeNode) {
-    return false
+    return false;
   }
 
   if (this.options.multiple && extendList) {
     this.selectedNodes.add(treeNode);
   } else {
     this.unselectAll();
-    this.selectedNodes
-      .empty()
-      .add(treeNode);
+    this.selectedNodes.empty().add(treeNode);
   }
 
-  return true
+  return true;
 };
 
 Tree.prototype.selectAll = function selectAll () {
     var this$1$1 = this;
 
   if (!this.options.multiple) {
-    return false
+    return false;
   }
 
   this.selectedNodes.empty();
 
   this.recurseDown(function (node) {
-    this$1$1.selectedNodes.add(
-      node.select(true)
-    );
+    this$1$1.selectedNodes.add(node.select(true));
   });
 
-  return true
+  return true;
 };
 
 Tree.prototype.unselect = function unselect (node) {
   var treeNode = this.getNode(node);
 
   if (!treeNode) {
-    return false
+    return false;
   }
 
   this.selectedNodes.remove(treeNode);
 
-  return true
+  return true;
 };
 
 Tree.prototype.unselectAll = function unselectAll () {
   var node;
 
-  while (node = this.selectedNodes.pop()) {
+  while ((node = this.selectedNodes.pop())) {
     node.unselect();
   }
 
-  return true
+  return true;
 };
 
 Tree.prototype.check = function check (node) {
@@ -1982,7 +1985,7 @@ Tree.prototype.checkAll = function checkAll () {
   this.recurseDown(function (node) {
     if (node.depth === 0) {
       if (node.indeterminate()) {
-        node.state('indeterminate', false);
+        node.state("indeterminate", false);
       }
 
       node.check();
@@ -1993,51 +1996,51 @@ Tree.prototype.checkAll = function checkAll () {
 Tree.prototype.uncheckAll = function uncheckAll () {
   var node;
 
-  while (node = this.checkedNodes.pop()) {
+  while ((node = this.checkedNodes.pop())) {
     node.uncheck();
   }
 
-  return true
+  return true;
 };
 
 Tree.prototype.expand = function expand (node) {
   if (node.expanded()) {
-    return false
+    return false;
   }
 
   node.expand();
 
-  return true
+  return true;
 };
 
 Tree.prototype.collapse = function collapse (node) {
   if (node.collapsed()) {
-    return false
+    return false;
   }
 
   node.collapse();
 
-  return true
+  return true;
 };
 
 Tree.prototype.toggleExpand = function toggleExpand (node) {
   if (!node.hasChildren()) {
-    return false
+    return false;
   }
 
   node.toggleExpand();
 
-  return true
+  return true;
 };
 
 Tree.prototype.toggleCollapse = function toggleCollapse (node) {
   if (!node.hasChildren()) {
-    return false
+    return false;
   }
 
   node.toggleCollapse();
 
-  return true
+  return true;
 };
 
 Tree.prototype.expandAll = function expandAll () {
@@ -2071,11 +2074,11 @@ Tree.prototype.index = function index (node, verbose) {
     return {
       index: index,
       target: target,
-      node: target[index]
-    }
+      node: target[index],
+    };
   }
 
-  return index
+  return index;
 };
 
 Tree.prototype.nextNode = function nextNode (node) {
@@ -2083,21 +2086,21 @@ Tree.prototype.nextNode = function nextNode (node) {
     var target = ref.target;
     var index = ref.index;
 
-  return target[index + 1] || null
+  return target[index + 1] || null;
 };
 
 Tree.prototype.nextVisibleNode = function nextVisibleNode (node) {
   if (node.hasChildren() && node.expanded()) {
-    return node.first()
+    return node.first();
   }
 
   var nextNode = this.nextNode(node);
 
   if (!nextNode && node.parent) {
-    return node.parent.next()
+    return node.parent.next();
   }
 
-  return nextNode
+  return nextNode;
 };
 
 Tree.prototype.prevNode = function prevNode (node) {
@@ -2105,21 +2108,21 @@ Tree.prototype.prevNode = function prevNode (node) {
     var target = ref.target;
     var index = ref.index;
 
-  return target[index - 1] || null
+  return target[index - 1] || null;
 };
 
 Tree.prototype.prevVisibleNode = function prevVisibleNode (node) {
   var prevNode = this.prevNode(node);
 
   if (!prevNode) {
-    return node.parent
+    return node.parent;
   }
 
   if (prevNode.hasChildren() && prevNode.expanded()) {
-    return prevNode.last()
+    return prevNode.last();
   }
 
-  return prevNode
+  return prevNode;
 };
 
 Tree.prototype.addToModel = function addToModel (node, index) {
@@ -2133,29 +2136,29 @@ Tree.prototype.addToModel = function addToModel (node, index) {
     n.tree = this$1$1;
   });
 
-  this.$emit('node:added', node);
+  this.$emit("node:added", node);
 
-  return node
+  return node;
 };
 
 Tree.prototype.append = function append (criteria, node) {
   var targetNode = this.find(criteria);
 
   if (targetNode) {
-    return targetNode.append(node)
+    return targetNode.append(node);
   }
 
-  return false
+  return false;
 };
 
 Tree.prototype.prepend = function prepend (criteria, node) {
   var targetNode = this.find(criteria);
 
   if (targetNode) {
-    return targetNode.prepend(node)
+    return targetNode.prepend(node);
   }
 
-  return false
+  return false;
 };
 
 Tree.prototype.before = function before (targetNode, sourceNode) {
@@ -2165,19 +2168,15 @@ Tree.prototype.before = function before (targetNode, sourceNode) {
   var node = this.objectToNode(sourceNode);
 
   if (!~position.index) {
-    return false
+    return false;
   }
 
-  position.target.splice(
-    position.index,
-    0,
-    node
-  );
+  position.target.splice(position.index, 0, node);
 
   node.parent = targetNode.parent;
-  this.$emit('node:added', node);
+  this.$emit("node:added", node);
 
-  return node
+  return node;
 };
 
 Tree.prototype.after = function after (targetNode, sourceNode) {
@@ -2187,19 +2186,15 @@ Tree.prototype.after = function after (targetNode, sourceNode) {
   var node = this.objectToNode(sourceNode);
 
   if (!~position.index) {
-    return false
+    return false;
   }
 
-  position.target.splice(
-    position.index + 1,
-    0,
-    node
-  );
+  position.target.splice(position.index + 1, 0, node);
 
   node.parent = targetNode.parent;
-  this.$emit('node:added', node);
+  this.$emit("node:added", node);
 
-  return node
+  return node;
 };
 
 Tree.prototype.addNode = function addNode (node) {
@@ -2208,47 +2203,39 @@ Tree.prototype.addNode = function addNode (node) {
   node = objectToNode(node);
 
   this.model.splice(index, 0, node);
-  this.$emit('node:added', node);
+  this.$emit("node:added", node);
 
-  return node
+  return node;
 };
 
 Tree.prototype.remove = function remove (criteria, multiple) {
-  return this.removeNode(
-    this.find(criteria, multiple)
-  )
+  return this.removeNode(this.find(criteria, multiple));
 };
 
 Tree.prototype.removeNode = function removeNode (node) {
   if (node instanceof Selection) {
-    return node.remove()
+    return node.remove();
   }
 
   if (!node) {
-    return false
+    return false;
   }
 
   if (!node.parent) {
     if (~this.model.indexOf(node)) {
-      this.model.splice(
-        this.model.indexOf(node),
-        1
-      );
+      this.model.splice(this.model.indexOf(node), 1);
     }
   } else {
     var children = node.parent.children;
 
     if (~children.indexOf(node)) {
-      children.splice(
-        children.indexOf(node),
-        1
-      );
+      children.splice(children.indexOf(node), 1);
     }
   }
 
   if (node.parent) {
     if (node.parent.indeterminate() && !node.parent.hasChildren()) {
-      node.parent.state('indeterminate', false);
+      node.parent.state("indeterminate", false);
     }
   }
 
@@ -2260,7 +2247,7 @@ Tree.prototype.removeNode = function removeNode (node) {
 
   node.parent = null;
 
-  this.$emit('node:removed', node);
+  this.$emit("node:removed", node);
 
   this.selectedNodes.remove(node);
   this.checkedNodes.remove(node);
@@ -2269,36 +2256,33 @@ Tree.prototype.removeNode = function removeNode (node) {
 
   if (matches && matches.length) {
     if (matches.includes(node)) {
-      matches.splice(
-        matches.indexOf(node),
-        1
-      );
+      matches.splice(matches.indexOf(node), 1);
     }
   }
 
-  return node
+  return node;
 };
 
 Tree.prototype.isNode = function isNode (node) {
-  return node instanceof Node
+  return node instanceof Node;
 };
 
 Tree.prototype.find = function find$1 (criteria, multiple) {
   if (this.isNode(criteria)) {
-    return criteria
+    return criteria;
   }
 
   var result = find(this.model, criteria);
 
   if (!result || !result.length) {
-    return new Selection(this, [])
+    return new Selection(this, []);
   }
 
   if (multiple === true) {
-    return new Selection(this, result)
+    return new Selection(this, result);
   }
 
-  return new Selection(this, [result[0]])
+  return new Selection(this, [result[0]]);
 };
 
 Tree.prototype.updateData = function updateData (criteria, callback) {
@@ -2306,32 +2290,32 @@ Tree.prototype.updateData = function updateData (criteria, callback) {
 
   nodes.forEach(function (node) { return node.setData(callback(node)); });
 
-  return nodes
+  return nodes;
 };
 
 Tree.prototype.getNodeById = function getNodeById (id) {
   var targetNode = null;
 
   recurseDown(this.model, function (node) {
-    if ('' + node.id === id) {
+    if ("" + node.id === id) {
       targetNode = node;
-      return false
+      return false;
     }
   });
 
-  return targetNode
+  return targetNode;
 };
 
 Tree.prototype.getNode = function getNode (node) {
   if (this.isNode(node)) {
-    return node
+    return node;
   }
 
-  return null
+  return null;
 };
 
 Tree.prototype.objectToNode = function objectToNode$1 (obj) {
-  return objectToNode(this, obj)
+  return objectToNode(this, obj);
 };
 
 Tree.prototype.parse = function parse (data, options) {
@@ -2340,9 +2324,9 @@ Tree.prototype.parse = function parse (data, options) {
   }
 
   try {
-    return TreeParser.parse(data, this, options)
+    return TreeParser.parse(data, this, options);
   } catch (e) {
-    return []
+    return [];
   }
 };
 
@@ -2713,95 +2697,98 @@ var TreeMixin = {
 };
 
 var DropPosition = {
-  ABOVE: 'drag-above',
-  BELOW: 'drag-below',
-  ON: 'drag-on'
+  ABOVE: "drag-above",
+  BELOW: "drag-below",
+  ON: "drag-on",
 };
 
-function isMovingStarted (event, start) {
-  return Math.abs(event.clientX - start[0]) > 5 || Math.abs(event.clientY - start[1]) > 5
+function isMovingStarted(event, start) {
+  return (
+    Math.abs(event.clientX - start[0]) > 5 ||
+    Math.abs(event.clientY - start[1]) > 5
+  );
 }
 
-function composedPath (event) {
+function composedPath(event) {
   var el = event.target;
   var path = [];
 
   while (el) {
     path.push(el);
 
-    if (el.tagName === 'HTML') {
+    if (el.tagName === "HTML") {
       path.push(document);
       path.push(window);
 
-      return path
+      return path;
     }
 
     el = el.parentElement;
   }
 
-  return path
+  return path;
 }
 
-function getPath (event) {
+function getPath(event) {
   if (event.path) {
-    return event.path
+    return event.path;
   }
 
   if (event.composedPath) {
-    return event.composedPath()
+    return event.composedPath();
   }
 
-  return composedPath(event)
+  return composedPath(event);
 }
 
-function getSelectedNode (event) {
+function getSelectedNode(event) {
   var className;
   var i = 0;
 
   var path = getPath(event);
 
   for (; i < path.length; i++) {
-    className = path[i].className || '';
+    className = path[i].className || "";
 
     if (/tree-node/.test(className)) {
-      return path[i]
+      return path[i];
     }
   }
 
-  return null
+  return null;
 }
 
-function getDropDestination (e) {
+function getDropDestination(e) {
   var selectedNode = getSelectedNode(e);
 
   if (!selectedNode) {
-    return null
+    return null;
   }
 
-  return selectedNode
+  return selectedNode;
 }
 
-function updateHelperClasses (target, classes) {
+function updateHelperClasses(target, classes) {
   if (!target) {
-    return
+    return;
   }
 
   var className = target.className;
 
   if (!classes) {
     for (var i in DropPosition) {
-      className = className.replace(DropPosition[i], '');
+      className = className.replace(DropPosition[i], "");
     }
 
-    className.replace('dragging', '');
+    className.replace("dragging", "");
   } else if (!new RegExp(classes).test(className)) {
-    className += ' ' + classes;
+    className += " " + classes;
   }
 
-  target.className = className.replace(/\s+/g, ' ');
+  target.className = className.replace(/\s+/g, " ");
 }
 
-function getDropPosition (e, element) {
+function getDropPosition(e, element) {
   var coords = element.getBoundingClientRect();
   var nodeSection = coords.height / 3;
 
@@ -2810,23 +2797,21 @@ function getDropPosition (e, element) {
   if (coords.top + nodeSection >= e.clientY) {
     dropPosition = DropPosition.ABOVE;
   } else if (coords.top + nodeSection * 2 <= e.clientY) {
-    (
-      dropPosition = DropPosition.BELOW
-    );
+    dropPosition = DropPosition.BELOW;
   }
 
-  return dropPosition
+  return dropPosition;
 }
 
-function callDndCb (args, opts, method) {
-  if (!opts || !opts[method] || typeof opts[method] !== 'function') {
-    return
+function callDndCb(args, opts, method) {
+  if (!opts || !opts[method] || typeof opts[method] !== "function") {
+    return;
   }
 
-  return opts[method].apply(opts, args) !== false
+  return opts[method].apply(opts, args) !== false;
 }
 
-function clearDropClasses (parent) {
+function clearDropClasses(parent) {
   for (var key in DropPosition) {
     var el = parent.querySelectorAll(("." + (DropPosition[key])));
 
@@ -2838,13 +2823,16 @@ function clearDropClasses (parent) {
 
 var TreeDnd = {
   methods: {
-    onDragStart: function onDragStart (e) {
+    onDragStart: function onDragStart(e) {
       e.preventDefault();
     },
 
-    startDragging: function startDragging (node, event) {
-      if (!node.isDraggable() || callDndCb([node], this.tree.options.dnd, 'onDragStart') === false) {
-        return
+    startDragging: function startDragging(node, event) {
+      if (
+        !node.isDraggable() ||
+        callDndCb([node], this.tree.options.dnd, "onDragStart") === false
+      ) {
+        return;
       }
 
       this.$$startDragPosition = [event.clientX, event.clientY];
@@ -2853,14 +2841,14 @@ var TreeDnd = {
       this.initDragListeners();
     },
 
-    initDragListeners: function initDragListeners () {
+    initDragListeners: function initDragListeners() {
       var this$1$1 = this;
 
       var dropPosition;
 
       var removeListeners = function () {
-        window.removeEventListener('mouseup', onMouseUp, true);
-        window.removeEventListener('mousemove', onMouseMove, true);
+        window.removeEventListener("mouseup", onMouseUp, true);
+        window.removeEventListener("mousemove", onMouseMove, true);
       };
 
       var onMouseUp = function (e) {
@@ -2869,20 +2857,34 @@ var TreeDnd = {
         }
 
         if (this$1$1.draggableNode) {
-          this$1$1.draggableNode.node.state('dragging', false);
+          this$1$1.draggableNode.node.state("dragging", false);
         }
 
-        if (this$1$1.$$dropDestination && this$1$1.tree.isNode(this$1$1.$$dropDestination) && this$1$1.$$dropDestination.vm) {
+        if (
+          this$1$1.$$dropDestination &&
+          this$1$1.tree.isNode(this$1$1.$$dropDestination) &&
+          this$1$1.$$dropDestination.vm
+        ) {
           updateHelperClasses(this$1$1.$$dropDestination.vm.$el, null);
 
           var cbResult = callDndCb(
             [this$1$1.draggableNode.node, this$1$1.$$dropDestination, dropPosition],
             this$1$1.tree.options.dnd,
-            'onDragFinish'
+            "onDragFinish"
           );
 
-          if (cbResult !== false && !(!this$1$1.$$dropDestination.isDropable() && dropPosition === DropPosition.ON || !dropPosition)) {
-            this$1$1.draggableNode.node.finishDragging(this$1$1.$$dropDestination, dropPosition);
+          if (
+            cbResult !== false &&
+            !(
+              (!this$1$1.$$dropDestination.isDropable() &&
+                dropPosition === DropPosition.ON) ||
+              !dropPosition
+            )
+          ) {
+            this$1$1.draggableNode.node.finishDragging(
+              this$1$1.$$dropDestination,
+              dropPosition
+            );
             this$1$1.draggableNode.node.parent = this$1$1.$$dropDestination;
           }
 
@@ -2890,14 +2892,17 @@ var TreeDnd = {
         }
 
         this$1$1.$$possibleDragNode = null;
-        this$1$1.$set(this$1$1, 'draggableNode', null);
+        this$1$1.draggableNode = null;
 
         removeListeners();
       };
 
       var onMouseMove = function (e) {
-        if (this$1$1.$$startDragPosition && !isMovingStarted(e, this$1$1.$$startDragPosition)) {
-          return
+        if (
+          this$1$1.$$startDragPosition &&
+          !isMovingStarted(e, this$1$1.$$startDragPosition)
+        ) {
+          return;
         } else {
           this$1$1.$$startDragPosition = null;
         }
@@ -2907,10 +2912,14 @@ var TreeDnd = {
             removeListeners();
             this$1$1.$$possibleDragNode = null;
 
-            return
+            return;
           }
 
-          this$1$1.$set(this$1$1, 'draggableNode', { node: this$1$1.$$possibleDragNode, left: 0, top: 0 });
+          this$1$1.draggableNode = {
+            node: this$1$1.$$possibleDragNode,
+            left: 0,
+            top: 0,
+          };
           this$1$1.$$possibleDragNode = null;
         }
 
@@ -2922,13 +2931,16 @@ var TreeDnd = {
         clearDropClasses(this$1$1.$el);
 
         if (dropDestination) {
-          var dropDestinationId = dropDestination.getAttribute('data-id');
+          var dropDestinationId = dropDestination.getAttribute("data-id");
 
           if (this$1$1.draggableNode.node.id === dropDestinationId) {
-            return
+            return;
           }
 
-          if (!this$1$1.$$dropDestination || this$1$1.$$dropDestination.id !== dropDestinationId) {
+          if (
+            !this$1$1.$$dropDestination ||
+            this$1$1.$$dropDestination.id !== dropDestinationId
+          ) {
             this$1$1.$$dropDestination = this$1$1.tree.getNodeById(dropDestinationId);
           }
 
@@ -2937,7 +2949,7 @@ var TreeDnd = {
 
             if (path.includes(this$1$1.draggableNode.node)) {
               this$1$1.$$dropDestination = null;
-              return
+              return;
             }
           }
 
@@ -2946,10 +2958,11 @@ var TreeDnd = {
           var cbResult = callDndCb(
             [this$1$1.draggableNode.node, this$1$1.$$dropDestination, dropPosition],
             this$1$1.tree.options.dnd,
-            'onDragOn'
+            "onDragOn"
           );
 
-          var isDropable = this$1$1.$$dropDestination.isDropable() && cbResult !== false;
+          var isDropable =
+            this$1$1.$$dropDestination.isDropable() && cbResult !== false;
 
           if (!isDropable && dropPosition === DropPosition.ON) {
             dropPosition = null;
@@ -2959,10 +2972,10 @@ var TreeDnd = {
         }
       };
 
-      window.addEventListener('mouseup', onMouseUp, true);
-      window.addEventListener('mousemove', onMouseMove, true);
-    }
-  }
+      window.addEventListener("mouseup", onMouseUp, true);
+      window.addEventListener("mousemove", onMouseMove, true);
+    },
+  },
 };
 
 var css_248z = "\n.tree {\n  overflow: auto;\n}\n.tree-root,\n.tree-children {\n  list-style: none;\n  padding: 0;\n}\n.tree > .tree-root,\n.tree > .tree-filter-empty {\n  padding: 3px;\n  box-sizing: border-box;\n}\n.tree.tree--draggable .tree-node:not(.selected) > .tree-content:hover {\n  background: transparent;\n}\n.drag-above,\n.drag-below,\n.drag-on {\n  position: relative;\n  z-index: 1;\n}\n.drag-on > .tree-content {\n  background: #fafcff;\n  outline: 1px solid #7baff2;\n}\n.drag-above > .tree-content::before,\n.drag-below > .tree-content::after {\n  display: block;\n  content: \"\";\n  position: absolute;\n  height: 8px;\n  left: 0;\n  right: 0;\n  z-index: 2;\n  box-sizing: border-box;\n  background-color: #3367d6;\n  border: 3px solid #3367d6;\n  background-clip: padding-box;\n  border-bottom-color: transparent;\n  border-top-color: transparent;\n  border-radius: 0;\n}\n.drag-above > .tree-content::before {\n  top: 0;\n  transform: translateY(-50%);\n}\n.drag-below > .tree-content::after {\n  bottom: 0;\n  transform: translateY(50%);\n}\n";
@@ -3021,14 +3034,17 @@ var _sfc_main = {
   }); },
 
   props: {
-    data: {},
+    data: {
+      type: Object,
+      default: function (_) { return ({}); },
+    },
 
     options: {
       type: Object,
       default: function (_) { return ({}); },
     },
 
-    filter: String,
+    filter: { type: String, default: "" },
 
     tag: {
       type: String,
@@ -3133,6 +3149,9 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
 }
 var TreeRoot = /*#__PURE__*/_export_sfc(_sfc_main, [['render',_sfc_render]]);
 
+// import { mitt } from "mitt";
+
+// const emitter = mitt;
 // const install = (app) => {
 //   app.component(TreeRoot.name, TreeRoot);
 // };
@@ -3145,7 +3164,9 @@ var TreeRoot = /*#__PURE__*/_export_sfc(_sfc_main, [['render',_sfc_render]]);
 
 var main = {
   install: function install(app) {
-    app.component(TreeRoot.name, TreeRoot);  },
+    // app.config.globalProperties.$emitter = emitter;
+    app.component(TreeRoot.name, TreeRoot);
+  },
 };
 
 export { main as default };
