@@ -5,12 +5,15 @@ module.exports = {
     "plugin:vue/recommended"
   ],
   plugins: [
-   //"prettier".
-  "jest"
+    //"prettier".
+    "jest"
   ],
   rules: {
     eqeqeq: "off",
-    "no-cond-assign": "off"
+    "no-cond-assign": "off",
+    "vue/multi-word-component-names": ["error", {
+      "ignores": ['Tree']
+    }]
   }
 }
 
