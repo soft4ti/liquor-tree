@@ -7,9 +7,7 @@
     <link rel="stylesheet" href="../assets/style.css" />
     <script src="../assets/menu.js"></script>
 
-    <!-- first import Vue -->
     <script src="https://unpkg.com/vue"></script>
-    <!-- <script src="../assets/vue.js"></script> -->
     <script src="/liquor-tree.umd.js"></script>
 
     <style>
@@ -95,33 +93,35 @@
 
     <script>
       const app = Vue.createApp({
-        data: () => ({
-          /* example 0 */
-          selectedNode0: null,
-          treeData0: getTreeData0(),
+        data() {
+          return {
+            /* example 0 */
+            selectedNode0: null,
+            treeData0: getTreeData0(),
 
-          /* example 1 */
-          treeData1: getTreeData1(),
-          treeOptions1: {
-            multiple: false,
-            keyboardNavigation: false,
-            parentSelect: true,
-          },
-
-          /* example 2 */
-          treeData2: null,
-
-          /* example 3 */
-          treeData3: getTreeData2(),
-          treeOptions3: {
-            propertyNames: {
-              text: "MY_TEXT",
-              children: "KIDS",
-              state: "OPTIONS",
+            /* example 1 */
+            treeData1: getTreeData1(),
+            treeOptions1: {
+              multiple: false,
+              keyboardNavigation: false,
+              parentSelect: true,
             },
-            deletion: true,
-          },
-        }),
+
+            /* example 2 */
+            treeData2: null,
+
+            /* example 3 */
+            treeData3: getTreeData2(),
+            treeOptions3: {
+              propertyNames: {
+                text: "MY_TEXT",
+                children: "KIDS",
+                state: "OPTIONS",
+              },
+              deletion: true,
+            },
+          };
+        },
 
         methods: {
           initTree2() {

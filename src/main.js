@@ -1,10 +1,4 @@
 import TreeRoot from "./components/TreeRoot.vue";
-// import { mitt } from "mitt";
-
-// const emitter = mitt;
-// const install = (app) => {
-//   app.component(TreeRoot.name, TreeRoot);
-// };
 
 // TreeRoot.install = install;
 

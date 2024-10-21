@@ -5,7 +5,7 @@
  * Released under the MIT License.
  */
 
-import { nextTick, h, resolveComponent, openBlock, createElementBlock, normalizeClass, withModifiers, createElementVNode, normalizeStyle, createCommentVNode, createVNode, Transition, withCtx, Fragment, renderList, createBlock, toDisplayString, resolveDynamicComponent } from 'vue';
+import { nextTick, h, resolveComponent, openBlock, createElementBlock, normalizeClass, withModifiers, createElementVNode, normalizeStyle, createCommentVNode, createVNode, Transition, withCtx, Fragment, renderList, createBlock, toDisplayString, computed, resolveDynamicComponent } from 'vue';
 
 var NodeContent = {
   name: "node-content",
@@ -1324,6 +1324,60 @@ Node.prototype.toJSON = function toJSON () {
 
 Object.defineProperties( Node.prototype, prototypeAccessors );
 
+var EventBus = function EventBus() {
+  this.events = {};
+};
+
+// Adiciona um ouvinte de evento
+EventBus.prototype.on = function on (event, listener) {
+  if (!this.events[event]) {
+    this.events[event] = [];
+  }
+  this.events[event].push(listener);
+};
+
+// Remove um ouvinte de evento
+EventBus.prototype.off = function off (event, listenerToRemove) {
+  if (!this.events[event]) { return; }
+
+  this.events[event] = this.events[event].filter(
+    function (listener) { return listener !== listenerToRemove; }
+  );
+};
+
+// Adiciona um ouvinte de evento que será chamado apenas uma vez
+EventBus.prototype.once = function once (event, listener) {
+    var this$1$1 = this;
+
+  var wrapper = function () {
+      var args = [], len = arguments.length;
+      while ( len-- ) args[ len ] = arguments[ len ];
+
+    listener.apply(void 0, args);
+    this$1$1.off(event, wrapper);
+  };
+  this.on(event, wrapper);
+};
+
+// Emite um evento
+EventBus.prototype.emit = function emit (event) {
+    var args = [], len = arguments.length - 1;
+    while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+
+  if (!this.events[event]) { return; }
+
+  this.events[event].forEach(function (listener) { return listener.apply(void 0, args); });
+};
+
+// Alias para o método emit
+EventBus.prototype.$emit = function $emit (event) {
+    var ref;
+
+    var args = [], len = arguments.length - 1;
+    while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+  (ref = this).emit.apply(ref, [ event ].concat( args ));
+};
+
 /**
 * Default Node's states
 */
@@ -1604,7 +1658,7 @@ var Tree = function Tree(vm) {
   this.vm = vm;
   this.options = vm.opts;
   this.activeElement = null;
-
+  this.emitter = new EventBus();
   // We have to convert 'fetchData' to function. It must return Promise always
   var fetchData = this.options.fetchData;
 
@@ -1624,23 +1678,21 @@ Tree.prototype.$on = function $on (name) {
 
     var args = [], len = arguments.length - 1;
     while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
-  (ref = this.vm.$emitter).on.apply(ref, [ name ].concat( args ));
+  // this.vm.$on(name, ...args);
+  (ref = this.emitter).on.apply(ref, [ name ].concat( args ));
+  console.log("era pra ter um on aqui");
 };
 
 Tree.prototype.$once = function $once (name) {
-    var ref;
 
-    var args = [], len = arguments.length - 1;
-    while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
-  (ref = this.vm.$emitter).on.apply(ref, [ name ].concat( args ));
+  // this.vm.$emitter.on(name, ...args);
+  console.log("era pra ter um once aqui");
 };
 
 Tree.prototype.$off = function $off (name) {
-    var ref;
 
-    var args = [], len = arguments.length - 1;
-    while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
-  (ref = this.vm.$emitter).on.apply(ref, [ name ].concat( args ));
+  // this.vm.$emitter.on(name, ...args);
+  console.log("era pra ter um off aqui");
 };
 
 Tree.prototype.$emit = function $emit (name) {
@@ -2472,37 +2524,37 @@ function initEvents(vm) {
     var selected = vm.selected();
 
     if (!checkbox) {
-      vm.$emit('input', multiple ? selected : (selected[0] || null));
+      vm.$emit("input", multiple ? selected : selected[0] || null);
     } else {
-      vm.$emit('input', {
-        selected: multiple ? selected : (selected[0] || null),
-        checked: vm.checked()
+      vm.$emit("input", {
+        selected: multiple ? selected : selected[0] || null,
+        checked: vm.checked(),
       });
     }
   };
 
   emitter();
 
-  tree.$on('node:selected', emitter);
-  tree.$on('node:unselected', emitter);
+  tree.$on("node:selected", emitter);
+  tree.$on("node:unselected", emitter);
 
   if (checkbox) {
-    tree.$on('node:checked', emitter);
-    tree.$on('node:unchecked', emitter);
+    tree.$on("node:checked", emitter);
+    tree.$on("node:unchecked", emitter);
   }
 
-  tree.$on('node:added', function (targetNode, newNode) {
+  tree.$on("node:added", function (targetNode, newNode) {
     var node = newNode || targetNode;
 
     if (checkbox) {
-      if (node.state('checked') && !tree.checkedNodes.has(node)) {
+      if (node.state("checked") && !tree.checkedNodes.has(node)) {
         tree.checkedNodes.add(node);
       }
 
       node.refreshIndeterminateState();
     }
 
-    if (node.state('selected') && !tree.selectedNodes.has(node)) {
+    if (node.state("selected") && !tree.selectedNodes.has(node)) {
       tree.select(node);
     }
 
@@ -2518,7 +2570,7 @@ var TreeMixin = {
     var dataProvider;
 
     this.tree = tree;
-    // this._provided.tree = tree
+    // this._provided.tree = tree;
 
     if (!this.data && this.opts.fetchData) {
       // Get initial data if we don't have a data directly
@@ -2547,7 +2599,7 @@ var TreeMixin = {
         this$1$1.loading = false;
       }
 
-      this$1$1.$emit('tree:mounted', this$1$1);
+      this$1$1.$emit("tree:mounted", this$1$1);
 
       initEvents(this$1$1);
     });
@@ -2566,11 +2618,14 @@ var TreeMixin = {
       var getter = store.getter;
       var dispatcher = store.dispatcher;
 
-      assert(typeof getter === 'function', '`getter` must be a function');
-      assert(typeof dispatcher === 'function', '`dispatcher` must be a function');
+      assert(typeof getter === "function", "`getter` must be a function");
+      assert(
+        typeof dispatcher === "function",
+        "`dispatcher` must be a function"
+      );
 
       if (undefined !== mutations) {
-        assert(Array.isArray(mutations), '`mutations` must be an array');
+        assert(Array.isArray(mutations), "`mutations` must be an array");
       }
 
       Store.subscribe(function (action, state) {
@@ -2583,8 +2638,8 @@ var TreeMixin = {
 
       this.tree.setModel(getter());
 
-      this.$on('LIQUOR_NOISE', function () {
-        this$1$1.$nextTick(function (_) {
+      this.$on("LIQUOR_NOISE", function () {
+        nextTick(function (_) {
           dispatcher(this$1$1.toJSON());
         });
       });
@@ -2595,76 +2650,76 @@ var TreeMixin = {
     },
 
     selected: function selected() {
-      return this.tree.selected()
+      return this.tree.selected();
     },
 
     checked: function checked() {
-      return this.tree.checked()
+      return this.tree.checked();
     },
 
     append: function append(criteria, node) {
       // append to model
       if (!node) {
-        return this.tree.addToModel(criteria, this.tree.model.length)
+        return this.tree.addToModel(criteria, this.tree.model.length);
       }
 
-      return this.tree.append(criteria, node)
+      return this.tree.append(criteria, node);
     },
 
     prepend: function prepend(criteria, node) {
       if (!node) {
-        return this.tree.addToModel(criteria, 0)
+        return this.tree.addToModel(criteria, 0);
       }
 
-      return this.tree.prepend(criteria, node)
+      return this.tree.prepend(criteria, node);
     },
 
     addChild: function addChild(criteria, node) {
-      return this.append(criteria, node)
+      return this.append(criteria, node);
     },
 
     remove: function remove(criteria, multiple) {
-      return this.tree.remove(criteria, multiple)
+      return this.tree.remove(criteria, multiple);
     },
 
     before: function before(criteria, node) {
       if (!node) {
-        return this.prepend(criteria)
+        return this.prepend(criteria);
       }
 
-      return this.tree.before(criteria, node)
+      return this.tree.before(criteria, node);
     },
 
     after: function after(criteria, node) {
       if (!node) {
-        return this.append(criteria)
+        return this.append(criteria);
       }
 
-      return this.tree.after(criteria, node)
+      return this.tree.after(criteria, node);
     },
 
     find: function find(criteria, multiple) {
-      return this.tree.find(criteria, multiple)
+      return this.tree.find(criteria, multiple);
     },
 
     findAll: function findAll(criteria) {
-      return this.tree.find(criteria, true)
+      return this.tree.find(criteria, true);
     },
 
     expandAll: function expandAll() {
-      return this.tree.expandAll()
+      return this.tree.expandAll();
     },
 
     updateData: function updateData(criteria, callback) {
-      return this.tree.updateData(criteria, callback)
+      return this.tree.updateData(criteria, callback);
     },
 
     collapseAll: function collapseAll() {
-      return this.tree.collapseAll()
+      return this.tree.collapseAll();
     },
 
     sortTree: function sortTree(compareFn, deep) {
-      return this.tree.sortTree(compareFn, deep)
+      return this.tree.sortTree(compareFn, deep);
     },
 
     sort: function sort() {
@@ -2672,25 +2727,23 @@ var TreeMixin = {
 
       var args = [], len = arguments.length;
       while ( len-- ) args[ len ] = arguments[ len ];
-      return (ref = this.tree).sort.apply(ref, args)
+      return (ref = this.tree).sort.apply(ref, args);
     },
 
     setModel: function setModel(data) {
-      return this.tree.setModel(data)
+      return this.tree.setModel(data);
     },
 
     getRootNode: function getRootNode() {
       return this.tree.model.length === 1
         ? this.tree.model[0]
-        : this.tree.model
+        : this.tree.model;
     },
 
     toJSON: function toJSON() {
-      return JSON.parse(
-        JSON.stringify(this.model)
-      )
-    }
-  }
+      return JSON.parse(JSON.stringify(this.model));
+    },
+  },
 
   /*eslint semi: 0 */
   /* https://github.com/vuejs/rollup-plugin-vue/issues/169 */
@@ -3029,9 +3082,13 @@ var _sfc_main = {
 
   mixins: [TreeMixin, TreeDnd],
 
-  provide: function (_) { return ({
-    tree: null,
-  }); },
+  provide: function provide() {
+    var this$1$1 = this;
+
+    return {
+      tree: computed(function () { return this$1$1.tree; }),
+    };
+  },
 
   props: {
     data: {
@@ -3148,13 +3205,6 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
   }, 8 /* PROPS */, ["class"]))
 }
 var TreeRoot = /*#__PURE__*/_export_sfc(_sfc_main, [['render',_sfc_render]]);
-
-// import { mitt } from "mitt";
-
-// const emitter = mitt;
-// const install = (app) => {
-//   app.component(TreeRoot.name, TreeRoot);
-// };
 
 // TreeRoot.install = install;
 

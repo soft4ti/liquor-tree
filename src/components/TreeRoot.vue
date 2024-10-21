@@ -37,6 +37,7 @@
 </template>
 
 <script>
+import { computed } from "vue";
 import TreeNode from "./TreeNode.vue";
 import DraggableNode from "./DraggableNode.vue";
 import TreeMixin from "../mixins/TreeMixin.js";
@@ -91,9 +92,11 @@ export default {
 
   mixins: [TreeMixin, TreeDnd],
 
-  provide: (_) => ({
-    tree: null,
-  }),
+  provide() {
+    return {
+      tree: computed(() => this.tree),
+    };
+  },
 
   props: {
     data: {

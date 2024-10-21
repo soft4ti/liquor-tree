@@ -1,5 +1,6 @@
 import Node from "../lib/Node";
 import Selection from "../lib/Selection";
+import EventBus from "../lib/EventBus";
 
 import find from "../utils/find";
 import objectToNode from "../utils/objectToNode";
@@ -15,7 +16,7 @@ export default class Tree {
     this.vm = vm;
     this.options = vm.opts;
     this.activeElement = null;
-
+    this.emitter = new EventBus();
     // We have to convert 'fetchData' to function. It must return Promise always
     const fetchData = this.options.fetchData;
 
@@ -31,15 +32,19 @@ export default class Tree {
   }
 
   $on(name, ...args) {
-    this.vm.$emitter.on(name, ...args);
+    // this.vm.$on(name, ...args);
+    this.emitter.on(name, ...args);
+    console.log("era pra ter um on aqui");
   }
 
   $once(name, ...args) {
-    this.vm.$emitter.on(name, ...args);
+    // this.vm.$emitter.on(name, ...args);
+    console.log("era pra ter um once aqui");
   }
 
   $off(name, ...args) {
-    this.vm.$emitter.on(name, ...args);
+    // this.vm.$emitter.on(name, ...args);
+    console.log("era pra ter um off aqui");
   }
 
   $emit(name, ...args) {

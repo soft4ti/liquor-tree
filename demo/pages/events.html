@@ -1,17 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8" />
     <title>Liquor Tree: Basic Usage</title>
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css" />
     <script src="../assets/menu.js"></script>
 
-    <!-- first import Vue -->
-    <!-- <script src="https://unpkg.com/vue/dist/vue.js"></script> -->
-    <script src="../assets/vue.js"></script>
+    <script src="https://unpkg.com/vue"></script>
     <script src="/liquor-tree.umd.js"></script>
-
 
     <style>
       .demo-tree {
@@ -43,7 +40,6 @@
         text-align: left;
         display: flex;
         justify-content: space-between;
-
       }
 
       .events-table .event:nth-of-type(odd) {
@@ -63,7 +59,8 @@
         flex-basis: 25%;
       }
 
-      .fade-enter-active, .fade-leave-active {
+      .fade-enter-active,
+      .fade-leave-active {
         transition: opacity 2s;
       }
       .fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */ {
@@ -71,20 +68,23 @@
       }
 
       .node-controls a {
-        color: #ff14ce
+        color: #ff14ce;
       }
     </style>
   </head>
   <body>
-    <div class="hello">
-      Tree Events.
-    </div>
+    <div class="hello">Tree Events.</div>
 
     <div id="app">
       <div class="examples">
         <div class="example">
           <div class="example-description">
-            <input type="text" placeholder="Type to filter..." v-model="filter" class="filter-field">
+            <input
+              type="text"
+              placeholder="Type to filter..."
+              v-model="filter"
+              class="filter-field"
+            />
           </div>
           <div class="example-tree">
             <tree :data="data" :options="opts" :filter="filter" ref="tree">
@@ -128,75 +128,76 @@
 
     <script>
       const eventsList = [
-        { name: 'tree:mounted', args: ['Tree Component'] },
-        { name: 'tree:filtered', args: ['Matches', 'Filter String'] },
-        { name: 'tree:data:fetch', args: ['Parent Node'] },
-        { name: 'tree:data:received', args: ['Parent Node'] },
+        { name: "tree:mounted", args: ["Tree Component"] },
+        { name: "tree:filtered", args: ["Matches", "Filter String"] },
+        { name: "tree:data:fetch", args: ["Parent Node"] },
+        { name: "tree:data:received", args: ["Parent Node"] },
 
-        { name: 'node:disabled', args: ['Node']},
-        { name: 'node:enabled', args: ['Node']},
-        { name: 'node:shown', args: ['Node'] },
-        { name: 'node:hidden', args: ['Node'] },
-        { name: 'node:dblclick', args: ['Node'] },
-        { name: 'node:selected', args: ['Node'] },
-        { name: 'node:unselected', args: ['Node'] },
-        { name: 'node:checked', args: ['Node', 'Target Node'] },
-        { name: 'node:unchecked', args: ['Node'] },
-        { name: 'node:expanded', args: ['Node'] },
-        { name: 'node:collapsed',  args: ['Node'] },
-        { name: 'node:added',  args: ['Node', 'New Node'] },
-        { name: 'node:removed',  args: ['Node'] },
-        { name: 'node:text:changed', args: ['Node', 'New Text', 'Old Text']},
+        { name: "node:disabled", args: ["Node"] },
+        { name: "node:enabled", args: ["Node"] },
+        { name: "node:shown", args: ["Node"] },
+        { name: "node:hidden", args: ["Node"] },
+        { name: "node:dblclick", args: ["Node"] },
+        { name: "node:selected", args: ["Node"] },
+        { name: "node:unselected", args: ["Node"] },
+        { name: "node:checked", args: ["Node", "Target Node"] },
+        { name: "node:unchecked", args: ["Node"] },
+        { name: "node:expanded", args: ["Node"] },
+        { name: "node:collapsed", args: ["Node"] },
+        { name: "node:added", args: ["Node", "New Node"] },
+        { name: "node:removed", args: ["Node"] },
+        { name: "node:text:changed", args: ["Node", "New Text", "Old Text"] },
 
-        { name: 'node:editing:start',  args: ['Node'] },
-        { name: 'node:editing:stop',  args: ['Node', 'isTextChanged'] },
-      ]
+        { name: "node:editing:start", args: ["Node"] },
+        { name: "node:editing:stop", args: ["Node", "isTextChanged"] },
+      ];
 
-      let key = 0
+      let key = 0;
 
-      new Vue({
-        el: '#app',
-        data: () => ({
-          events: [],
+      const app = Vue.createApp({
+        data() {
+          return {
+            events: [],
 
-          data: getData(),
-          filter: null,
-          opts: {
-            fetchData: '/assets/data/events/{id}.json',
-            checkbox: true,
-            filter: {
-              plainList: true
+            data: getData(),
+            filter: null,
+            opts: {
+              fetchData: "/assets/data/events/{id}.json",
+              checkbox: true,
+              filter: {
+                plainList: true,
+              },
+              dnd: true,
             },
-            dnd: true
-          }
-        }),
+          };
+        },
 
         filters: {
           time(time) {
-            return +time
-          }
+            return +time;
+          },
         },
 
         computed: {
           eventsList() {
-            return this.events.concat().reverse()
-          }
+            return this.events.concat().reverse();
+          },
         },
 
         mounted() {
-          eventsList.forEach(e => {
-            this.$refs.tree.$on(e.name, this.initEventViewer(e))
-          })
+          eventsList.forEach((e) => {
+            this.$refs.tree.$on(e.name, this.initEventViewer(e));
+          });
         },
 
         methods: {
           editNode(node, e) {
-            node.startEditing()
+            node.startEditing();
           },
 
           removeNode(node) {
-            if (confirm('Are you sure?')) {
-              node.remove()
+            if (confirm("Are you sure?")) {
+              node.remove();
             }
           },
 
@@ -204,60 +205,61 @@
             // this API doesn't check whether node enabled
             // you have to do it yourself
             if (node.enabled()) {
-              node.append('New Node')
+              node.append("New Node");
             }
           },
 
           initEventViewer(event) {
-            const events = this.events
+            const events = this.events;
 
             return function (node, newNode) {
-              let nodeText = '-'
-              let targetNode = newNode && newNode.text ? newNode : node
+              let nodeText = "-";
+              let targetNode = newNode && newNode.text ? newNode : node;
 
               if (targetNode && targetNode.text) {
-                nodeText = targetNode.text
+                nodeText = targetNode.text;
               }
 
               events.push(
-                Object.assign(
-                  {},
-                  event,
-                  { time: new Date, nodeText, id: key++ }
-                )
-              )
+                Object.assign({}, event, {
+                  time: new Date(),
+                  nodeText,
+                  id: key++,
+                }),
+              );
 
-              console.log(arguments)
-              console.log(node.text, newNode ? newNode.text : null)
-            }
-          }
-        }
-      })
+              console.log(arguments);
+              console.log(node.text, newNode ? newNode.text : null);
+            };
+          },
+        },
+      });
+      app.use(LiquorTree);
+      app.mount("#app");
 
       function getData() {
-        return new Promise(resolve => {
-          setTimeout(_ => {
+        return new Promise((resolve) => {
+          setTimeout((_) => {
             resolve([
               {
-                "text": "Introduction",
-                "isBatch": true,
-                "id": 1
+                text: "Introduction",
+                isBatch: true,
+                id: 1,
               },
               {
-                "text": "Part I: Fundamentals",
-                "isBatch": true,
-                "id": 2
+                text: "Part I: Fundamentals",
+                isBatch: true,
+                id: 2,
               },
               {
-                "text": "Data Types and Variables",
-                "isBatch": true,
-                "id": 3
-              }
-            ])
-          }, 100)
-        })
+                text: "Data Types and Variables",
+                isBatch: true,
+                id: 3,
+              },
+            ]);
+          }, 100);
+        });
       }
     </script>
-
   </body>
 </html>
