@@ -38,12 +38,14 @@ export default class Tree {
   }
 
   $once(name, ...args) {
-    // this.vm.$emitter.on(name, ...args);
+    // this.vm.$once(name, ...args);
+    this.emitter.once(name, ...args);
     console.log("era pra ter um once aqui");
   }
 
   $off(name, ...args) {
-    // this.vm.$emitter.on(name, ...args);
+    // this.vm.$off(name, ...args);
+    this.emitter.off(name, ...args);
     console.log("era pra ter um off aqui");
   }
 
@@ -52,10 +54,12 @@ export default class Tree {
       return;
     }
 
-    this.vm.$emit(name, ...args);
+    // this.vm.$emit(name, ...args);
+    this.emitter.$emit(name, ...args);
 
     if (this.options.store) {
-      this.vm.$emit("LIQUOR_NOISE");
+      // this.vm.$emit("LIQUOR_NOISE");
+      this.emitter.$emit("LIQUOR_NOISE");
     }
   }
 

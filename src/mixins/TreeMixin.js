@@ -11,9 +11,9 @@ function initEvents(vm) {
     const selected = vm.selected();
 
     if (!checkbox) {
-      vm.$emit("input", multiple ? selected : selected[0] || null);
+      vm.$emit("update:model-value", multiple ? selected : selected[0] || null);
     } else {
-      vm.$emit("input", {
+      vm.$emit("update:model-value", {
         selected: multiple ? selected : selected[0] || null,
         checked: vm.checked(),
       });
@@ -50,6 +50,7 @@ function initEvents(vm) {
 }
 
 export default {
+  emits: ['tree:mounted', "node:selected", "node:unselected", "node:checked", "node:unchecked", "node:added"],
   mounted() {
     const tree = new Tree(this);
     let dataProvider;

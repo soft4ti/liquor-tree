@@ -111,6 +111,7 @@ var TreeNode = {
   name: "Node",
   inject: ["tree"],
   props: ["node", "options"],
+  emits: ["node:clicked"],
 
   components: {
     NodeContent: _sfc_main$3,
@@ -1684,14 +1685,22 @@ Tree.prototype.$on = function $on (name) {
 };
 
 Tree.prototype.$once = function $once (name) {
+    var ref;
 
-  // this.vm.$emitter.on(name, ...args);
+    var args = [], len = arguments.length - 1;
+    while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+  // this.vm.$once(name, ...args);
+  (ref = this.emitter).once.apply(ref, [ name ].concat( args ));
   console.log("era pra ter um once aqui");
 };
 
 Tree.prototype.$off = function $off (name) {
+    var ref;
 
-  // this.vm.$emitter.on(name, ...args);
+    var args = [], len = arguments.length - 1;
+    while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+  // this.vm.$off(name, ...args);
+  (ref = this.emitter).off.apply(ref, [ name ].concat( args ));
   console.log("era pra ter um off aqui");
 };
 
@@ -1704,10 +1713,12 @@ Tree.prototype.$emit = function $emit (name) {
     return;
   }
 
-  (ref = this.vm).$emit.apply(ref, [ name ].concat( args ));
+  // this.vm.$emit(name, ...args);
+  (ref = this.emitter).$emit.apply(ref, [ name ].concat( args ));
 
   if (this.options.store) {
-    this.vm.$emit("LIQUOR_NOISE");
+    // this.vm.$emit("LIQUOR_NOISE");
+    this.emitter.$emit("LIQUOR_NOISE");
   }
 };
 
@@ -2524,9 +2535,9 @@ function initEvents(vm) {
     var selected = vm.selected();
 
     if (!checkbox) {
-      vm.$emit("input", multiple ? selected : selected[0] || null);
+      vm.$emit("update:model-value", multiple ? selected : selected[0] || null);
     } else {
-      vm.$emit("input", {
+      vm.$emit("update:model-value", {
         selected: multiple ? selected : selected[0] || null,
         checked: vm.checked(),
       });
@@ -2563,6 +2574,7 @@ function initEvents(vm) {
 }
 
 var TreeMixin = {
+  emits: ['tree:mounted', "node:selected", "node:unselected", "node:checked", "node:unchecked", "node:added"],
   mounted: function mounted() {
     var this$1$1 = this;
 
@@ -3107,8 +3119,12 @@ var _sfc_main = {
       type: String,
       default: "div",
     },
+    modelValue: {
+      type: [Object, Array],
+      default: undefined,
+    },
   },
-
+  emits: ["update:model-value"],
   data: function data() {
     // we should not mutating a prop directly...
     // that's why we have to create a new object

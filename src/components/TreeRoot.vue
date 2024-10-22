@@ -115,8 +115,12 @@ export default {
       type: String,
       default: "div",
     },
+    modelValue: {
+      type: [Object, Array],
+      default: undefined,
+    },
   },
-
+  emits: ["update:model-value"],
   data() {
     // we should not mutating a prop directly...
     // that's why we have to create a new object
