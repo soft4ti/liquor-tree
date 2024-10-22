@@ -87,7 +87,12 @@
             />
           </div>
           <div class="example-tree">
-            <tree :data="data" :options="opts" :filter="filter" ref="tree">
+            <tree
+              :data="data"
+              :options="opts"
+              :filter="filter"
+              ref="treeExample"
+            >
               <div slot-scope="{ node }" class="node-container">
                 <div class="node-text">{{ node.text }}</div>
                 <div class="node-controls">
@@ -118,7 +123,7 @@
                 <span><b>{{ e.name }}</b></span>
                 <span>{{ e.args }}</span>
                 <span>{{ e.nodeText }}</span>
-                <span>{{ e.time | time }}</span>
+                <span>{{ time(e.time) }}</span>
               </div>
             </transition-group>
           </div>
@@ -171,13 +176,6 @@
             },
           };
         },
-
-        filters: {
-          time(time) {
-            return +time;
-          },
-        },
-
         computed: {
           eventsList() {
             return this.events.concat().reverse();
@@ -185,12 +183,16 @@
         },
 
         mounted() {
+          const vm = this;
           eventsList.forEach((e) => {
-            this.$refs.tree.$on(e.name, this.initEventViewer(e));
+            vm.$refs.treeExample.tree.$on(e.name, this.initEventViewer(e));
           });
         },
 
         methods: {
+          time(time) {
+            return +time;
+          },
           editNode(node, e) {
             node.startEditing();
           },
