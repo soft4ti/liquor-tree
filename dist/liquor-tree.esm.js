@@ -3229,18 +3229,11 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
 }
 var TreeRoot = /*#__PURE__*/_export_sfc(_sfc_main, [['render',_sfc_render]]);
 
-// TreeRoot.install = install;
-
-// if (typeof window !== 'undefined' && window.Vue) {
-//   window.Vue.use(TreeRoot);
-// }
-
-var main = {
-  install: function install(app) {
-    // app.config.globalProperties.$emitter = emitter;
-    app.component(TreeRoot.name, TreeRoot);
-  },
+var install = function (app) {
+  app.component(TreeRoot.name, TreeRoot);
 };
 
-export { main as default };
+TreeRoot.install = install;
+
+export { TreeRoot as default };
 //# sourceMappingURL=liquor-tree.esm.js.map
