@@ -1,250 +1,279 @@
 const DropPosition = {
-  ABOVE: 'drag-above',
-  BELOW: 'drag-below',
-  ON: 'drag-on'
+  ABOVE: "drag-above",
+  BELOW: "drag-below",
+  ON: "drag-on",
+};
+
+function isMovingStarted(event, start) {
+  return (
+    Math.abs(event.clientX - start[0]) > 5 ||
+    Math.abs(event.clientY - start[1]) > 5
+  );
 }
 
-function isMovingStarted (event, start) {
-  return Math.abs(event.clientX - start[0]) > 5 || Math.abs(event.clientY - start[1]) > 5
-}
-
-function composedPath (event) {
-  let el = event.target
-  const path = []
+function composedPath(event) {
+  let el = event.target;
+  const path = [];
 
   while (el) {
-    path.push(el)
+    path.push(el);
 
-    if (el.tagName === 'HTML') {
-      path.push(document)
-      path.push(window)
+    if (el.tagName === "HTML") {
+      path.push(document);
+      path.push(window);
 
-      return path
+      return path;
     }
 
-    el = el.parentElement
+    el = el.parentElement;
   }
 
-  return path
+  return path;
 }
 
-function getPath (event) {
+function getPath(event) {
   if (event.path) {
-    return event.path
+    return event.path;
   }
 
   if (event.composedPath) {
-    return event.composedPath()
+    return event.composedPath();
   }
 
-  return composedPath(event)
+  return composedPath(event);
 }
 
-function getSelectedNode (event) {
-  let className
-  let i = 0
+function getSelectedNode(event) {
+  let className;
+  let i = 0;
 
-  const path = getPath(event)
+  const path = getPath(event);
 
   for (; i < path.length; i++) {
-    className = path[i].className || ''
+    className = path[i].className || "";
 
     if (/tree-node/.test(className)) {
-      return path[i]
+      return path[i];
     }
   }
 
-  return null
+  return null;
 }
 
-function getDropDestination (e) {
-  const selectedNode = getSelectedNode(e)
+function getDropDestination(e) {
+  const selectedNode = getSelectedNode(e);
 
   if (!selectedNode) {
-    return null
+    return null;
   }
 
-  return selectedNode
+  return selectedNode;
 }
 
-function updateHelperClasses (target, classes) {
+function updateHelperClasses(target, classes) {
   if (!target) {
-    return
+    return;
   }
 
-  let className = target.className
+  let className = target.className;
 
   if (!classes) {
     for (const i in DropPosition) {
-      className = className.replace(DropPosition[i], '')
+      className = className.replace(DropPosition[i], "");
     }
 
-    className.replace('dragging', '')
+    className.replace("dragging", "");
   } else if (!new RegExp(classes).test(className)) {
-    className += ' ' + classes
+    className += " " + classes;
   }
 
-  target.className = className.replace(/\s+/g, ' ')
+  target.className = className.replace(/\s+/g, " ");
 }
 
-function getDropPosition (e, element) {
-  const coords = element.getBoundingClientRect()
-  const nodeSection = coords.height / 3
+function getDropPosition(e, element) {
+  const coords = element.getBoundingClientRect();
+  const nodeSection = coords.height / 3;
 
-  let dropPosition = DropPosition.ON
+  let dropPosition = DropPosition.ON;
 
   if (coords.top + nodeSection >= e.clientY) {
-    dropPosition = DropPosition.ABOVE
+    dropPosition = DropPosition.ABOVE;
   } else if (coords.top + nodeSection * 2 <= e.clientY) {
-    (
-      dropPosition = DropPosition.BELOW
-    )
+    dropPosition = DropPosition.BELOW;
   }
 
-  return dropPosition
+  return dropPosition;
 }
 
-function callDndCb (args, opts, method) {
-  if (!opts || !opts[method] || typeof opts[method] !== 'function') {
-    return
+function callDndCb(args, opts, method) {
+  if (!opts || !opts[method] || typeof opts[method] !== "function") {
+    return;
   }
 
-  return opts[method](...args) !== false
+  return opts[method](...args) !== false;
 }
 
-function clearDropClasses (parent) {
+function clearDropClasses(parent) {
   for (const key in DropPosition) {
-    const el = parent.querySelectorAll(`.${DropPosition[key]}`)
+    const el = parent.querySelectorAll(`.${DropPosition[key]}`);
 
     for (let i = 0; i < el.length; i++) {
-      updateHelperClasses(el[i])
+      updateHelperClasses(el[i]);
     }
   }
 }
 
 export default {
   methods: {
-    onDragStart (e) {
-      e.preventDefault()
+    onDragStart(e) {
+      e.preventDefault();
     },
 
-    startDragging (node, event) {
-      if (!node.isDraggable() || callDndCb([node], this.tree.options.dnd, 'onDragStart') === false) {
-        return
+    startDragging(node, event) {
+      if (
+        !node.isDraggable() ||
+        callDndCb([node], this.tree.options.dnd, "onDragStart") === false
+      ) {
+        return;
       }
 
-      this.$$startDragPosition = [event.clientX, event.clientY]
-      this.$$possibleDragNode = node
+      this.$$startDragPosition = [event.clientX, event.clientY];
+      this.$$possibleDragNode = node;
 
-      this.initDragListeners()
+      this.initDragListeners();
     },
 
-    initDragListeners () {
-      let dropPosition
+    initDragListeners() {
+      let dropPosition;
 
       const removeListeners = () => {
-        window.removeEventListener('mouseup', onMouseUp, true)
-        window.removeEventListener('mousemove', onMouseMove, true)
-      }
+        window.removeEventListener("mouseup", onMouseUp, true);
+        window.removeEventListener("mousemove", onMouseMove, true);
+      };
 
       const onMouseUp = (e) => {
         if (!this.$$startDragPosition) {
-          e.stopPropagation()
+          e.stopPropagation();
         }
 
         if (this.draggableNode) {
-          this.draggableNode.node.state('dragging', false)
+          this.draggableNode.node.state("dragging", false);
         }
 
-        if (this.$$dropDestination && this.tree.isNode(this.$$dropDestination) && this.$$dropDestination.vm) {
-          updateHelperClasses(this.$$dropDestination.vm.$el, null)
+        if (
+          this.$$dropDestination &&
+          this.tree.isNode(this.$$dropDestination) &&
+          this.$$dropDestination.vm
+        ) {
+          updateHelperClasses(this.$$dropDestination.vm.$el, null);
 
           const cbResult = callDndCb(
             [this.draggableNode.node, this.$$dropDestination, dropPosition],
             this.tree.options.dnd,
-            'onDragFinish'
-          )
+            "onDragFinish",
+          );
 
-          if (cbResult !== false && !(!this.$$dropDestination.isDropable() && dropPosition === DropPosition.ON || !dropPosition)) {
-            this.draggableNode.node.finishDragging(this.$$dropDestination, dropPosition)
-            this.draggableNode.node.parent = this.$$dropDestination
+          if (
+            cbResult !== false &&
+            !(
+              (!this.$$dropDestination.isDropable() &&
+                dropPosition === DropPosition.ON) ||
+              !dropPosition
+            )
+          ) {
+            this.draggableNode.node.finishDragging(
+              this.$$dropDestination,
+              dropPosition,
+            );
+            this.draggableNode.node.parent = this.$$dropDestination;
           }
 
-          this.$$dropDestination = null
+          this.$$dropDestination = null;
         }
 
-        this.$$possibleDragNode = null
-        this.$set(this, 'draggableNode', null)
+        this.$$possibleDragNode = null;
+        this.draggableNode = null;
 
-        removeListeners()
-      }
+        removeListeners();
+      };
 
       const onMouseMove = (e) => {
-        if (this.$$startDragPosition && !isMovingStarted(e, this.$$startDragPosition)) {
-          return
+        if (
+          this.$$startDragPosition &&
+          !isMovingStarted(e, this.$$startDragPosition)
+        ) {
+          return;
         } else {
-          this.$$startDragPosition = null
+          this.$$startDragPosition = null;
         }
 
         if (this.$$possibleDragNode) {
           if (this.$$possibleDragNode.startDragging() === false) {
-            removeListeners()
-            this.$$possibleDragNode = null
+            removeListeners();
+            this.$$possibleDragNode = null;
 
-            return
+            return;
           }
 
-          this.$set(this, 'draggableNode', { node: this.$$possibleDragNode, left: 0, top: 0 })
-          this.$$possibleDragNode = null
+          this.draggableNode = {
+            node: this.$$possibleDragNode,
+            left: 0,
+            top: 0,
+          };
+          this.$$possibleDragNode = null;
         }
 
-        this.draggableNode.left = e.clientX
-        this.draggableNode.top = e.clientY
+        this.draggableNode.left = e.clientX;
+        this.draggableNode.top = e.clientY;
 
-        const dropDestination = getDropDestination(e)
+        const dropDestination = getDropDestination(e);
 
-        clearDropClasses(this.$el)
+        clearDropClasses(this.$el);
 
         if (dropDestination) {
-          const dropDestinationId = dropDestination.getAttribute('data-id')
+          const dropDestinationId = dropDestination.getAttribute("data-id");
 
           if (this.draggableNode.node.id === dropDestinationId) {
-            return
+            return;
           }
 
-          if (!this.$$dropDestination || this.$$dropDestination.id !== dropDestinationId) {
-            this.$$dropDestination = this.tree.getNodeById(dropDestinationId)
+          if (
+            !this.$$dropDestination ||
+            this.$$dropDestination.id !== dropDestinationId
+          ) {
+            this.$$dropDestination = this.tree.getNodeById(dropDestinationId);
           }
 
           if (this.$$dropDestination && this.draggableNode.node) {
-            const path = this.$$dropDestination.getPath()
+            const path = this.$$dropDestination.getPath();
 
             if (path.includes(this.draggableNode.node)) {
-              this.$$dropDestination = null
-              return
+              this.$$dropDestination = null;
+              return;
             }
           }
 
-          dropPosition = getDropPosition(e, dropDestination)
+          dropPosition = getDropPosition(e, dropDestination);
 
           const cbResult = callDndCb(
             [this.draggableNode.node, this.$$dropDestination, dropPosition],
             this.tree.options.dnd,
-            'onDragOn'
-          )
+            "onDragOn",
+          );
 
-          const isDropable = this.$$dropDestination.isDropable() && cbResult !== false
+          const isDropable =
+            this.$$dropDestination.isDropable() && cbResult !== false;
 
           if (!isDropable && dropPosition === DropPosition.ON) {
-            dropPosition = null
+            dropPosition = null;
           }
 
-          updateHelperClasses(dropDestination, dropPosition)
+          updateHelperClasses(dropDestination, dropPosition);
         }
-      }
+      };
 
-      window.addEventListener('mouseup', onMouseUp, true)
-      window.addEventListener('mousemove', onMouseMove, true)
-    }
-  }
-}
+      window.addEventListener("mouseup", onMouseUp, true);
+      window.addEventListener("mousemove", onMouseMove, true);
+    },
+  },
+};

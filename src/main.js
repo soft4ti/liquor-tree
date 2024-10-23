@@ -1,13 +1,14 @@
-import TreeRoot from './components/TreeRoot.vue'
+import TreeRoot from "./components/TreeRoot.vue";
 
-const install = Vue => {
-  Vue.component(TreeRoot.name, TreeRoot)
-}
+// TreeRoot.install = install;
 
-TreeRoot.install = install
+// if (typeof window !== 'undefined' && window.Vue) {
+//   window.Vue.use(TreeRoot);
+// }
 
-if (typeof window !== 'undefined' && window.Vue) {
-  window.Vue.use(TreeRoot)
-}
-
-export default TreeRoot
+export default {
+  install(app) {
+    // app.config.globalProperties.$emitter = emitter;
+    app.component(TreeRoot.name, TreeRoot);
+  },
+};

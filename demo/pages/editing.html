@@ -1,15 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8" />
     <title>Liquor Tree: Editing</title>
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css" />
     <script src="../assets/menu.js"></script>
 
     <!-- first import Vue -->
-    <!-- <script src="https://unpkg.com/vue/dist/vue.js"></script> -->
-    <script src="../assets/vue.js"></script>
+    <script src="https://unpkg.com/vue"></script>
     <script src="/liquor-tree.umd.js"></script>
 
     <style>
@@ -31,47 +30,45 @@
     </style>
   </head>
   <body>
-    <div class="hello">
-      Editing.
-    </div>
+    <div class="hello">Editing.</div>
 
     <div id="app">
       <div class="examples">
         <div class="example">
-          <div class="example-description">
-            Basic example
-          </div>
+          <div class="example-description">Basic example</div>
           <div class="example-tree">
-            <tree
-              ref="tree"
-              :options="treeOptions0" />
+            <tree ref="tree" :options="treeOptions0" />
           </div>
         </div>
-
       </div>
     </div>
 
     <script>
-      new Vue({
-        el: '#app',
-        data: () => ({
-          treeOptions0: {
-            fetchData: '/assets/data/editing.json',
-            editing: true,
-            dnd: true
-          }
-        }),
+      const app = Vue.createApp({
+        data() {
+          return {
+            treeOptions0: {
+              fetchData: "/assets/data/editing.json",
+              editing: true,
+              dnd: true,
+            },
+          };
+        },
         mounted() {
-          this.$refs.tree.$on('node:editing:start', (node) => {
-          	console.log('Start editing: ' + node.text)
-          })
-          
-        	this.$refs.tree.$on('node:editing:stop', (node, prevNodeText) => {
-          	console.log('Stop editing: ' + node.text + ', ' + prevNodeText)
-          })
-        }
-      })
-    </script>
+          this.$refs.tree.tree.$on("node:editing:start", (node) => {
+            console.log("Start editing: " + node.text);
+          });
 
+          this.$refs.tree.tree.$on(
+            "node:editing:stop",
+            (node, prevNodeText) => {
+              console.log("Stop editing: " + node.text + ", " + prevNodeText);
+            },
+          );
+        },
+      });
+      app.use(LiquorTree);
+      app.mount("#app");
+    </script>
   </body>
 </html>

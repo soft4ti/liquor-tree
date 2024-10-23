@@ -1,15 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8" />
     <title>Liquor Tree: Sorting</title>
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css" />
     <script src="../assets/menu.js"></script>
 
     <!-- first import Vue -->
-    <!-- <script src="https://unpkg.com/vue/dist/vue.js"></script> -->
-    <script src="../assets/vue.js"></script>
+    <script src="https://unpkg.com/vue"></script>
     <script src="/liquor-tree.umd.js"></script>
 
     <style>
@@ -57,17 +56,22 @@
         <div class="example">
           <div class="example-description">
             <span>
-                Sort tree:
-                <select v-model="treeSort.order">
-                    <option value=""></option>
-                    <option value="asc">Asc</option>
-                    <option value="desc">Desc</option>
-                </select>
+              Sort tree:
+              <select v-model="treeSort.order">
+                <option value=""></option>
+                <option value="asc">Asc</option>
+                <option value="desc">Desc</option>
+              </select>
             </span>
 
             <span>
               <label>
-                Recursive: <input type="checkbox" value="true" v-model="treeSort.recursive">
+                Recursive:
+                <input
+                  type="checkbox"
+                  value="true"
+                  v-model="treeSort.recursive"
+                />
               </label>
             </span>
           </div>
@@ -75,26 +79,29 @@
             <tree
               ref="tree"
               :options="treeOptions0"
-              @tree:mounted="onTreeMounted" />
+              @tree:mounted="onTreeMounted"
+            />
           </div>
         </div>
         <div class="example">
           <div class="example-description">
             Cusom sorting (data score):
             <span>
-                <select v-model="treeSort.orderScore">
-                    <option value=""></option>
-                    <option value="asc">Asc</option>
-                    <option value="desc">Desc</option>
-                </select>
+              <select v-model="treeSort.orderScore">
+                <option value=""></option>
+                <option value="asc">Asc</option>
+                <option value="desc">Desc</option>
+              </select>
             </span>
           </div>
           <div class="example-tree">
             <tree ref="tree2" :options="treeOptions0">
-              <div class="node" slot-scope="{ node }">
-                <span class="node-text">{{ node.text }}</span>
-                <div class="node-score">{{ node.data.score }}</div>
-              </div>
+              <template v-slot="{ node }">
+                <div class="node">
+                  <span class="node-text">{{ node.text }}</span>
+                  <div class="node-score">{{ node.data.score }}</div>
+                </div>
+              </template>
             </tree>
           </div>
         </div>
@@ -102,69 +109,69 @@
     </div>
 
     <script>
-      new Vue({
-        el: '#app',
-        data: () => ({
-          treeOptions0: {
-            fetchData: '/assets/data/sorting.json',
-          },
+      const app = Vue.createApp({
+        data() {
+          return {
+            treeOptions0: {
+              fetchData: "/assets/data/sorting.json",
+            },
 
-          treeSort: {
-            recursive: true,
-            order: '',
-            orderScore: ''
-          }
-        }),
-
+            treeSort: {
+              recursive: true,
+              order: "",
+              orderScore: "",
+            },
+          };
+        },
         watch: {
-          ['treeSort.order']() {
-            this.sortTree()
+          ["treeSort.order"]() {
+            this.sortTree();
           },
-          ['treeSort.recursive']() {
-            this.sortTree()
+          ["treeSort.recursive"]() {
+            this.sortTree();
           },
-          ['treeSort.orderScore'](orderScore) {
-            this.customSort(orderScore)
-          }
+          ["treeSort.orderScore"](orderScore) {
+            this.customSort(orderScore);
+          },
         },
 
         methods: {
           onTreeMounted() {
-            window.t = this.$refs.tree
-            this.$refs.tree.recurseDown(node => {
+            window.t = this.$refs.tree;
+            this.$refs.tree.recurseDown((node) => {
               if (0 == node.depth) {
-                node.expand()
+                node.expand();
               }
-            })
+            });
           },
 
           customSort(order) {
             function sort(node0, node1) {
-              let r = (node0.data.score - node1.data.score)
-              let p = 'asc' == order ? 1 : -1
+              let r = node0.data.score - node1.data.score;
+              let p = "asc" == order ? 1 : -1;
 
               if (isNaN(r)) {
-                return 0
+                return 0;
               }
 
-              return r * p
+              return r * p;
             }
 
-            this.$refs.tree2.sortTree(sort)
+            this.$refs.tree2.sortTree(sort);
           },
 
           sortTree() {
             this.$refs.tree.sortTree(
               this.treeSort.order,
-              this.treeSort.recursive
-            )
+              this.treeSort.recursive,
+            );
           },
 
-          sort() {
-          }
-        }
-      })
+          sort() {},
+        },
+      });
+      app.use(LiquorTree);
+      app.mount("#app");
     </script>
-
   </body>
 </html>

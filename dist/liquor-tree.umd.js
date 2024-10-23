@@ -1,7 +1,3252 @@
+
 /*!
- * LiquorTree v0.2.70
- * (c) 2020 amsik
+ * LiquorTree v0.3.0
+ * (c) 2024 amsik
  * Released under the MIT License.
  */
-!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e=e||self).LiquorTree=t()}(this,function(){"use strict";var e={name:"node-content",props:["node"],render:function(e){var t=this,n=this.node,i=this.node.tree.vm;if(n.isEditing){var r=n.text;return this.$nextTick(function(e){t.$refs.editCtrl.focus()}),e("input",{domProps:{value:n.text,type:"text"},class:"tree-input",on:{input:function(e){r=e.target.value},blur:function(){n.stopEditing(r)},keyup:function(e){13===e.keyCode&&n.stopEditing(r)},mouseup:function(e){e.stopPropagation()}},ref:"editCtrl"})}return i.$scopedSlots.default?i.$scopedSlots.default({node:this.node}):e("span",{domProps:{innerHTML:n.text}})}};function t(e,t,n,i,r,o,s,a,d,c){"function"==typeof s&&(d=a,a=s,s=!1);var h,l="function"==typeof n?n.options:n;if(e&&e.render&&(l.render=e.render,l.staticRenderFns=e.staticRenderFns,l._compiled=!0,r&&(l.functional=!0)),i&&(l._scopeId=i),o?(h=function(e){(e=e||this.$vnode&&this.$vnode.ssrContext||this.parent&&this.parent.$vnode&&this.parent.$vnode.ssrContext)||"undefined"==typeof __VUE_SSR_CONTEXT__||(e=__VUE_SSR_CONTEXT__),t&&t.call(this,d(e)),e&&e._registeredComponents&&e._registeredComponents.add(o)},l._ssrRegister=h):t&&(h=s?function(){t.call(this,c(this.$root.$options.shadowRoot))}:function(e){t.call(this,a(e))}),h)if(l.functional){var p=l.render;l.render=function(e,t){return h.call(t),p(e,t)}}else{var u=l.beforeCreate;l.beforeCreate=u?[].concat(u,h):[h]}return n}var n=e;e.__file="NodeContent.vue";var i={name:"Node",inject:["tree"],props:["node","options"],components:{NodeContent:t({},void 0,n,void 0,void 0,void 0,void 0,void 0)},watch:{node:function(){this.node.vm=this}},data:function(){return this.node.vm=this,{loading:!1}},computed:{padding:function(){return this.node.depth*(this.options.paddingLeft?this.options.paddingLeft:this.options.nodeIndent)+"px"},nodeClass:function(){var e=this.node.states,t=this.hasChildren(),n={"has-child":t,expanded:t&&e.expanded,selected:e.selected,disabled:e.disabled,matched:e.matched,dragging:e.dragging,loading:this.loading,draggable:e.draggable};return this.options.checkbox&&(n.checked=e.checked,n.indeterminate=e.indeterminate),n},visibleChildren:function(){return this.node.children.filter(function(e){return e&&e.visible()})}},methods:{onNodeFocus:function(){this.tree.activeElement=this.node},focus:function(){this.$refs.anchor.focus(),this.node.select()},check:function(){this.node.checked()?this.node.uncheck():this.node.check()},select:function(e){void 0===e&&(e=evnt);var t=e.ctrlKey,n=this.options,i=this.tree,r=this.node;if(i.$emit("node:clicked",r),!n.editing||!r.isEditing){if(n.editing&&r.editable())return this.startEditing();if(n.checkbox&&n.checkOnSelect)return!n.parentSelect&&this.hasChildren()?this.toggleExpand():this.check(t);!n.parentSelect&&this.hasChildren()&&this.toggleExpand(),n.multiple?r.selected()?t?r.unselect():1!=this.tree.selectedNodes.length&&(i.unselectAll(),r.select()):r.select(t):r.selected()&&t?r.unselect():r.select()}},toggleExpand:function(){this.hasChildren()&&this.node.toggleExpand()},hasChildren:function(){return this.node.hasChildren()},startEditing:function(){this.tree._editingNode&&this.tree._editingNode.stopEditing(),this.node.startEditing()},stopEditing:function(){this.node.stopEditing()},handleMouseDown:function(e){this.options.dnd&&this.tree.vm.startDragging(this.node,e)}}},d="undefined"!=typeof navigator&&/msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());function r(e){return function(e,t){return function(e,t){var n=d?t.media||"default":e,i=h[n]||(h[n]={ids:new Set,styles:[]});if(!i.ids.has(e)){i.ids.add(e);var r=t.source;if(t.map&&(r+="\n/*# sourceURL="+t.map.sources[0]+" */",r+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(t.map))))+" */"),i.element||(i.element=document.createElement("style"),i.element.type="text/css",t.media&&i.element.setAttribute("media",t.media),c.appendChild(i.element)),"styleSheet"in i.element)i.styles.push(r),i.element.styleSheet.cssText=i.styles.filter(Boolean).join("\n");else{var o=i.ids.size-1,s=document.createTextNode(r),a=i.element.childNodes;a[o]&&i.element.removeChild(a[o]),a.length?i.element.insertBefore(s,a[o]):i.element.appendChild(s)}}}(e,t)}}var c=document.head||document.getElementsByTagName("head")[0],h={};var o=t({render:function(){var t=this,e=t.$createElement,n=t._self._c||e;return n("li",{staticClass:"tree-node",class:t.nodeClass,attrs:{role:"treeitem","data-id":t.node.id},on:{mousedown:function(e){return e.stopPropagation(),t.handleMouseDown(e)}}},[n("div",{staticClass:"tree-content",style:["ltr"==t.options.direction?{"padding-left":t.padding}:{"padding-right":t.padding}],on:{click:function(e){return e.stopPropagation(),t.select(e)}}},[n("i",{staticClass:"tree-arrow",class:[{expanded:t.node.states.expanded,"has-child":t.node.children.length||t.node.isBatch},t.options.direction],on:{click:function(e){return e.stopPropagation(),t.toggleExpand(e)}}}),t._v(" "),t.options.checkbox?n("i",{staticClass:"tree-checkbox",class:{checked:t.node.states.checked,indeterminate:t.node.states.indeterminate},on:{click:function(e){return e.stopPropagation(),t.check(e)}}}):t._e(),t._v(" "),n("span",{ref:"anchor",staticClass:"tree-anchor",attrs:{tabindex:"-1"},on:{focus:t.onNodeFocus,dblclick:function(e){return t.tree.$emit("node:dblclick",t.node)}}},[n("node-content",{attrs:{node:t.node}})],1)]),t._v(" "),n("transition",{attrs:{name:"l-fade"}},[t.hasChildren()&&t.node.states.expanded?n("ul",{staticClass:"tree-children"},t._l(t.visibleChildren,function(e){return n("node",{key:e.id,attrs:{node:e,options:t.options}})}),1):t._e()])],1)},staticRenderFns:[]},function(e){e&&e("data-v-c58df0ac_0",{source:'.tree-node{white-space:nowrap;display:flex;flex-direction:column;position:relative;box-sizing:border-box}.tree-content{display:flex;align-items:center;padding:3px;cursor:pointer;width:100%;box-sizing:border-box}.tree-node:not(.selected)>.tree-content:hover{background:#f6f8fb}.tree-node.selected>.tree-content{background-color:#e7eef7}.tree-node.disabled>.tree-content:hover{background:inherit}.tree-arrow{flex-shrink:0;height:30px;cursor:pointer;margin-left:30px;width:0}.tree-arrow.has-child{margin-left:0;width:30px;position:relative}.tree-arrow.has-child:after{border:1.5px solid #494646;position:absolute;border-left:0;border-top:0;left:9px;top:50%;height:9px;width:9px;transform:rotate(-45deg) translateY(-50%) translateX(0);transition:transform .25s;transform-origin:center}.tree-arrow.has-child.rtl:after{border:1.5px solid #494646;position:absolute;border-right:0;border-bottom:0;right:0;top:50%;height:9px;width:9px;transform:rotate(-45deg) translateY(-50%) translateX(0);transition:transform .25s;transform-origin:center}.tree-arrow.expanded.has-child:after{transform:rotate(45deg) translateY(-50%) translateX(-5px)}.tree-checkbox{flex-shrink:0;position:relative;width:30px;height:30px;box-sizing:border-box;border:1px solid #dadada;border-radius:2px;background:#fff;transition:border-color .25s,background-color .25s}.tree-arrow:after,.tree-checkbox:after{position:absolute;display:block;content:""}.tree-checkbox.checked,.tree-checkbox.indeterminate{background-color:#3a99fc;border-color:#218eff}.tree-checkbox.checked:after{box-sizing:content-box;border:1.5px solid #fff;border-left:0;border-top:0;left:9px;top:3px;height:15px;width:8px;transform:rotate(45deg) scaleY(0);transition:transform .25s;transform-origin:center}.tree-checkbox.checked:after{transform:rotate(45deg) scaleY(1)}.tree-checkbox.indeterminate:after{background-color:#fff;top:50%;left:20%;right:20%;height:2px}.tree-anchor{flex-grow:2;outline:0;display:flex;text-decoration:none;color:#343434;vertical-align:top;margin-left:3px;line-height:24px;padding:3px 6px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.tree-node.selected>.tree-content>.tree-anchor{outline:0}.tree-node.disabled>.tree-content>.tree-anchor{color:#989191;background:#fff;opacity:.6;cursor:default;outline:0}.tree-input{display:block;width:100%;height:24px;line-height:24px;outline:0;border:1px solid #3498db;padding:0 4px}.l-fade-enter-active,.l-fade-leave-active{transition:opacity .3s,transform .3s;transform:translateX(0)}.l-fade-enter,.l-fade-leave-to{opacity:0;transform:translateX(-2em)}.tree--small .tree-anchor{line-height:19px}.tree--small .tree-checkbox{width:23px;height:23px}.tree--small .tree-arrow{height:23px}.tree--small .tree-checkbox.checked:after{left:7px;top:3px;height:11px;width:5px}.tree-node.has-child.loading>.tree-content>.tree-arrow,.tree-node.has-child.loading>.tree-content>.tree-arrow:after{border-radius:50%;width:15px;height:15px;border:0}.tree-node.has-child.loading>.tree-content>.tree-arrow{font-size:3px;position:relative;border-top:1.1em solid rgba(45,45,45,.2);border-right:1.1em solid rgba(45,45,45,.2);border-bottom:1.1em solid rgba(45,45,45,.2);border-left:1.1em solid #2d2d2d;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);left:5px;-webkit-animation:loading 1.1s infinite linear;animation:loading 1.1s infinite linear;margin-right:8px}@-webkit-keyframes loading{0%{-webkit-transform:rotate(0);transform:rotate(0)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes loading{0%{-webkit-transform:rotate(0);transform:rotate(0)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}',map:void 0,media:void 0})},i,void 0,!(i.__file="TreeNode.vue"),void 0,r,void 0),s={name:"DragNode",props:["target"],computed:{style:function(){return void 0===this.target.top?"display: none":"top: "+this.target.top+"px; left: "+this.target.left+"px"}}},a=t({render:function(){var e=this,t=e.$createElement;return(e._self._c||t)("div",{staticClass:"tree-dragnode",style:e.style},[e._v("\n  "+e._s(e.target.node.text)+"\n")])},staticRenderFns:[]},function(e){e&&e("data-v-6cd9e211_0",{source:".tree-dragnode{padding:10px;border:1px solid #e7eef7;position:fixed;border-radius:8px;background:#fff;transform:translate(-50%,-110%);z-index:10}",map:void 0,media:void 0})},s,void 0,!(s.__file="DraggableNode.vue"),void 0,r,void 0);function l(e,t){var n;return Array.isArray(e)?e.map(function(e){return l(e,t)}):(!1!==(n=t(e))&&e.children&&e.children.length&&(n=l(e.children,t)),n)}function p(e){return!1==!!document?e:(p.__element||(p.__element=document.createElement("div")),p.__element.innerHTML=e,p.__element.innerText)}function u(o){return function(r){return Object.keys(o).every(function(t){if("text"===t||"id"===t){var e=o[t],n=r[t];return n=p(n),e instanceof RegExp?e.test(n):e===n}var i=o[t];return"state"===t&&(t="states"),Object.keys(i).every(function(e){return r[t][e]===i[e]})})}}function f(e,t,n){if(void 0===n&&(n=!0),!e||!e.length||!t)return null;var i;if(n&&(i=[],e.forEach(function e(t){i.push(t),t.children&&t.children.forEach(e)}),e=i),"number"==typeof t)return e[t]||null;("string"==typeof t||t instanceof RegExp)&&(t={text:t}),"function"!=typeof t&&(t=u(t));var r=e.filter(t);return r.length?r:null}function g(){return Math.floor(65536*(1+Math.random())).toString(16).substring(1)}function m(){return g()+g()+"-"+g()+"-"+g()+"-"+g()+"-"+g()+g()+g()}function v(e,t){for(var n=[],i=arguments.length-2;0<i--;)n[i]=arguments[i+2];e.forEach(function(e){return e[t].apply(e,n)})}var b=function(i){function e(e,t){var n;void 0===t&&(t=[]),i.call(this),this.tree=e,(n=this).push.apply(n,t)}return i&&(e.__proto__=i),((e.prototype=Object.create(i&&i.prototype)).constructor=e).prototype.remove=function(){return v(this,"remove"),this},e.prototype.expand=function(){return v(this,"expand"),this},e.prototype.collapse=function(){return v(this,"collapse"),this},e.prototype.select=function(e){return v(this,"select",e),this},e.prototype.unselect=function(){return v(this,"unselect"),this},e.prototype.check=function(){return this.tree.options.checkbox&&v(this,"check"),this},e.prototype.uncheck=function(){return this.tree.options.checkbox&&v(this,"uncheck"),this},e.prototype.disable=function(){return v(this,"disable"),this},e.prototype.enable=function(){return v(this,"enable"),this},e}(Array),y=function(e,t){if(!t)throw new Error("Node can not be empty");if(this.id=t.id||m(),this.states=t.state||{},this.showChildren=!0,this.children=t.children||[],this.parent=t.parent||null,this.isBatch=t.isBatch||!1,this.isEditing=!1,this.data=Object.assign({},t.data||{},{text:t.text}),!e)throw new Error("Node must have a Tree context!");this.tree=e},x={key:{configurable:!0},depth:{configurable:!0},text:{configurable:!0}};y.prototype.$emit=function(e){for(var t,n=[],i=arguments.length-1;0<i--;)n[i]=arguments[i+1];(t=this.tree).$emit.apply(t,["node:"+e,this].concat(n))},y.prototype.getPath=function(){if(!this.parent)return[this];for(var e=[this],t=this;null!==(t=t.parent);)e.push(t);return e},x.key.get=function(){return this.id+this.text},x.depth.get=function(){var e=0,t=this.parent;if(!t||!1===this.showChildren)return e;for(;e++,t=t.parent;);return e},x.text.get=function(){return this.data.text},x.text.set=function(e){var t=this.text;t!==e&&(this.data.text=e,this.$emit("text:changed",e,t))},y.prototype.setData=function(e){return this.data=Object.assign({},this.data,e),this.$emit("data:changed",this.data),this.data},y.prototype.state=function(e,t){return void 0===t?this.states[e]:(this.states[e]=t,this)},y.prototype.recurseUp=function(e,t){if(void 0===t&&(t=this),t.parent)return!1!==e(t.parent)?this.recurseUp(e,t.parent):void 0},y.prototype.recurseDown=function(e,t){!0!==t&&e(this),this.hasChildren()&&l(this.children,e)},y.prototype.refreshIndeterminateState=function(){if(!this.tree.options.autoCheckChildren)return this;if(this.state("indeterminate",!1),this.hasChildren()){var e=this.children.length,t=0,n=0,i=0;this.children.forEach(function(e){e.checked()&&t++,e.disabled()&&i++,e.indeterminate()&&n++}),0<t&&t===e-i?this.checked()||(this.state("checked",!0),this.tree.check(this),this.$emit("checked")):(this.checked()&&(this.state("checked",!1),this.tree.uncheck(this),this.$emit("unchecked")),this.state("indeterminate",0<n||0<t&&t<e))}this.parent&&this.parent.refreshIndeterminateState()},y.prototype.indeterminate=function(){return this.state("indeterminate")},y.prototype.editable=function(){return!this.state("disabled")&&this.state("editable")},y.prototype.selectable=function(){return!this.state("disabled")&&this.state("selectable")},y.prototype.selected=function(){return this.state("selected")},y.prototype.select=function(e){return!this.selectable()||this.selected()||(this.tree.select(this,e),this.state("selected",!0),this.$emit("selected")),this},y.prototype.unselect=function(){return this.selectable()&&this.selected()&&(this.tree.unselect(this),this.state("selected",!1),this.$emit("unselected")),this},y.prototype.checked=function(){return this.state("checked")},y.prototype.check=function(){var t=this;if(this.checked()||this.disabled())return this;if(this.indeterminate())return this.uncheck();var n=this.tree.options.checkDisabledChildren,i=this;return this.tree.options.autoCheckChildren?(this.recurseDown(function(e){e.state("indeterminate",!1),e.disabled()&&!n||e.checked()||(t.tree.check(e),e.state("checked",!0),e.$emit("checked",e.id===i.id?void 0:i))}),this.parent&&this.parent.refreshIndeterminateState()):(this.tree.check(this),this.state("checked",!0),this.$emit("checked")),this},y.prototype.uncheck=function(){var t=this;if(!this.indeterminate()&&!this.checked()||this.disabled())return this;var n=this;return this.tree.options.autoCheckChildren?(this.recurseDown(function(e){e.state("indeterminate",!1),e.checked()&&(t.tree.uncheck(e),e.state("checked",!1),e.$emit("unchecked",e.id===n.id?void 0:n))}),this.parent&&this.parent.refreshIndeterminateState()):(this.tree.uncheck(this),this.state("checked",!1),this.$emit("unchecked")),this},y.prototype.show=function(){return this.visible()||(this.state("visible",!0),this.$emit("shown")),this},y.prototype.hide=function(){return this.hidden()||(this.state("visible",!1),this.$emit("hidden")),this},y.prototype.visible=function(){return this.state("visible")},y.prototype.hidden=function(){return!this.state("visible")},y.prototype.enable=function(){return this.enabled()||(this.tree.options.autoDisableChildren?this.recurseDown(function(e){e.disabled()&&(e.state("disabled",!1),e.$emit("enabled"))}):(this.state("disabled",!1),this.$emit("enabled"))),this},y.prototype.enabled=function(){return!this.state("disabled")},y.prototype.disable=function(){return this.disabled()||(this.tree.options.autoDisableChildren?this.recurseDown(function(e){e.enabled()&&(e.state("disabled",!0),e.$emit("disabled"))}):(this.state("disabled",!0),this.$emit("disabled"))),this},y.prototype.disabled=function(){return this.state("disabled")},y.prototype.expandTop=function(t){var n=this;this.recurseUp(function(e){e.state("expanded",!0),!0!==t&&n.$emit("expanded",e)})},y.prototype.expand=function(){var t=this;return this.canExpand()&&(this.isBatch?this.tree.loadChildren(this).then(function(e){t.state("expanded",!0),t.$emit("expanded")}):(this.state("expanded",!0),this.$emit("expanded"))),this},y.prototype.canExpand=function(){return this.collapsed()&&(!this.tree.autoDisableChildren||this.disabled())},y.prototype.canCollapse=function(){return this.expanded()&&(!this.tree.autoDisableChildren||this.disabled())},y.prototype.expanded=function(){return this.state("expanded")},y.prototype.collapse=function(){return this.canCollapse()&&(this.state("expanded",!1),this.$emit("collapsed")),this},y.prototype.collapsed=function(){return!this.state("expanded")},y.prototype.toggleExpand=function(){return this._toggleOpenedState()},y.prototype.toggleCollapse=function(){return this._toggleOpenedState()},y.prototype._toggleOpenedState=function(){return this.canCollapse()?this.collapse():this.canExpand()?this.expand():void 0},y.prototype.isDropable=function(){return this.enabled()&&this.state("dropable")},y.prototype.isDraggable=function(){return this.enabled()&&this.state("draggable")&&!this.isEditing},y.prototype.startDragging=function(){return!(!this.isDraggable()||this.state("dragging"))&&((!this.isRoot()||1!==this.tree.model.length)&&(this.tree.options.store&&(this.tree.__silence=!0),this.select(),this.state("dragging",!0),this.$emit("dragging:start"),!(this.tree.__silence=!1)))},y.prototype.finishDragging=function(e,t){if(e.isDropable()||"drag-on"!==t){var n=this.tree,i=this.clone(),r=this.parent;i.id=this.id,n.__silence=!0,this.remove(),"drag-on"===t?n.append(e,i):"drag-below"===t?n.after(e,i):"drag-above"===t&&n.before(e,i),e.refreshIndeterminateState(),r&&r.refreshIndeterminateState(),n.__silence=!1,i.state("dragging",!1),this.state("dragging",!1),i.$emit("dragging:finish",e,t),i.state("selected")&&(n.selectedNodes.remove(this),n.selectedNodes.add(i),n.vm.$set(this.state,"selected",!1),n.vm.$set(i.state,"selected",!0)),this.tree.options.store&&this.tree.vm.$emit("LIQUOR_NOISE")}},y.prototype.startEditing=function(){if(this.disabled())return!1;this.isEditing||(((this.tree._editingNode=this).tree.activeElement=this).isEditing=!0,this.$emit("editing:start"))},y.prototype.stopEditing=function(e){if(this.isEditing){this.isEditing=!1,this.tree._editingNode=null,this.tree.activeElement=null;var t=this.text;e&&!1!==e&&this.text!==e&&(this.text=e),this.$emit("editing:stop",t)}},y.prototype.index=function(e){return this.tree.index(this,e)},y.prototype.first=function(){return this.hasChildren()?this.children[0]:null},y.prototype.last=function(){return this.hasChildren()?this.children[this.children.length-1]:null},y.prototype.next=function(){return this.tree.nextNode(this)},y.prototype.prev=function(){return this.tree.prevNode(this)},y.prototype.insertAt=function(e,t){var n=this;if(void 0===t&&(t=this.children.length),e)return e=this.tree.objectToNode(e),Array.isArray(e)?(e.reverse().map(function(e){return n.insertAt(e,t)}),new b(this.tree,[].concat(e))):((e.parent=this).children.splice(t,0,e),e.disabled()&&e.hasChildren()&&e.recurseDown(function(e){e.state("disabled",!0)}),this.isBatch||this.$emit("added",e),e)},y.prototype.addChild=function(e){return this.insertAt(e)},y.prototype.append=function(e){return this.addChild(e)},y.prototype.prepend=function(e){return this.insertAt(e,0)},y.prototype.before=function(e){return this.tree.before(this,e)},y.prototype.after=function(e){return this.tree.after(this,e)},y.prototype.empty=function(){for(var e;e=this.children.pop();)e.remove();return this},y.prototype.remove=function(){return this.tree.removeNode(this)},y.prototype.removeChild=function(e){var t=this.find(e);return t?this.tree.removeNode(t):null},y.prototype.find=function(e,t){return this.tree.isNode(e)?e:f(this.children,e,t)},y.prototype.focus=function(){this.vm&&this.vm.focus()},y.prototype.hasChildren=function(){return this.showChildren&&this.isBatch||0<this.children.length},y.prototype.isRoot=function(){return null===this.parent},y.prototype.clone=function(){return this.tree.objectToNode(this.toJSON())},y.prototype.toJSON=function(){var t=this;return{text:this.text,data:this.data,state:this.states,children:this.children.map(function(e){return t.tree.objectToNode(e).toJSON()})}},Object.defineProperties(y.prototype,x);var k={selected:!1,selectable:!0,checked:!1,expanded:!1,disabled:!1,visible:!0,indeterminate:!1,matched:!1,editable:!0,dragging:!1,draggable:!0,dropable:!0};function $(e){return void 0===e&&(e={}),Object.assign({},k,e)}function N(t,e){var n=null;if(e instanceof y)return e;if("string"==typeof e)n=new y(t,{text:e,state:$(),id:m()});else{if(Array.isArray(e))return e.map(function(e){return N(t,e)});(n=new y(t,e)).states=$(n.states),n.id||(n.id=m()),n.children.length&&(n.children=n.children.map(function(e){return(e=N(t,e)).parent=n,e}))}return n}var w=function(e){function t(){e.apply(this,arguments)}return e&&(t.__proto__=e),((t.prototype=Object.create(e&&e.prototype)).constructor=t).prototype.empty=function(){return this.splice(0,this.length),this},t.prototype.has=function(e){return this.includes(e)},t.prototype.add=function(){for(var e,t=[],n=arguments.length;n--;)t[n]=arguments[n];return(e=this).push.apply(e,t),this},t.prototype.remove=function(e){var t=this.indexOf(e);return-1===t||this.splice(t,1),this},t.prototype.removeAll=function(e){for(;this.includes(e);)this.remove(e);return this},t.prototype.top=function(){return this[this.length-1]},t}(Array),D={id:"id",text:"text",children:"children",state:"state",data:"data",isBatch:"isBatch"};var C=function(e,t,n){void 0===n&&(n={}),"string"==typeof e&&(e=JSON.parse(e)),Array.isArray(e)||(e=[e]);var o=Object.assign({},D,n);return e.map(function e(t){var n,i,r={id:(n=t)[(i=o).id],text:n[i.text],children:n[i.children],state:n[i.state],data:n[i.data],isBatch:n[i.isBatch]};return r.children&&!Array.isArray(r.children)&&(r.children=[r.children]),r.children&&(r.children=r.children.map(e)),r}).map(function(e){return N(t,e)})};function _(e){return t=e,new Promise(function(n,i){var r=new XMLHttpRequest;r.open("GET",t),r.setRequestHeader("Content-Type","application/json"),r.addEventListener("load",function(e){try{var t=JSON.parse(r.response);n(t)}catch(e){i(e)}}),r.send(null)});var t}function E(e,t){return e.text<t.text?-1:e.text>t.text?1:0}function O(e,t){return e.text<t.text?1:e.text>t.text?-1:0}function S(e,t){"string"==typeof t&&(t=function(e){switch(e.toLowerCase()){case"asc":return E;case"desc":return O}}(t)),Array.isArray(e)&&"function"==typeof t&&e.sort(t)}function A(e){var t=this;this.vm=e,this.options=e.opts,this.activeElement=null;var r,n,i=this.options.fetchData;"string"==typeof i&&(this.options.fetchData=(r=i,n=function(e){for(var t,n=/{([^}]+)}/,i=r;t=n.exec(i);)i=i.replace(t[0],e[t[1]]);return i},function(e){return _(n(e)).catch(t.options.onFetchError)}))}A.prototype.$on=function(e){for(var t,n=[],i=arguments.length-1;0<i--;)n[i]=arguments[i+1];(t=this.vm).$on.apply(t,[e].concat(n))},A.prototype.$once=function(e){for(var t,n=[],i=arguments.length-1;0<i--;)n[i]=arguments[i+1];(t=this.vm).$once.apply(t,[e].concat(n))},A.prototype.$off=function(e){for(var t,n=[],i=arguments.length-1;0<i--;)n[i]=arguments[i+1];(t=this.vm).$off.apply(t,[e].concat(n))},A.prototype.$emit=function(e){for(var t,n=[],i=arguments.length-1;0<i--;)n[i]=arguments[i+1];this.__silence||((t=this.vm).$emit.apply(t,[e].concat(n)),this.options.store&&this.vm.$emit("LIQUOR_NOISE"))},A.prototype._sort=function(e,t,n){!1!==n&&this.recurseDown(e,function(e){e.hasChildren()&&S(e.children,t)}),S(e,t)},A.prototype.sortTree=function(e,t){this._sort(this.model,e,t)},A.prototype.sort=function(e,t,n){var i=this,r=this.find(e,!0);r&&t&&r.forEach(function(e){i._sort(e.children,t,n)})},A.prototype.clearFilter=function(){this.recurseDown(function(e){e.state("matched",!1),e.state("visible",!0),e.state("expanded",e.__expanded),e.__expanded=void 0,e.showChildren=!0}),this.vm.matches.length=0,this.vm.$emit("tree:filtered",[],"")},A.prototype.filter=function(t){if(!t)return this.clearFilter();var n=[],i=this.options.filter.matcher,e=this.options.filter,r=e.showChildren,o=e.plainList;return this.recurseDown(function(e){i(t,e)&&n.push(e),e.showChildren=!0,void 0===e.__expanded&&(e.__expanded=e.state("expanded")),e.state("visible",!1),e.state("matched",!1),e.state("expanded",!0)}),n.reverse().forEach(function(e){e.state("matched",!0),e.state("visible",!0),e.showChildren=!o,e.hasChildren()&&e.recurseDown(function(e){e.state("visible",!!r)},!0),e.recurseUp(function(e){e.state("visible",!0),e.state("expanded",!0)}),e.hasChildren()&&e.state("expanded",!1)}),this.vm.matches=n,this.vm.$emit("tree:filtered",n,t),n},A.prototype.selected=function(){return new(Function.prototype.bind.apply(b,[null].concat([this],this.selectedNodes)))},A.prototype.checked=function(){return this.options.checkbox?new(Function.prototype.bind.apply(b,[null].concat([this],this.checkedNodes))):null},A.prototype.loadChildren=function(t){var n=this;if(t){this.$emit("tree:data:fetch",t),0<this.options.minFetchDelay&&t.vm&&(t.vm.loading=!0);var i,r=this.fetch(t).then(function(e){t.append(e),t.isBatch=!1,n.options.autoCheckChildren&&(t.checked()&&t.recurseDown(function(e){e.state("checked",!0)}),t.refreshIndeterminateState()),n.$emit("tree:data:received",t)});return Promise.all([(i=this.options.minFetchDelay,new Promise(function(e){setTimeout(e,i)})),r]).then(function(e){return t.vm&&(t.vm.loading=!1),r})}},A.prototype.fetch=function(e,t){var n=this,i=this.options.fetchData(e);return i.then||(i=_(i).catch(this.options.onFetchError)),!1===t?i:i.then(function(e){try{return n.parse(e,n.options.modelParse)}catch(e){throw new Error(e)}}).catch(this.options.onFetchError)},A.prototype.fetchInitData=function(){return this.fetch({id:"root",name:"root"},!1)},A.prototype.setModel=function(e){var i=this;return new Promise(function(t){if(i.model=i.parse(e,i.options.modelParse),requestAnimationFrame(function(e){i.vm.model=i.model,t()}),i.selectedNodes=new w,i.checkedNodes=new w,l(i.model,function(e){e.tree=i,e.selected()&&i.selectedNodes.add(e),e.checked()&&(i.checkedNodes.add(e),e.parent&&e.parent.refreshIndeterminateState()),i.options.autoDisableChildren&&e.disabled()&&e.recurseDown(function(e){e.state("disabled",!0)})}),!i.options.multiple&&i.selectedNodes.length){var n=i.selectedNodes.top();i.selectedNodes.forEach(function(e){n!==e&&e.state("selected",!1)}),i.selectedNodes.empty().add(n)}i.options.checkOnSelect&&i.options.checkbox&&i.unselectAll()})},A.prototype.recurseDown=function(e,t){return!t&&e&&(t=e,e=this.model),l(e,t)},A.prototype.select=function(e,t){var n=this.getNode(e);return!!n&&(this.options.multiple&&t?this.selectedNodes.add(n):(this.unselectAll(),this.selectedNodes.empty().add(n)),!0)},A.prototype.selectAll=function(){var t=this;return!!this.options.multiple&&(this.selectedNodes.empty(),this.recurseDown(function(e){t.selectedNodes.add(e.select(!0))}),!0)},A.prototype.unselect=function(e){var t=this.getNode(e);return!!t&&(this.selectedNodes.remove(t),!0)},A.prototype.unselectAll=function(){for(var e;e=this.selectedNodes.pop();)e.unselect();return!0},A.prototype.check=function(e){this.checkedNodes.add(e)},A.prototype.uncheck=function(e){this.checkedNodes.remove(e)},A.prototype.checkAll=function(){this.recurseDown(function(e){0===e.depth&&(e.indeterminate()&&e.state("indeterminate",!1),e.check())})},A.prototype.uncheckAll=function(){for(var e;e=this.checkedNodes.pop();)e.uncheck();return!0},A.prototype.expand=function(e){return!e.expanded()&&(e.expand(),!0)},A.prototype.collapse=function(e){return!e.collapsed()&&(e.collapse(),!0)},A.prototype.toggleExpand=function(e){return!!e.hasChildren()&&(e.toggleExpand(),!0)},A.prototype.toggleCollapse=function(e){return!!e.hasChildren()&&(e.toggleCollapse(),!0)},A.prototype.expandAll=function(){this.recurseDown(function(e){e.hasChildren()&&e.collapsed()&&e.expand()})},A.prototype.collapseAll=function(){this.recurseDown(function(e){e.hasChildren()&&e.expanded()&&e.collapse()})},A.prototype.index=function(e,t){var n=e.parent,i=(n=n?n.children:this.model).indexOf(e);return t?{index:i,target:n,node:n[i]}:i},A.prototype.nextNode=function(e){var t=this.index(e,!0);return t.target[t.index+1]||null},A.prototype.nextVisibleNode=function(e){if(e.hasChildren()&&e.expanded())return e.first();var t=this.nextNode(e);return!t&&e.parent?e.parent.next():t},A.prototype.prevNode=function(e){var t=this.index(e,!0);return t.target[t.index-1]||null},A.prototype.prevVisibleNode=function(e){var t=this.prevNode(e);return t?t.hasChildren()&&t.expanded()?t.last():t:e.parent},A.prototype.addToModel=function(e,t){var n=this;return void 0===t&&(t=this.model.length),e=this.objectToNode(e),this.model.splice(t,0,e),this.recurseDown(e,function(e){e.tree=n}),this.$emit("node:added",e),e},A.prototype.append=function(e,t){var n=this.find(e);return!!n&&n.append(t)},A.prototype.prepend=function(e,t){var n=this.find(e);return!!n&&n.prepend(t)},A.prototype.before=function(e,t){e=this.find(e);var n=this.index(e,!0),i=this.objectToNode(t);return!!~n.index&&(n.target.splice(n.index,0,i),i.parent=e.parent,this.$emit("node:added",i),i)},A.prototype.after=function(e,t){e=this.find(e);var n=this.index(e,!0),i=this.objectToNode(t);return!!~n.index&&(n.target.splice(n.index+1,0,i),i.parent=e.parent,this.$emit("node:added",i),i)},A.prototype.addNode=function(e){var t=this.model.length;return e=N(e),this.model.splice(t,0,e),this.$emit("node:added",e),e},A.prototype.remove=function(e,t){return this.removeNode(this.find(e,t))},A.prototype.removeNode=function(e){if(e instanceof b)return e.remove();if(!e)return!1;if(e.parent){var t=e.parent.children;~t.indexOf(e)&&t.splice(t.indexOf(e),1)}else~this.model.indexOf(e)&&this.model.splice(this.model.indexOf(e),1);e.parent&&e.parent.indeterminate()&&!e.parent.hasChildren()&&e.parent.state("indeterminate",!1),null!==this.activeElement&&e.id===this.activeElement.id&&(this.activeElement=null),e.parent=null,this.$emit("node:removed",e),this.selectedNodes.remove(e),this.checkedNodes.remove(e);var n=this.vm.matches;return n&&n.length&&n.includes(e)&&n.splice(n.indexOf(e),1),e},A.prototype.isNode=function(e){return e instanceof y},A.prototype.find=function(e,t){if(this.isNode(e))return e;var n=f(this.model,e);return n&&n.length?new b(this,!0===t?n:[n[0]]):new b(this,[])},A.prototype.updateData=function(e,t){var n=this.find(e);return n.forEach(function(e){return e.setData(t(e))}),n},A.prototype.getNodeById=function(t){var n=null;return l(this.model,function(e){if(""+e.id===t)return n=e,!1}),n},A.prototype.getNode=function(e){return this.isNode(e)?e:null},A.prototype.objectToNode=function(e){return N(this,e)};var T=37,L=38,P=39,R=40,M=32,j=46,I=13,B=27,F=[37,38,39,40,32];function z(s){s.vm.$el.addEventListener("keydown",function(e){var t,n,i,r=e.keyCode,o=s.activeElement;if(s.isNode(o))if(o.isEditing)switch(r){case B:return o.stopEditing(!1)}else switch(F.includes(r)&&(e.preventDefault(),e.stopPropagation()),r){case T:return function(e){if(e.expanded())e.collapse();else{var t=e.parent;t&&t.focus()}}(o);case P:return function(e){if(e.collapsed())e.expand();else{var t=e.first();t&&t.focus()}}(o);case L:return function e(t,n){var i=t.prevVisibleNode(n);if(i)return i.disabled()?e(t,i):void i.focus()}(s,o);case R:return function e(t,n){var i=t.nextVisibleNode(n);if(i)return i.disabled()?e(t,i):void i.focus()}(s,o);case M:case I:return i=o,void(s.options.checkbox&&(i.checked()?i.uncheck():i.check()));case j:return t=o,void((n=s.options.deletion)&&("function"==typeof n?!0===n(t)&&t.remove():!0===n&&t.remove()))}},!0)}function U(e,t){if(!1===e)throw new Error(t)}function Y(n){function i(e){var t=n.selected();o?n.$emit("input",{selected:r?t:t[0]||null,checked:n.checked()}):n.$emit("input",r?t:t[0]||null)}var e=n.opts,r=e.multiple,o=e.checkbox,s=n.tree;i(),s.$on("node:selected",i),s.$on("node:unselected",i),o&&(s.$on("node:checked",i),s.$on("node:unchecked",i)),s.$on("node:added",function(e,t){var n=t||e;o&&(n.state("checked")&&!s.checkedNodes.has(n)&&s.checkedNodes.add(n),n.refreshIndeterminateState()),n.state("selected")&&!s.selectedNodes.has(n)&&s.select(n),i()})}var X={ABOVE:"drag-above",BELOW:"drag-below",ON:"drag-on"};function J(e){return e.path?e.path:e.composedPath?e.composedPath():function(e){for(var t=e.target,n=[];t;){if(n.push(t),"HTML"===t.tagName)return n.push(document),n.push(window),n;t=t.parentElement}return n}(e)}function V(e){var t=function(e){for(var t,n=0,i=J(e);n<i.length;n++)if(t=i[n].className||"",/tree-node/.test(t))return i[n];return null}(e);return t||null}function H(e,t){if(e){var n=e.className;if(t)new RegExp(t).test(n)||(n+=" "+t);else{for(var i in X)n=n.replace(X[i],"");n.replace("dragging","")}e.className=n.replace(/\s+/g," ")}}function q(e,t,n){if(t&&t[n]&&"function"==typeof t[n])return!1!==t[n].apply(t,e)}var Q={direction:"ltr",multiple:!0,checkbox:!(A.prototype.parse=function(e,t){t=t||this.options.propertyNames;try{return C(e,this,t)}catch(e){return[]}}),checkOnSelect:!1,autoCheckChildren:!0,autoDisableChildren:!0,checkDisabledChildren:!0,parentSelect:!1,keyboardNavigation:!0,nodeIndent:24,minFetchDelay:0,fetchData:null,propertyNames:null,deletion:!1,dnd:!1,editing:!1,onFetchError:function(e){throw e}},Z={emptyText:"Nothing found!",matcher:function(e,t){var n=new RegExp(e,"i").test(t.text);return!(n&&t.parent&&new RegExp(e,"i").test(t.parent.text))&&n},plainList:!1,showChildren:!0},W={name:"Tree",components:{TreeNode:o,DraggableNode:a},mixins:[{mounted:function(){var e,t=this,n=new A(this);this.tree=n,this._provided.tree=n,!this.data&&this.opts.fetchData?e=n.fetchInitData():this.data&&this.data.then?(e=this.data,this.loading=!0):e=Promise.resolve(this.data),e.then(function(e){e=e||[],t.opts.store?t.connectStore(t.opts.store):t.tree.setModel(e),t.loading&&(t.loading=!1),t.$emit("tree:mounted",t),Y(t)}),!1!==this.opts.keyboardNavigation&&z(n)},methods:{connectStore:function(e){var n=this,t=e.store,i=e.mutations,r=e.getter,o=e.dispatcher;U("function"==typeof r,"`getter` must be a function"),U("function"==typeof o,"`dispatcher` must be a function"),void 0!==i&&U(Array.isArray(i),"`mutations` must be an array"),t.subscribe(function(e,t){i?i.includes(e.type)&&n.tree.setModel(r()):n.tree.setModel(r())}),this.tree.setModel(r()),this.$on("LIQUOR_NOISE",function(){n.$nextTick(function(e){o(n.toJSON())})})},recurseDown:function(e){this.tree.recurseDown(e)},selected:function(){return this.tree.selected()},checked:function(){return this.tree.checked()},append:function(e,t){return t?this.tree.append(e,t):this.tree.addToModel(e,this.tree.model.length)},prepend:function(e,t){return t?this.tree.prepend(e,t):this.tree.addToModel(e,0)},addChild:function(e,t){return this.append(e,t)},remove:function(e,t){return this.tree.remove(e,t)},before:function(e,t){return t?this.tree.before(e,t):this.prepend(e)},after:function(e,t){return t?this.tree.after(e,t):this.append(e)},find:function(e,t){return this.tree.find(e,t)},findAll:function(e){return this.tree.find(e,!0)},expandAll:function(){return this.tree.expandAll()},updateData:function(e,t){return this.tree.updateData(e,t)},collapseAll:function(){return this.tree.collapseAll()},sortTree:function(e,t){return this.tree.sortTree(e,t)},sort:function(){for(var e,t=[],n=arguments.length;n--;)t[n]=arguments[n];return(e=this.tree).sort.apply(e,t)},setModel:function(e){return this.tree.setModel(e)},getRootNode:function(){return 1===this.tree.model.length?this.tree.model[0]:this.tree.model},toJSON:function(){return JSON.parse(JSON.stringify(this.model))}}},{methods:{onDragStart:function(e){e.preventDefault()},startDragging:function(e,t){e.isDraggable()&&!1!==q([e],this.tree.options.dnd,"onDragStart")&&(this.$$startDragPosition=[t.clientX,t.clientY],this.$$possibleDragNode=e,this.initDragListeners())},initDragListeners:function(){function h(){window.removeEventListener("mouseup",e,!0),window.removeEventListener("mousemove",t,!0)}var l,p=this,e=function(e){p.$$startDragPosition||e.stopPropagation(),p.draggableNode&&p.draggableNode.node.state("dragging",!1),p.$$dropDestination&&p.tree.isNode(p.$$dropDestination)&&p.$$dropDestination.vm&&(H(p.$$dropDestination.vm.$el,null),!1!==q([p.draggableNode.node,p.$$dropDestination,l],p.tree.options.dnd,"onDragFinish")&&(p.$$dropDestination.isDropable()||l!==X.ON)&&l&&(p.draggableNode.node.finishDragging(p.$$dropDestination,l),p.draggableNode.node.parent=p.$$dropDestination),p.$$dropDestination=null);p.$$possibleDragNode=null,p.$set(p,"draggableNode",null),h()},t=function(e){if(!p.$$startDragPosition||(t=e,n=p.$$startDragPosition,5<Math.abs(t.clientX-n[0])||5<Math.abs(t.clientY-n[1]))){var t,n;if(p.$$startDragPosition=null,p.$$possibleDragNode){if(!1===p.$$possibleDragNode.startDragging())return h(),void(p.$$possibleDragNode=null);p.$set(p,"draggableNode",{node:p.$$possibleDragNode,left:0,top:0}),p.$$possibleDragNode=null}p.draggableNode.left=e.clientX,p.draggableNode.top=e.clientY;var i,r,o,s,a=V(e);if(!function(e){for(var t in X)for(var n=e.querySelectorAll("."+X[t]),i=0;i<n.length;i++)H(n[i])}(p.$el),a){var d=a.getAttribute("data-id");if(p.draggableNode.node.id===d)return;if(p.$$dropDestination&&p.$$dropDestination.id===d||(p.$$dropDestination=p.tree.getNodeById(d)),p.$$dropDestination&&p.draggableNode.node)if(p.$$dropDestination.getPath().includes(p.draggableNode.node))return void(p.$$dropDestination=null);i=e,r=a.getBoundingClientRect(),o=r.height/3,s=X.ON,r.top+o>=i.clientY?s=X.ABOVE:r.top+2*o<=i.clientY&&(s=X.BELOW),l=s;var c=q([p.draggableNode.node,p.$$dropDestination,l],p.tree.options.dnd,"onDragOn");p.$$dropDestination.isDropable()&&!1!==c||l!==X.ON||(l=null),H(a,l)}}};window.addEventListener("mouseup",e,!0),window.addEventListener("mousemove",t,!0)}}}],provide:function(e){return{tree:null}},props:{data:{},options:{type:Object,default:function(e){return{}}},filter:String,tag:{type:String,default:"div"}},data:function(){var e=Object.assign({},Q,this.options);return e.filter=Object.assign({},Z,e.filter),{model:[],tree:null,loading:!1,opts:e,matches:[],draggableNode:null}},computed:{visibleModel:function(){return this.model.filter(function(e){return e&&e.visible()})},visibleMatches:function(){return this.matches.filter(function(e){return e&&e.visible()})}},watch:{filter:function(e){this.tree.filter(e)}}},G=t({render:function(){var t=this,e=t.$createElement,n=t._self._c||e;return n(t.tag,{tag:"component",class:{tree:!0,"tree-loading":this.loading,"tree--draggable":!!this.draggableNode},attrs:{role:"tree"}},[t.filter&&0==t.matches.length?[n("div",{staticClass:"tree-filter-empty",domProps:{innerHTML:t._s(t.opts.filter.emptyText)}})]:[n("ul",{staticClass:"tree-root",on:{dragstart:t.onDragStart}},[t.opts.filter.plainList&&0<t.matches.length?t._l(t.visibleMatches,function(e){return n("TreeNode",{key:e.id,attrs:{node:e,options:t.opts}})}):t._l(t.visibleModel,function(e){return n("TreeNode",{key:e.id,attrs:{node:e,options:t.opts}})})],2)],t._v(" "),t.draggableNode?n("DraggableNode",{attrs:{target:t.draggableNode}}):t._e()],2)},staticRenderFns:[]},function(e){e&&e("data-v-4e922099_0",{source:".tree{overflow:auto}.tree-children,.tree-root{list-style:none;padding:0}.tree>.tree-filter-empty,.tree>.tree-root{padding:3px;box-sizing:border-box}.tree.tree--draggable .tree-node:not(.selected)>.tree-content:hover{background:0 0}.drag-above,.drag-below,.drag-on{position:relative;z-index:1}.drag-on>.tree-content{background:#fafcff;outline:1px solid #7baff2}.drag-above>.tree-content::before,.drag-below>.tree-content::after{display:block;content:'';position:absolute;height:8px;left:0;right:0;z-index:2;box-sizing:border-box;background-color:#3367d6;border:3px solid #3367d6;background-clip:padding-box;border-bottom-color:transparent;border-top-color:transparent;border-radius:0}.drag-above>.tree-content::before{top:0;transform:translateY(-50%)}.drag-below>.tree-content::after{bottom:0;transform:translateY(50%)}",map:void 0,media:void 0})},W,void 0,!(W.__file="TreeRoot.vue"),void 0,r,void 0);return G.install=function(e){e.component(G.name,G)},"undefined"!=typeof window&&window.Vue&&window.Vue.use(G),G});
+
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('vue')) :
+  typeof define === 'function' && define.amd ? define(['vue'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.LiquorTree = factory(global.Vue));
+})(this, (function (vue) { 'use strict';
+
+  var NodeContent = {
+    name: "node-content",
+    props: ["node"],
+    data: function data() {
+      return {
+        nodeText: this.node.text,
+      };
+    },
+    methods: {
+      focusInput: function focusInput() {
+        var this$1$1 = this;
+
+        vue.nextTick(function () {
+          this$1$1.$refs.editCtrl.focus();
+        });
+      },
+      handleInput: function handleInput(e) {
+        this.nodeText = e.target.value;
+      },
+      handleBlur: function handleBlur() {
+        this.node.stopEditing(this.nodeText);
+      },
+      handleKeyup: function handleKeyup(e) {
+        if (e.keyCode === 13) {
+          this.node.stopEditing(this.nodeText);
+        }
+      },
+      handleMouseup: function handleMouseup(e) {
+        e.stopPropagation();
+      },
+    },
+    render: function render() {
+      var node = this.node;
+      var vm = this.node.tree.vm;
+
+      if (node.isEditing) {
+        this.focusInput();
+
+        return vue.h("input", {
+          value: this.nodeText,
+          type: "text",
+          class: "tree-input",
+          onInput: this.handleInput,
+          onBlur: this.handleBlur,
+          onKeyup: this.handleKeyup,
+          onMouseup: this.handleMouseup,
+          ref: "editCtrl",
+        });
+      }
+
+      if (vm.$slots.default) {
+        return vm.$slots.default({ node: this.node });
+      }
+
+      return vue.h("span", {
+        innerHTML: node.text,
+      });
+    },
+  };
+
+  var _sfc_main$3 = NodeContent;
+
+  function styleInject(css, ref) {
+    if ( ref === void 0 ) { ref = {}; }
+    var insertAt = ref.insertAt;
+
+    if (!css || typeof document === 'undefined') { return; }
+
+    var head = document.head || document.getElementsByTagName('head')[0];
+    var style = document.createElement('style');
+    style.type = 'text/css';
+
+    if (insertAt === 'top') {
+      if (head.firstChild) {
+        head.insertBefore(style, head.firstChild);
+      } else {
+        head.appendChild(style);
+      }
+    } else {
+      head.appendChild(style);
+    }
+
+    if (style.styleSheet) {
+      style.styleSheet.cssText = css;
+    } else {
+      style.appendChild(document.createTextNode(css));
+    }
+  }
+
+  var css_248z$2 = "\n.tree-node {\n  white-space: nowrap;\n  display: flex;\n  flex-direction: column;\n  position: relative;\n  box-sizing: border-box;\n}\n.tree-content {\n  display: flex;\n  align-items: center;\n  padding: 3px;\n  cursor: pointer;\n  width: 100%;\n  box-sizing: border-box;\n}\n.tree-node:not(.selected) > .tree-content:hover {\n  background: #f6f8fb;\n}\n.tree-node.selected > .tree-content {\n  background-color: #e7eef7;\n}\n.tree-node.disabled > .tree-content:hover {\n  background: inherit;\n}\n.tree-arrow {\n  flex-shrink: 0;\n  height: 30px;\n  cursor: pointer;\n  margin-left: 30px;\n  width: 0;\n}\n.tree-arrow.has-child {\n  margin-left: 0;\n  width: 30px;\n  position: relative;\n}\n.tree-arrow.has-child:after {\n  border: 1.5px solid #494646;\n  position: absolute;\n  border-left: 0;\n  border-top: 0;\n  left: 9px;\n  top: 50%;\n  height: 9px;\n  width: 9px;\n  transform: rotate(-45deg) translateY(-50%) translateX(0);\n  transition: transform 0.25s;\n  transform-origin: center;\n}\n.tree-arrow.has-child.rtl:after {\n  border: 1.5px solid #494646;\n  position: absolute;\n  border-right: 0;\n  border-bottom: 0;\n  right: 0px;\n  top: 50%;\n  height: 9px;\n  width: 9px;\n  transform: rotate(-45deg) translateY(-50%) translateX(0);\n  transition: transform 0.25s;\n  transform-origin: center;\n}\n.tree-arrow.expanded.has-child:after {\n  transform: rotate(45deg) translateY(-50%) translateX(-5px);\n}\n.tree-checkbox {\n  flex-shrink: 0;\n  position: relative;\n  width: 30px;\n  height: 30px;\n  box-sizing: border-box;\n  border: 1px solid #dadada;\n  border-radius: 2px;\n  background: #fff;\n  transition:\n    border-color 0.25s,\n    background-color 0.25s;\n}\n.tree-checkbox:after,\n.tree-arrow:after {\n  position: absolute;\n  display: block;\n  content: \"\";\n}\n.tree-checkbox.checked,\n.tree-checkbox.indeterminate {\n  background-color: #3a99fc;\n  border-color: #218eff;\n}\n.tree-checkbox.checked:after {\n  box-sizing: content-box;\n  border: 1.5px solid #fff; /* probably width would be rounded in most cases */\n  border-left: 0;\n  border-top: 0;\n  left: 9px;\n  top: 3px;\n  height: 15px;\n  width: 8px;\n  transform: rotate(45deg) scaleY(0);\n  transition: transform 0.25s;\n  transform-origin: center;\n}\n.tree-checkbox.checked:after {\n  transform: rotate(45deg) scaleY(1);\n}\n.tree-checkbox.indeterminate:after {\n  background-color: #fff;\n  top: 50%;\n  left: 20%;\n  right: 20%;\n  height: 2px;\n}\n.tree-anchor {\n  flex-grow: 2;\n  outline: none;\n  display: flex;\n  text-decoration: none;\n  color: #343434;\n  vertical-align: top;\n  margin-left: 3px;\n  line-height: 24px;\n  padding: 3px 6px;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.tree-node.selected > .tree-content > .tree-anchor {\n  outline: none;\n}\n.tree-node.disabled > .tree-content > .tree-anchor {\n  color: #989191;\n  background: #fff;\n  opacity: 0.6;\n  cursor: default;\n  outline: none;\n}\n.tree-input {\n  display: block;\n  width: 100%;\n  height: 24px;\n  line-height: 24px;\n  outline: none;\n  border: 1px solid #3498db;\n  padding: 0 4px;\n}\n.l-fade-enter-active,\n.l-fade-leave-active {\n  transition:\n    opacity 0.3s,\n    transform 0.3s;\n  transform: translateX(0);\n}\n.l-fade-enter,\n.l-fade-leave-to {\n  opacity: 0;\n  transform: translateX(-2em);\n}\n.tree--small .tree-anchor {\n  line-height: 19px;\n}\n.tree--small .tree-checkbox {\n  width: 23px;\n  height: 23px;\n}\n.tree--small .tree-arrow {\n  height: 23px;\n}\n.tree--small .tree-checkbox.checked:after {\n  left: 7px;\n  top: 3px;\n  height: 11px;\n  width: 5px;\n}\n.tree-node.has-child.loading > .tree-content > .tree-arrow,\n.tree-node.has-child.loading > .tree-content > .tree-arrow:after {\n  border-radius: 50%;\n  width: 15px;\n  height: 15px;\n  border: 0;\n}\n.tree-node.has-child.loading > .tree-content > .tree-arrow {\n  font-size: 3px;\n  position: relative;\n  border-top: 1.1em solid rgba(45, 45, 45, 0.2);\n  border-right: 1.1em solid rgba(45, 45, 45, 0.2);\n  border-bottom: 1.1em solid rgba(45, 45, 45, 0.2);\n  border-left: 1.1em solid #2d2d2d;\n  -webkit-transform: translateZ(0);\n  -ms-transform: translateZ(0);\n  transform: translateZ(0);\n  left: 5px;\n  -webkit-animation: loading 1.1s infinite linear;\n  animation: loading 1.1s infinite linear;\n  margin-right: 8px;\n}\n@-webkit-keyframes loading {\n0% {\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg);\n}\n100% {\n    -webkit-transform: rotate(360deg);\n    transform: rotate(360deg);\n}\n}\n@keyframes loading {\n0% {\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg);\n}\n100% {\n    -webkit-transform: rotate(360deg);\n    transform: rotate(360deg);\n}\n}\n";
+  styleInject(css_248z$2);
+
+  var _export_sfc = (sfc, props) => {
+    const target = sfc.__vccOpts || sfc;
+    for (const [key, val] of props) {
+      target[key] = val;
+    }
+    return target;
+  };
+
+  var TreeNode = {
+    name: "Node",
+    inject: ["tree"],
+    props: ["node", "options"],
+    emits: ["node:clicked"],
+
+    components: {
+      NodeContent: _sfc_main$3,
+    },
+
+    watch: {
+      node: function node() {
+        this.node.vm = this;
+      },
+    },
+
+    data: function data() {
+      this.node.vm = this;
+
+      return {
+        loading: false,
+      };
+    },
+
+    computed: {
+      padding: function padding() {
+        return (
+          this.node.depth *
+            (this.options.paddingLeft
+              ? this.options.paddingLeft
+              : this.options.nodeIndent) +
+          "px"
+        );
+      },
+
+      nodeClass: function nodeClass() {
+        var state = this.node.states;
+        var hasChildren = this.hasChildren();
+        var classes = {
+          "has-child": hasChildren,
+          expanded: hasChildren && state.expanded,
+          selected: state.selected,
+          disabled: state.disabled,
+          matched: state.matched,
+          dragging: state.dragging,
+          loading: this.loading,
+          draggable: state.draggable,
+        };
+
+        if (this.options.checkbox) {
+          classes["checked"] = state.checked;
+          classes["indeterminate"] = state.indeterminate;
+        }
+
+        return classes;
+      },
+
+      visibleChildren: function visibleChildren() {
+        return this.node.children.filter(function (child) {
+          return child && child.visible();
+        });
+      },
+    },
+
+    methods: {
+      onNodeFocus: function onNodeFocus() {
+        this.tree.activeElement = this.node;
+      },
+
+      focus: function focus() {
+        this.$refs.anchor.focus();
+        this.node.select();
+      },
+
+      check: function check() {
+        if (this.node.checked()) {
+          this.node.uncheck();
+        } else {
+          this.node.check();
+        }
+      },
+
+      select: function select(ref) {
+        if ( ref === void 0 ) ref = evnt;
+        var ctrlKey = ref.ctrlKey;
+
+        var opts = this.options;
+        var tree = this.tree;
+        var node = this.node;
+
+        tree.$emit("node:clicked", node);
+
+        if (opts.editing && node.isEditing) {
+          return;
+        }
+
+        if (opts.editing && node.editable()) {
+          return this.startEditing();
+        }
+
+        if (opts.checkbox && opts.checkOnSelect) {
+          if (!opts.parentSelect && this.hasChildren()) {
+            return this.toggleExpand();
+          }
+
+          return this.check(ctrlKey);
+        }
+
+        // 'parentSelect' behaviour.
+        // For nodes which has a children list we have to expand/collapse
+        if (!opts.parentSelect && this.hasChildren()) {
+          this.toggleExpand();
+        }
+
+        if (opts.multiple) {
+          if (!node.selected()) {
+            node.select(ctrlKey);
+          } else {
+            if (ctrlKey) {
+              node.unselect();
+            } else {
+              if (this.tree.selectedNodes.length != 1) {
+                tree.unselectAll();
+                node.select();
+              }
+            }
+          }
+        } else {
+          if (node.selected() && ctrlKey) {
+            node.unselect();
+          } else {
+            node.select();
+          }
+        }
+      },
+
+      toggleExpand: function toggleExpand() {
+        if (this.hasChildren()) {
+          this.node.toggleExpand();
+        }
+      },
+
+      hasChildren: function hasChildren() {
+        return this.node.hasChildren();
+      },
+
+      startEditing: function startEditing() {
+        if (this.tree._editingNode) {
+          this.tree._editingNode.stopEditing();
+        }
+
+        this.node.startEditing();
+      },
+
+      stopEditing: function stopEditing() {
+        this.node.stopEditing();
+      },
+
+      handleMouseDown: function handleMouseDown(event) {
+        if (!this.options.dnd) {
+          return;
+        }
+
+        this.tree.vm.startDragging(this.node, event);
+      },
+    },
+  };
+
+  var _sfc_main$2 = TreeNode;
+
+  var _hoisted_1$1 = ["data-id"];
+  var _hoisted_2 = {
+    key: 0,
+    class: "tree-children"
+  };
+
+  function _sfc_render$2(_ctx, _cache, $props, $setup, $data, $options) {
+    var _component_node_content = vue.resolveComponent("node-content");
+    var _component_node = vue.resolveComponent("node");
+
+    return (vue.openBlock(), vue.createElementBlock("li", {
+      role: "treeitem",
+      class: vue.normalizeClass(["tree-node", _ctx.nodeClass]),
+      "data-id": _ctx.node.id,
+      onMousedown: _cache[5] || (_cache[5] = vue.withModifiers(function () {
+        var args = [], len = arguments.length;
+        while ( len-- ) args[ len ] = arguments[ len ];
+
+        return (_ctx.handleMouseDown && _ctx.handleMouseDown.apply(_ctx, args));
+    }, ["stop"]))
+    }, [
+      vue.createElementVNode("div", {
+        class: "tree-content",
+        style: vue.normalizeStyle([
+          _ctx.options.direction == 'ltr'
+            ? { 'padding-left': _ctx.padding }
+            : { 'padding-right': _ctx.padding } ]),
+        onClick: _cache[4] || (_cache[4] = vue.withModifiers(function () {
+          var args = [], len = arguments.length;
+          while ( len-- ) args[ len ] = arguments[ len ];
+
+          return (_ctx.select && _ctx.select.apply(_ctx, args));
+    }, ["stop"]))
+      }, [
+        vue.createElementVNode("i", {
+          class: vue.normalizeClass(["tree-arrow", [
+            {
+              expanded: _ctx.node.states.expanded,
+              'has-child': _ctx.node.children.length || _ctx.node.isBatch,
+            },
+            _ctx.options.direction ]]),
+          onClick: _cache[0] || (_cache[0] = vue.withModifiers(function () {
+            var args = [], len = arguments.length;
+            while ( len-- ) args[ len ] = arguments[ len ];
+
+            return (_ctx.toggleExpand && _ctx.toggleExpand.apply(_ctx, args));
+    }, ["stop"]))
+        }, null, 2 /* CLASS */),
+        (_ctx.options.checkbox)
+          ? (vue.openBlock(), vue.createElementBlock("i", {
+              key: 0,
+              class: vue.normalizeClass(["tree-checkbox", {
+            checked: _ctx.node.states.checked,
+            indeterminate: _ctx.node.states.indeterminate,
+          }]),
+              onClick: _cache[1] || (_cache[1] = vue.withModifiers(function () {
+                var args = [], len = arguments.length;
+                while ( len-- ) args[ len ] = arguments[ len ];
+
+                return (_ctx.check && _ctx.check.apply(_ctx, args));
+    }, ["stop"]))
+            }, null, 2 /* CLASS */))
+          : vue.createCommentVNode("v-if", true),
+        vue.createElementVNode("span", {
+          ref: "anchor",
+          class: "tree-anchor",
+          tabindex: "-1",
+          onFocus: _cache[2] || (_cache[2] = function () {
+            var args = [], len = arguments.length;
+            while ( len-- ) args[ len ] = arguments[ len ];
+
+            return (_ctx.onNodeFocus && _ctx.onNodeFocus.apply(_ctx, args));
+    }),
+          onDblclick: _cache[3] || (_cache[3] = function ($event) { return (_ctx.tree.$emit('node:dblclick', _ctx.node)); })
+        }, [
+          vue.createVNode(_component_node_content, { node: _ctx.node }, null, 8 /* PROPS */, ["node"])
+        ], 544 /* NEED_HYDRATION, NEED_PATCH */)
+      ], 4 /* STYLE */),
+      vue.createVNode(vue.Transition, { name: "l-fade" }, {
+        default: vue.withCtx(function () { return [
+          (_ctx.hasChildren() && _ctx.node.states.expanded)
+            ? (vue.openBlock(), vue.createElementBlock("ul", _hoisted_2, [
+                (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(_ctx.visibleChildren, function (child) {
+                  return (vue.openBlock(), vue.createBlock(_component_node, {
+                    key: child.id,
+                    node: child,
+                    options: _ctx.options
+                  }, null, 8 /* PROPS */, ["node", "options"]))
+                }), 128 /* KEYED_FRAGMENT */))
+              ]))
+            : vue.createCommentVNode("v-if", true)
+        ]; }),
+        _: 1 /* STABLE */
+      })
+    ], 42 /* CLASS, PROPS, NEED_HYDRATION */, _hoisted_1$1))
+  }
+  var TreeNode$1 = /*#__PURE__*/_export_sfc(_sfc_main$2, [['render',_sfc_render$2]]);
+
+  var css_248z$1 = "\n.tree-dragnode {\n    padding: 10px;\n    border: 1px solid #e7eef7;\n    position: fixed;\n    border-radius: 8px;\n    background: #fff;\n    transform: translate(-50%, -110%);\n    z-index: 10;\n}\n";
+  styleInject(css_248z$1);
+
+  var _sfc_main$1 = {
+      name: 'DragNode',
+      props: ['target'],
+      computed: {
+        style: function style() {
+          if (undefined === this.target.top) {
+            return 'display: none'
+          }
+
+          return ("top: " + (this.target.top) + "px; left: " + (this.target.left) + "px")
+        }
+      }
+    };
+
+  function _sfc_render$1(_ctx, _cache, $props, $setup, $data, $options) {
+    return (vue.openBlock(), vue.createElementBlock("div", {
+      class: "tree-dragnode",
+      style: vue.normalizeStyle($options.style)
+    }, vue.toDisplayString($props.target.node.text), 5 /* TEXT, STYLE */))
+  }
+  var DraggableNode = /*#__PURE__*/_export_sfc(_sfc_main$1, [['render',_sfc_render$1]]);
+
+  function recurseDown (obj, fn) {
+    var res;
+
+    if (Array.isArray(obj)) {
+      return obj.map(function (node) { return recurseDown(node, fn); })
+    }
+
+    res = fn(obj);
+
+    // Recurse children
+    if (res !== false && obj.children && obj.children.length) {
+      res = recurseDown(obj.children, fn);
+    }
+
+    return res
+  }
+
+  function striptags (value) {
+    // ssr fix
+    if (!!document === false) {
+      return value
+    }
+
+    if (!striptags.__element) {
+      striptags.__element = document.createElement('div');
+    }
+
+    striptags.__element.innerHTML = value;
+    return striptags.__element.innerText
+  }
+
+  function finder (criteria) {
+    return function (node) {
+      return Object.keys(criteria).every(function (key) {
+        if (key === 'text' || key === 'id') {
+          var c = criteria[key];
+          var val = node[key];
+
+          // remove html tags
+          val = striptags(val);
+
+          if (isRegExp(c)) {
+            return c.test(val)
+          } else {
+            return c === val
+          }
+        }
+
+        var states = criteria[key];
+
+        // it is possible to pass 'states' or 'state'
+        if (key === 'state') {
+          key = 'states';
+        }
+
+        return Object.keys(states).every(function (s) { return node[key][s] === states[s]; })
+      })
+    }
+  }
+
+  function isRegExp (val) {
+    return val instanceof RegExp
+  }
+
+  function getAllChildren (source) {
+    var result = [];
+
+    source.forEach(function collect (node) {
+      result.push(node);
+
+      if (node.children) {
+        node.children.forEach(collect);
+      }
+    });
+
+    return result
+  }
+
+  function find (source, criteria, deep) {
+    if ( deep === void 0 ) deep = true;
+
+    if (!source || !source.length || !criteria) {
+      return null
+    }
+
+    if (deep) {
+      source = getAllChildren(source);
+    }
+
+    // find by index
+    if (typeof criteria === 'number') {
+      return source[criteria] || null
+    }
+
+    if (typeof criteria === 'string' || criteria instanceof RegExp) {
+      criteria = {
+        text: criteria
+      };
+    }
+
+    if (typeof criteria !== 'function') {
+      criteria = finder(criteria);
+    }
+
+    var result = source.filter(criteria);
+
+    if (result.length) {
+      return result
+    }
+
+    return null
+  }
+
+  // it is not genuine GUIDs
+
+  function s4 () {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1)
+  }
+
+  function uuidV4 () {
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+      s4() + '-' + s4() + s4() + s4()
+  }
+
+  function nodeIterator (context, method) {
+    var args = [], len = arguments.length - 2;
+    while ( len-- > 0 ) args[ len ] = arguments[ len + 2 ];
+
+    context.forEach(function (node) { return node[method].apply(node, args); });
+  }
+
+  var Selection = /*@__PURE__*/(function (Array) {
+    function Selection (tree, items) {
+      var ref;
+
+      if ( items === void 0 ) items = [];
+      /*eslint semi: 0 */
+      Array.call(this);
+
+      this.tree = tree;
+      (ref = this).push.apply(ref, items);
+    }
+
+    if ( Array ) Selection.__proto__ = Array;
+    Selection.prototype = Object.create( Array && Array.prototype );
+    Selection.prototype.constructor = Selection;
+
+    Selection.prototype.remove = function remove () {
+      nodeIterator(this, 'remove');
+      return this
+    };
+
+    Selection.prototype.expand = function expand () {
+      nodeIterator(this, 'expand');
+      return this
+    };
+
+    Selection.prototype.collapse = function collapse () {
+      nodeIterator(this, 'collapse');
+      return this
+    };
+
+    Selection.prototype.select = function select (extendList) {
+      nodeIterator(this, 'select', extendList);
+      return this
+    };
+
+    Selection.prototype.unselect = function unselect () {
+      nodeIterator(this, 'unselect');
+      return this
+    };
+
+    Selection.prototype.check = function check () {
+      if (this.tree.options.checkbox) {
+        nodeIterator(this, 'check');
+      }
+
+      return this
+    };
+
+    Selection.prototype.uncheck = function uncheck () {
+      if (this.tree.options.checkbox) {
+        nodeIterator(this, 'uncheck');
+      }
+
+      return this
+    };
+
+    Selection.prototype.disable = function disable () {
+      nodeIterator(this, 'disable');
+      return this
+    };
+
+    Selection.prototype.enable = function enable () {
+      nodeIterator(this, 'enable');
+      return this
+    };
+
+    return Selection;
+  }(Array));
+
+  var Node = function Node(tree, item) {
+    if (!item) {
+      throw new Error("Node can not be empty");
+    }
+
+    this.id = item.id || uuidV4();
+    this.states = item.state || {};
+
+    this.showChildren = true;
+    this.children = item.children || [];
+    this.parent = item.parent || null;
+
+    this.isBatch = item.isBatch || false;
+    this.isEditing = false;
+
+    this.data = Object.assign({}, item.data || {}, {
+      text: item.text,
+    });
+
+    if (!tree) {
+      throw new Error("Node must have a Tree context!");
+    }
+
+    this.tree = tree;
+  };
+
+  var prototypeAccessors = { key: { configurable: true },depth: { configurable: true },text: { configurable: true } };
+
+  Node.prototype.$emit = function $emit (evnt) {
+      var ref;
+
+      var args = [], len = arguments.length - 1;
+      while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+    (ref = this.tree).$emit.apply(ref, [ ("node:" + evnt), this ].concat( args ));
+  };
+
+  Node.prototype.getPath = function getPath () {
+    if (!this.parent) {
+      return [this];
+    }
+
+    var path = [this];
+    var el = this;
+
+    while ((el = el.parent) !== null) {
+      path.push(el);
+    }
+
+    return path;
+  };
+
+  prototypeAccessors.key.get = function () {
+    return this.id + this.text;
+  };
+
+  prototypeAccessors.depth.get = function () {
+    var depth = 0;
+    var parent = this.parent;
+
+    if (!parent || this.showChildren === false) {
+      return depth;
+    }
+
+    do {
+      depth++;
+    } while ((parent = parent.parent));
+
+    return depth;
+  };
+
+  prototypeAccessors.text.get = function () {
+    return this.data.text;
+  };
+
+  prototypeAccessors.text.set = function (text) {
+    var oldText = this.text;
+
+    if (oldText !== text) {
+      this.data.text = text;
+      this.$emit("text:changed", text, oldText);
+    }
+  };
+
+  Node.prototype.setData = function setData (data) {
+    this.data = Object.assign({}, this.data, data);
+
+    this.$emit("data:changed", this.data);
+
+    return this.data;
+  };
+
+  Node.prototype.state = function state (name, value) {
+    if (undefined === value) {
+      return this.states[name];
+    }
+
+    // TODO: check if it for example `selectable` state it should unselect node
+
+    this.states[name] = value;
+
+    return this;
+  };
+
+  Node.prototype.recurseUp = function recurseUp (fn, node) {
+      if ( node === void 0 ) node = this;
+
+    if (!node.parent) {
+      return;
+    }
+
+    if (fn(node.parent) !== false) {
+      return this.recurseUp(fn, node.parent);
+    }
+  };
+
+  Node.prototype.recurseDown = function recurseDown$1 (fn, ignoreThis) {
+    if (ignoreThis !== true) {
+      fn(this);
+    }
+
+    if (this.hasChildren()) {
+      recurseDown(this.children, fn);
+    }
+  };
+
+  Node.prototype.refreshIndeterminateState = function refreshIndeterminateState () {
+    if (!this.tree.options.autoCheckChildren) {
+      return this;
+    }
+
+    this.state("indeterminate", false);
+
+    if (this.hasChildren()) {
+      var childrenCount = this.children.length;
+      var checked = 0;
+      var indeterminate = 0;
+      var disabled = 0;
+
+      this.children.forEach(function (child) {
+        if (child.checked()) {
+          checked++;
+        }
+
+        if (child.disabled()) {
+          disabled++;
+        }
+
+        if (child.indeterminate()) {
+          indeterminate++;
+        }
+      });
+
+      if (checked > 0 && checked === childrenCount - disabled) {
+        if (!this.checked()) {
+          this.state("checked", true);
+          this.tree.check(this);
+
+          this.$emit("checked");
+        }
+      } else {
+        if (this.checked()) {
+          this.state("checked", false);
+          this.tree.uncheck(this);
+
+          this.$emit("unchecked");
+        }
+
+        this.state(
+          "indeterminate",
+          indeterminate > 0 || (checked > 0 && checked < childrenCount)
+        );
+      }
+    }
+
+    if (this.parent) {
+      this.parent.refreshIndeterminateState();
+    }
+  };
+
+  Node.prototype.indeterminate = function indeterminate () {
+    return this.state("indeterminate");
+  };
+
+  Node.prototype.editable = function editable () {
+    return !this.state("disabled") && this.state("editable");
+  };
+
+  Node.prototype.selectable = function selectable () {
+    return !this.state("disabled") && this.state("selectable");
+  };
+
+  Node.prototype.selected = function selected () {
+    return this.state("selected");
+  };
+
+  Node.prototype.select = function select (extendList) {
+    if (!this.selectable() || this.selected()) {
+      return this;
+    }
+
+    this.tree.select(this, extendList);
+
+    this.state("selected", true);
+    this.$emit("selected");
+
+    return this;
+  };
+
+  Node.prototype.unselect = function unselect () {
+    if (!this.selectable() || !this.selected()) {
+      return this;
+    }
+
+    this.tree.unselect(this);
+
+    this.state("selected", false);
+    this.$emit("unselected");
+
+    return this;
+  };
+
+  Node.prototype.checked = function checked () {
+    return this.state("checked");
+  };
+
+  Node.prototype.check = function check () {
+      var this$1$1 = this;
+
+    if (this.checked() || this.disabled()) {
+      return this;
+    }
+
+    if (this.indeterminate()) {
+      return this.uncheck();
+    }
+
+    var checkDisabledChildren = this.tree.options.checkDisabledChildren;
+    var targetNode = this;
+
+    if (this.tree.options.autoCheckChildren) {
+      this.recurseDown(function (node) {
+        node.state("indeterminate", false);
+
+        if (node.disabled() && !checkDisabledChildren) {
+          return;
+        }
+
+        if (!node.checked()) {
+          this$1$1.tree.check(node);
+
+          node.state("checked", true);
+          node.$emit(
+            "checked",
+            node.id === targetNode.id ? undefined : targetNode
+          );
+        }
+      });
+
+      if (this.parent) {
+        this.parent.refreshIndeterminateState();
+      }
+    } else {
+      this.tree.check(this);
+
+      this.state("checked", true);
+      this.$emit("checked");
+    }
+
+    return this;
+  };
+
+  Node.prototype.uncheck = function uncheck () {
+      var this$1$1 = this;
+
+    if ((!this.indeterminate() && !this.checked()) || this.disabled()) {
+      return this;
+    }
+
+    var targetNode = this;
+
+    if (this.tree.options.autoCheckChildren) {
+      this.recurseDown(function (node) {
+        node.state("indeterminate", false);
+
+        if (node.checked()) {
+          this$1$1.tree.uncheck(node);
+
+          node.state("checked", false);
+          node.$emit(
+            "unchecked",
+            node.id === targetNode.id ? undefined : targetNode
+          );
+        }
+      });
+
+      if (this.parent) {
+        this.parent.refreshIndeterminateState();
+      }
+    } else {
+      this.tree.uncheck(this);
+
+      this.state("checked", false);
+      this.$emit("unchecked");
+    }
+
+    return this;
+  };
+
+  Node.prototype.show = function show () {
+    if (this.visible()) {
+      return this;
+    }
+
+    this.state("visible", true);
+    this.$emit("shown");
+
+    return this;
+  };
+
+  Node.prototype.hide = function hide () {
+    if (this.hidden()) {
+      return this;
+    }
+
+    this.state("visible", false);
+    this.$emit("hidden");
+
+    return this;
+  };
+
+  Node.prototype.visible = function visible () {
+    return this.state("visible");
+  };
+
+  Node.prototype.hidden = function hidden () {
+    return !this.state("visible");
+  };
+
+  Node.prototype.enable = function enable () {
+    if (this.enabled()) {
+      return this;
+    }
+
+    if (this.tree.options.autoDisableChildren) {
+      this.recurseDown(function (node) {
+        if (node.disabled()) {
+          node.state("disabled", false);
+          node.$emit("enabled");
+        }
+      });
+    } else {
+      this.state("disabled", false);
+      this.$emit("enabled");
+    }
+
+    return this;
+  };
+
+  Node.prototype.enabled = function enabled () {
+    return !this.state("disabled");
+  };
+
+  Node.prototype.disable = function disable () {
+    if (this.disabled()) {
+      return this;
+    }
+
+    if (this.tree.options.autoDisableChildren) {
+      this.recurseDown(function (node) {
+        if (node.enabled()) {
+          node.state("disabled", true);
+          node.$emit("disabled");
+        }
+      });
+    } else {
+      this.state("disabled", true);
+      this.$emit("disabled");
+    }
+
+    return this;
+  };
+
+  Node.prototype.disabled = function disabled () {
+    return this.state("disabled");
+  };
+
+  Node.prototype.expandTop = function expandTop (ignoreEvent) {
+      var this$1$1 = this;
+
+    this.recurseUp(function (parent) {
+      parent.state("expanded", true);
+
+      if (ignoreEvent !== true) {
+        this$1$1.$emit("expanded", parent);
+      }
+    });
+  };
+
+  Node.prototype.expand = function expand () {
+      var this$1$1 = this;
+
+    if (!this.canExpand()) {
+      return this;
+    }
+
+    if (this.isBatch) {
+      this.tree.loadChildren(this).then(function (_) {
+        this$1$1.state("expanded", true);
+        this$1$1.$emit("expanded");
+      });
+    } else {
+      this.state("expanded", true);
+      this.$emit("expanded");
+    }
+
+    return this;
+  };
+
+  Node.prototype.canExpand = function canExpand () {
+    return (
+      this.collapsed() && (!this.tree.autoDisableChildren || this.disabled())
+    );
+  };
+
+  Node.prototype.canCollapse = function canCollapse () {
+    return (
+      this.expanded() && (!this.tree.autoDisableChildren || this.disabled())
+    );
+  };
+
+  Node.prototype.expanded = function expanded () {
+    return this.state("expanded");
+  };
+
+  Node.prototype.collapse = function collapse () {
+    if (!this.canCollapse()) {
+      return this;
+    }
+
+    this.state("expanded", false);
+    this.$emit("collapsed");
+
+    return this;
+  };
+
+  Node.prototype.collapsed = function collapsed () {
+    return !this.state("expanded");
+  };
+
+  Node.prototype.toggleExpand = function toggleExpand () {
+    return this._toggleOpenedState();
+  };
+
+  Node.prototype.toggleCollapse = function toggleCollapse () {
+    return this._toggleOpenedState();
+  };
+
+  Node.prototype._toggleOpenedState = function _toggleOpenedState () {
+    if (this.canCollapse()) {
+      return this.collapse();
+    } else if (this.canExpand()) {
+      return this.expand();
+    }
+  };
+
+  Node.prototype.isDropable = function isDropable () {
+    return this.enabled() && this.state("dropable");
+  };
+
+  Node.prototype.isDraggable = function isDraggable () {
+    return this.enabled() && this.state("draggable") && !this.isEditing;
+  };
+
+  Node.prototype.startDragging = function startDragging () {
+    if (!this.isDraggable() || this.state("dragging")) {
+      return false;
+    }
+
+    // root element
+    if (this.isRoot() && this.tree.model.length === 1) {
+      return false;
+    }
+
+    if (this.tree.options.store) {
+      this.tree.__silence = true;
+    }
+
+    this.select();
+    this.state("dragging", true);
+    this.$emit("dragging:start");
+
+    this.tree.__silence = false;
+
+    return true;
+  };
+
+  Node.prototype.finishDragging = function finishDragging (destination, destinationPosition) {
+    if (!destination.isDropable() && destinationPosition === "drag-on") {
+      return;
+    }
+
+    var tree = this.tree;
+    var clone = this.clone();
+    var parent = this.parent;
+
+    clone.id = this.id;
+    tree.__silence = true;
+
+    this.remove();
+
+    if (destinationPosition === "drag-on") {
+      tree.append(destination, clone);
+    } else if (destinationPosition === "drag-below") {
+      tree.after(destination, clone);
+    } else if (destinationPosition === "drag-above") {
+      tree.before(destination, clone);
+    }
+
+    destination.refreshIndeterminateState();
+
+    parent && parent.refreshIndeterminateState();
+    tree.__silence = false;
+
+    clone.state("dragging", false);
+    this.state("dragging", false);
+    // need to call emit on the clone, because we need to have node.parent filled in the event listener
+    clone.$emit("dragging:finish", destination, destinationPosition);
+
+    if (clone.state("selected")) {
+      tree.selectedNodes.remove(this);
+      tree.selectedNodes.add(clone);
+
+      this.state.selected = false;
+      clone.state.selected = true;
+      // tree.vm.$set(this.state, 'selected', false)
+      // tree.vm.$set(clone.state, 'selected', true)
+    }
+
+    if (this.tree.options.store) {
+      this.tree.vm.$emit("LIQUOR_NOISE");
+    }
+  };
+
+  Node.prototype.startEditing = function startEditing () {
+    if (this.disabled()) {
+      return false;
+    }
+
+    if (!this.isEditing) {
+      this.tree._editingNode = this;
+      this.tree.activeElement = this;
+      this.isEditing = true;
+      this.$emit("editing:start");
+    }
+  };
+
+  Node.prototype.stopEditing = function stopEditing (newText) {
+    if (!this.isEditing) {
+      return;
+    }
+
+    this.isEditing = false;
+    this.tree._editingNode = null;
+    this.tree.activeElement = null;
+
+    var prevText = this.text;
+
+    if (newText && newText !== false && this.text !== newText) {
+      this.text = newText;
+    }
+
+    this.$emit("editing:stop", prevText);
+  };
+
+  Node.prototype.index = function index (verbose) {
+    return this.tree.index(this, verbose);
+  };
+
+  Node.prototype.first = function first () {
+    if (!this.hasChildren()) {
+      return null;
+    }
+
+    return this.children[0];
+  };
+
+  Node.prototype.last = function last () {
+    if (!this.hasChildren()) {
+      return null;
+    }
+
+    return this.children[this.children.length - 1];
+  };
+
+  Node.prototype.next = function next () {
+    return this.tree.nextNode(this);
+  };
+
+  Node.prototype.prev = function prev () {
+    return this.tree.prevNode(this);
+  };
+
+  Node.prototype.insertAt = function insertAt (node, index) {
+      var this$1$1 = this;
+      if ( index === void 0 ) index = this.children.length;
+
+    if (!node) {
+      return;
+    }
+
+    node = this.tree.objectToNode(node);
+
+    if (Array.isArray(node)) {
+      node.reverse().map(function (n) { return this$1$1.insertAt(n, index); });
+
+      return new Selection(this.tree, [].concat( node ));
+    }
+
+    node.parent = this;
+
+    this.children.splice(index, 0, node);
+
+    if (node.disabled() && node.hasChildren()) {
+      node.recurseDown(function (child) {
+        child.state("disabled", true);
+      });
+    }
+
+    if (!this.isBatch) {
+      this.$emit("added", node);
+    }
+
+    return node;
+  };
+
+  Node.prototype.addChild = function addChild (node) {
+    return this.insertAt(node);
+  };
+
+  Node.prototype.append = function append (node) {
+    return this.addChild(node);
+  };
+
+  Node.prototype.prepend = function prepend (node) {
+    return this.insertAt(node, 0);
+  };
+
+  Node.prototype.before = function before (node) {
+    return this.tree.before(this, node);
+  };
+
+  Node.prototype.after = function after (node) {
+    return this.tree.after(this, node);
+  };
+
+  Node.prototype.empty = function empty () {
+    var node;
+
+    while ((node = this.children.pop())) {
+      node.remove();
+    }
+
+    return this;
+  };
+
+  Node.prototype.remove = function remove () {
+    return this.tree.removeNode(this);
+  };
+
+  Node.prototype.removeChild = function removeChild (criteria) {
+    var node = this.find(criteria);
+
+    if (node) {
+      return this.tree.removeNode(node);
+    }
+
+    return null;
+  };
+
+  Node.prototype.find = function find$1 (criteria, deep) {
+    if (this.tree.isNode(criteria)) {
+      return criteria;
+    }
+
+    return find(this.children, criteria, deep);
+  };
+
+  Node.prototype.focus = function focus () {
+    if (this.vm) {
+      this.vm.focus();
+    }
+  };
+
+  Node.prototype.hasChildren = function hasChildren () {
+    return (this.showChildren && this.isBatch) || this.children.length > 0;
+  };
+
+  /**
+   * Sometimes it's no need to have a parent. It possible to have more than 1 parent
+   */
+  Node.prototype.isRoot = function isRoot () {
+    return this.parent === null;
+  };
+
+  Node.prototype.clone = function clone () {
+    return this.tree.objectToNode(this.toJSON());
+  };
+
+  Node.prototype.toJSON = function toJSON () {
+      var this$1$1 = this;
+
+    return {
+      text: this.text,
+      data: this.data,
+      state: this.states,
+      children: this.children.map(function (node) { return this$1$1.tree.objectToNode(node).toJSON(); }
+      ),
+    };
+  };
+
+  Object.defineProperties( Node.prototype, prototypeAccessors );
+
+  var EventBus = function EventBus() {
+    this.events = {};
+  };
+
+  // Adiciona um ouvinte de evento
+  EventBus.prototype.on = function on (event, listener) {
+    if (!this.events[event]) {
+      this.events[event] = [];
+    }
+    this.events[event].push(listener);
+  };
+
+  // Remove um ouvinte de evento
+  EventBus.prototype.off = function off (event, listenerToRemove) {
+    if (!this.events[event]) { return; }
+
+    this.events[event] = this.events[event].filter(
+      function (listener) { return listener !== listenerToRemove; }
+    );
+  };
+
+  // Adiciona um ouvinte de evento que será chamado apenas uma vez
+  EventBus.prototype.once = function once (event, listener) {
+      var this$1$1 = this;
+
+    var wrapper = function () {
+        var args = [], len = arguments.length;
+        while ( len-- ) args[ len ] = arguments[ len ];
+
+      listener.apply(void 0, args);
+      this$1$1.off(event, wrapper);
+    };
+    this.on(event, wrapper);
+  };
+
+  // Emite um evento
+  EventBus.prototype.emit = function emit (event) {
+      var args = [], len = arguments.length - 1;
+      while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+
+    if (!this.events[event]) { return; }
+
+    this.events[event].forEach(function (listener) { return listener.apply(void 0, args); });
+  };
+
+  // Alias para o método emit
+  EventBus.prototype.$emit = function $emit (event) {
+      var ref;
+
+      var args = [], len = arguments.length - 1;
+      while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+    (ref = this).emit.apply(ref, [ event ].concat( args ));
+  };
+
+  /**
+  * Default Node's states
+  */
+  var nodeStates = {
+    selected: false,
+    selectable: true,
+    checked: false,
+    expanded: false,
+    disabled: false,
+    visible: true,
+    indeterminate: false,
+    matched: false,
+    editable: true,
+    dragging: false,
+    draggable: true,
+    dropable: true
+  };
+
+  function merge (state) {
+    if ( state === void 0 ) state = {};
+
+    return Object.assign({}, nodeStates, state)
+  }
+
+  function objectToNode (tree, obj) {
+    var node = null;
+
+    if (obj instanceof Node) {
+      return obj
+    }
+
+    if (typeof obj === 'string') {
+      node = new Node(tree, {
+        text: obj,
+        state: merge(),
+        id: uuidV4()
+      });
+    } else if (Array.isArray(obj)) {
+      return obj.map(function (o) { return objectToNode(tree, o); })
+    } else {
+      node = new Node(tree, obj);
+      node.states = merge(node.states);
+
+      if (!node.id) {
+        node.id = uuidV4();
+      }
+
+      if (node.children.length) {
+        node.children = node.children.map(function (child) {
+          child = objectToNode(tree, child);
+          child.parent = node;
+
+          return child
+        });
+      }
+    }
+
+    return node
+  }
+
+  var List = /*@__PURE__*/(function (Array) {
+    function List () {
+      Array.apply(this, arguments);
+    }
+
+    if ( Array ) List.__proto__ = Array;
+    List.prototype = Object.create( Array && Array.prototype );
+    List.prototype.constructor = List;
+
+    List.prototype.empty = function empty () {
+      this.splice(0, this.length);
+
+      return this
+    };
+
+    List.prototype.has = function has (item) {
+      return this.includes(item)
+    };
+
+    List.prototype.add = function add () {
+      var ref;
+
+      var items = [], len = arguments.length;
+      while ( len-- ) items[ len ] = arguments[ len ];
+      (ref = this).push.apply(ref, items);
+
+      return this
+    };
+
+    List.prototype.remove = function remove (item) {
+      var index = this.indexOf(item);
+
+      if (index === -1) {
+        return this
+      }
+
+      this.splice(index, 1);
+
+      return this
+    };
+
+    List.prototype.removeAll = function removeAll (item) {
+      while (this.includes(item)) {
+        this.remove(item);
+      }
+
+      return this
+    };
+
+    List.prototype.top = function top () {
+      return this[this.length - 1]
+    };
+
+    return List;
+  }(Array));
+
+  /**
+    Every Node has certain format:
+    {
+      id,           // Unique Node id. By default it generates using uuidV4
+      text,         // Node text
+      children,     // List of children. Each children has the same format
+      parent,       // Parent Node or null. The tree is able to have more than 1 root node
+      state,        // States of Node. Ex.: selected, checked and so on
+      data          // Any types of data. It is similar to `storage`.
+                    // Ex.: data: {myAwesomeProperty: 10}. To get this property you need: Node.data('myAwesomeProperty')
+    }
+  */
+
+  var defaultPropertyNames = {
+    id: 'id',
+    text: 'text',
+    children: 'children',
+    state: 'state',
+    data: 'data',
+    isBatch: 'isBatch'
+  };
+
+  function convertNames (obj, names) {
+    return {
+      id: obj[names.id],
+      text: obj[names.text],
+      children: obj[names.children],
+      state: obj[names.state],
+      data: obj[names.data],
+      isBatch: obj[names.isBatch]
+    }
+  }
+
+  var TreeParser = {
+    parse: function parse (data, tree, options) {
+      if ( options === void 0 ) options = {};
+
+      if (typeof data === 'string') {
+        data = JSON.parse(data);
+      }
+
+      if (!Array.isArray(data)) {
+        data = [data];
+      }
+
+      var p = Object.assign(
+        {},
+        defaultPropertyNames,
+        options
+      );
+
+      var preparedItems = data.map(function converter (item) {
+        var convertedItem = convertNames(item, p);
+
+        // Possible to receive 1 child like a simple object. It must be converted to an array
+        // We do not have checks on the correctness of the format. A developer should pass correct format
+        if (convertedItem.children && !Array.isArray(convertedItem.children)) {
+          convertedItem.children = [convertedItem.children];
+        }
+
+        if (convertedItem.children) {
+          convertedItem.children = convertedItem.children.map(converter);
+        }
+
+        return convertedItem
+      });
+
+      return preparedItems.map(function (item) { return objectToNode(tree, item); })
+    }
+  };
+
+  /*eslint no-undef: 0 */
+
+  function request (url) {
+    return new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+
+      xhr.open('GET', url);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.addEventListener('load', function (_) {
+        try {
+          var response = JSON.parse(xhr.response);
+
+          resolve(response);
+        } catch (e) {
+          reject(e);
+        }
+      });
+
+      xhr.send(null);
+    })
+  }
+
+  function get (url) {
+    return request(url)
+  }
+
+  function createTemplate (template) {
+    return function (source) {
+      var re = /{([^}]+)}/;
+      var m;
+      var result = template;
+
+      while (m = re.exec(result)) {
+        result = result.replace(m[0], source[m[1]]);
+      }
+
+      return result
+    }
+  }
+
+  function orderAsc (node0, node1) {
+    if (node0.text < node1.text) {
+      return -1
+    }
+
+    if (node0.text > node1.text) {
+      return 1
+    }
+
+    return 0
+  }
+
+  function orderDesc (node0, node1) {
+    if (node0.text < node1.text) {
+      return 1
+    }
+
+    if (node0.text > node1.text) {
+      return -1
+    }
+
+    return 0
+  }
+
+  function getCompareFunction (order) {
+    switch (order.toLowerCase()) {
+      case 'asc': return orderAsc
+      case 'desc': return orderDesc
+    }
+  }
+
+  function sort (source, compareFunction) {
+    if (typeof compareFunction === 'string') {
+      compareFunction = getCompareFunction(compareFunction);
+    }
+
+    if (Array.isArray(source) && typeof compareFunction === 'function') {
+      source.sort(compareFunction);
+    }
+  }
+
+  function fetchDelay (ms) {
+    return new Promise(function (resolve) {
+      setTimeout(resolve, ms);
+    })
+  }
+
+  var Tree = function Tree(vm) {
+    var this$1$1 = this;
+
+    this.vm = vm;
+    this.options = vm.opts;
+    this.activeElement = null;
+    this.emitter = new EventBus();
+    // We have to convert 'fetchData' to function. It must return Promise always
+    var fetchData = this.options.fetchData;
+
+    if (typeof fetchData === "string") {
+      this.options.fetchData = (function (template) {
+        var urlTemplate = createTemplate(template);
+
+        return function (node) {
+          return get(urlTemplate(node)).catch(this$1$1.options.onFetchError);
+        };
+      })(fetchData);
+    }
+  };
+
+  Tree.prototype.$on = function $on (name) {
+      var ref;
+
+      var args = [], len = arguments.length - 1;
+      while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+    // this.vm.$on(name, ...args);
+    (ref = this.emitter).on.apply(ref, [ name ].concat( args ));
+    // console.log("era pra ter um on aqui");
+  };
+
+  Tree.prototype.$once = function $once (name) {
+      var ref;
+
+      var args = [], len = arguments.length - 1;
+      while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+    // this.vm.$once(name, ...args);
+    (ref = this.emitter).once.apply(ref, [ name ].concat( args ));
+    // console.log("era pra ter um once aqui");
+  };
+
+  Tree.prototype.$off = function $off (name) {
+      var ref;
+
+      var args = [], len = arguments.length - 1;
+      while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+    // this.vm.$off(name, ...args);
+    (ref = this.emitter).off.apply(ref, [ name ].concat( args ));
+    // console.log("era pra ter um off aqui");
+  };
+
+  Tree.prototype.$emit = function $emit (name) {
+      var ref;
+
+      var args = [], len = arguments.length - 1;
+      while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+    if (this.__silence) {
+      return;
+    }
+
+    // this.vm.$emit(name, ...args);
+    (ref = this.emitter).$emit.apply(ref, [ name ].concat( args ));
+
+    if (this.options.store) {
+      // this.vm.$emit("LIQUOR_NOISE");
+      this.emitter.$emit("LIQUOR_NOISE");
+    }
+  };
+
+  Tree.prototype._sort = function _sort (source, compareFn, deep) {
+    if (deep !== false) {
+      this.recurseDown(source, function (node) {
+        if (node.hasChildren()) {
+          sort(node.children, compareFn);
+        }
+      });
+    }
+
+    sort(source, compareFn);
+  };
+
+  Tree.prototype.sortTree = function sortTree (compareFn, deep) {
+    this._sort(this.model, compareFn, deep);
+  };
+
+  Tree.prototype.sort = function sort (query, compareFn, deep) {
+      var this$1$1 = this;
+
+    var targetNode = this.find(query, true);
+
+    if (!targetNode || !compareFn) {
+      return;
+    }
+
+    targetNode.forEach(function (node) {
+      this$1$1._sort(node.children, compareFn, deep);
+    });
+  };
+
+  Tree.prototype.clearFilter = function clearFilter () {
+    this.recurseDown(function (node) {
+      node.state("matched", false);
+      node.state("visible", true);
+      node.state("expanded", node.__expanded);
+
+      node.__expanded = undefined;
+      node.showChildren = true;
+    });
+
+    this.vm.matches.length = 0;
+    this.vm.$emit("tree:filtered", [], "");
+  };
+
+  Tree.prototype.filter = function filter (query) {
+    if (!query) {
+      return this.clearFilter();
+    }
+
+    var matches = [];
+    var predicate = this.options.filter.matcher;
+    var ref = this.options.filter;
+      var showChildren = ref.showChildren;
+      var plainList = ref.plainList;
+
+    // collect nodes
+    this.recurseDown(function (node) {
+      if (predicate(query, node)) {
+        matches.push(node);
+      }
+
+      node.showChildren = true;
+
+      // save prev `expanded` state
+      if (undefined === node.__expanded) {
+        node.__expanded = node.state("expanded");
+      }
+
+      node.state("visible", false);
+      node.state("matched", false);
+      node.state("expanded", true);
+    });
+
+    matches.reverse().forEach(function (node) {
+      node.state("matched", true);
+      node.state("visible", true);
+
+      node.showChildren = !plainList;
+
+      if (node.hasChildren()) {
+        node.recurseDown(function (n) {
+          n.state("visible", !!showChildren);
+        }, true);
+      }
+
+      node.recurseUp(function (parent) {
+        parent.state("visible", true);
+        parent.state("expanded", true);
+      });
+
+      if (node.hasChildren()) {
+        node.state("expanded", false);
+      }
+    });
+
+    this.vm.matches = matches;
+
+    this.vm.$emit("tree:filtered", matches, query);
+
+    return matches;
+  };
+
+  Tree.prototype.selected = function selected () {
+    return new (Function.prototype.bind.apply( Selection, [ null ].concat( [this], this.selectedNodes) ));
+  };
+
+  Tree.prototype.checked = function checked () {
+    if (!this.options.checkbox) {
+      return null;
+    }
+
+    return new (Function.prototype.bind.apply( Selection, [ null ].concat( [this], this.checkedNodes) ));
+  };
+
+  Tree.prototype.loadChildren = function loadChildren (node) {
+      var this$1$1 = this;
+
+    if (!node) {
+      return;
+    }
+
+    this.$emit("tree:data:fetch", node);
+
+    if (this.options.minFetchDelay > 0 && node.vm) {
+      node.vm.loading = true;
+    }
+
+    var result = this.fetch(node).then(function (children) {
+      node.append(children);
+      node.isBatch = false;
+
+      if (this$1$1.options.autoCheckChildren) {
+        if (node.checked()) {
+          node.recurseDown(function (child) {
+            child.state("checked", true);
+          });
+        }
+
+        node.refreshIndeterminateState();
+      }
+
+      this$1$1.$emit("tree:data:received", node);
+    });
+
+    return Promise.all([fetchDelay(this.options.minFetchDelay), result]).then(
+      function (_) {
+        if (node.vm) {
+          node.vm.loading = false;
+        }
+
+        return result;
+      }
+    );
+  };
+
+  Tree.prototype.fetch = function fetch (node, parseData) {
+      var this$1$1 = this;
+
+    var result = this.options.fetchData(node);
+
+    if (!result.then) {
+      result = get(result).catch(this.options.onFetchError);
+    }
+
+    if (parseData === false) {
+      return result;
+    }
+
+    return result
+      .then(function (data) {
+        try {
+          return this$1$1.parse(data, this$1$1.options.modelParse);
+        } catch (e) {
+          throw new Error(e);
+        }
+      })
+      .catch(this.options.onFetchError);
+  };
+
+  Tree.prototype.fetchInitData = function fetchInitData () {
+    // simulate root node
+    var node = {
+      id: "root",
+      name: "root",
+    };
+
+    return this.fetch(node, false);
+  };
+
+  Tree.prototype.setModel = function setModel (data) {
+      var this$1$1 = this;
+
+    return new Promise(function (resolve) {
+      this$1$1.model = this$1$1.parse(data, this$1$1.options.modelParse);
+
+      /* eslint-disable */
+      requestAnimationFrame(function (_) {
+        this$1$1.vm.model = this$1$1.model;
+        resolve();
+      });
+      /* eslint-enable */
+
+      /**
+       * VueJS transform properties to reactives when constructor is running
+       * And we lose List object (extended from Array)
+       */
+      this$1$1.selectedNodes = new List();
+      this$1$1.checkedNodes = new List();
+
+      recurseDown(this$1$1.model, function (node) {
+        node.tree = this$1$1;
+
+        if (node.selected()) {
+          this$1$1.selectedNodes.add(node);
+        }
+
+        if (node.checked()) {
+          this$1$1.checkedNodes.add(node);
+
+          if (node.parent) {
+            node.parent.refreshIndeterminateState();
+          }
+        }
+
+        if (this$1$1.options.autoDisableChildren && node.disabled()) {
+          node.recurseDown(function (child) {
+            child.state("disabled", true);
+          });
+        }
+      });
+
+      if (!this$1$1.options.multiple && this$1$1.selectedNodes.length) {
+        var top = this$1$1.selectedNodes.top();
+
+        this$1$1.selectedNodes.forEach(function (node) {
+          if (top !== node) {
+            node.state("selected", false);
+          }
+        });
+
+        this$1$1.selectedNodes.empty().add(top);
+      }
+
+      // Nodes can't be selected on init. By it's possible to select through API
+      if (this$1$1.options.checkOnSelect && this$1$1.options.checkbox) {
+        this$1$1.unselectAll();
+      }
+    });
+  };
+
+  Tree.prototype.recurseDown = function recurseDown$1 (node, fn) {
+    if (!fn && node) {
+      fn = node;
+      node = this.model;
+    }
+
+    return recurseDown(node, fn);
+  };
+
+  Tree.prototype.select = function select (node, extendList) {
+    var treeNode = this.getNode(node);
+
+    if (!treeNode) {
+      return false;
+    }
+
+    if (this.options.multiple && extendList) {
+      this.selectedNodes.add(treeNode);
+    } else {
+      this.unselectAll();
+      this.selectedNodes.empty().add(treeNode);
+    }
+
+    return true;
+  };
+
+  Tree.prototype.selectAll = function selectAll () {
+      var this$1$1 = this;
+
+    if (!this.options.multiple) {
+      return false;
+    }
+
+    this.selectedNodes.empty();
+
+    this.recurseDown(function (node) {
+      this$1$1.selectedNodes.add(node.select(true));
+    });
+
+    return true;
+  };
+
+  Tree.prototype.unselect = function unselect (node) {
+    var treeNode = this.getNode(node);
+
+    if (!treeNode) {
+      return false;
+    }
+
+    this.selectedNodes.remove(treeNode);
+
+    return true;
+  };
+
+  Tree.prototype.unselectAll = function unselectAll () {
+    var node;
+
+    while ((node = this.selectedNodes.pop())) {
+      node.unselect();
+    }
+
+    return true;
+  };
+
+  Tree.prototype.check = function check (node) {
+    this.checkedNodes.add(node);
+  };
+
+  Tree.prototype.uncheck = function uncheck (node) {
+    this.checkedNodes.remove(node);
+  };
+
+  Tree.prototype.checkAll = function checkAll () {
+    this.recurseDown(function (node) {
+      if (node.depth === 0) {
+        if (node.indeterminate()) {
+          node.state("indeterminate", false);
+        }
+
+        node.check();
+      }
+    });
+  };
+
+  Tree.prototype.uncheckAll = function uncheckAll () {
+    var node;
+
+    while ((node = this.checkedNodes.pop())) {
+      node.uncheck();
+    }
+
+    return true;
+  };
+
+  Tree.prototype.expand = function expand (node) {
+    if (node.expanded()) {
+      return false;
+    }
+
+    node.expand();
+
+    return true;
+  };
+
+  Tree.prototype.collapse = function collapse (node) {
+    if (node.collapsed()) {
+      return false;
+    }
+
+    node.collapse();
+
+    return true;
+  };
+
+  Tree.prototype.toggleExpand = function toggleExpand (node) {
+    if (!node.hasChildren()) {
+      return false;
+    }
+
+    node.toggleExpand();
+
+    return true;
+  };
+
+  Tree.prototype.toggleCollapse = function toggleCollapse (node) {
+    if (!node.hasChildren()) {
+      return false;
+    }
+
+    node.toggleCollapse();
+
+    return true;
+  };
+
+  Tree.prototype.expandAll = function expandAll () {
+    this.recurseDown(function (node) {
+      if (node.hasChildren() && node.collapsed()) {
+        node.expand();
+      }
+    });
+  };
+
+  Tree.prototype.collapseAll = function collapseAll () {
+    this.recurseDown(function (node) {
+      if (node.hasChildren() && node.expanded()) {
+        node.collapse();
+      }
+    });
+  };
+
+  Tree.prototype.index = function index (node, verbose) {
+    var target = node.parent;
+
+    if (target) {
+      target = target.children;
+    } else {
+      target = this.model;
+    }
+
+    var index = target.indexOf(node);
+
+    if (verbose) {
+      return {
+        index: index,
+        target: target,
+        node: target[index],
+      };
+    }
+
+    return index;
+  };
+
+  Tree.prototype.nextNode = function nextNode (node) {
+    var ref = this.index(node, true);
+      var target = ref.target;
+      var index = ref.index;
+
+    return target[index + 1] || null;
+  };
+
+  Tree.prototype.nextVisibleNode = function nextVisibleNode (node) {
+    if (node.hasChildren() && node.expanded()) {
+      return node.first();
+    }
+
+    var nextNode = this.nextNode(node);
+
+    if (!nextNode && node.parent) {
+      return node.parent.next();
+    }
+
+    return nextNode;
+  };
+
+  Tree.prototype.prevNode = function prevNode (node) {
+    var ref = this.index(node, true);
+      var target = ref.target;
+      var index = ref.index;
+
+    return target[index - 1] || null;
+  };
+
+  Tree.prototype.prevVisibleNode = function prevVisibleNode (node) {
+    var prevNode = this.prevNode(node);
+
+    if (!prevNode) {
+      return node.parent;
+    }
+
+    if (prevNode.hasChildren() && prevNode.expanded()) {
+      return prevNode.last();
+    }
+
+    return prevNode;
+  };
+
+  Tree.prototype.addToModel = function addToModel (node, index) {
+      var this$1$1 = this;
+      if ( index === void 0 ) index = this.model.length;
+
+    node = this.objectToNode(node);
+
+    this.model.splice(index, 0, node);
+    this.recurseDown(node, function (n) {
+      n.tree = this$1$1;
+    });
+
+    this.$emit("node:added", node);
+
+    return node;
+  };
+
+  Tree.prototype.append = function append (criteria, node) {
+    var targetNode = this.find(criteria);
+
+    if (targetNode) {
+      return targetNode.append(node);
+    }
+
+    return false;
+  };
+
+  Tree.prototype.prepend = function prepend (criteria, node) {
+    var targetNode = this.find(criteria);
+
+    if (targetNode) {
+      return targetNode.prepend(node);
+    }
+
+    return false;
+  };
+
+  Tree.prototype.before = function before (targetNode, sourceNode) {
+    targetNode = this.find(targetNode);
+
+    var position = this.index(targetNode, true);
+    var node = this.objectToNode(sourceNode);
+
+    if (!~position.index) {
+      return false;
+    }
+
+    position.target.splice(position.index, 0, node);
+
+    node.parent = targetNode.parent;
+    this.$emit("node:added", node);
+
+    return node;
+  };
+
+  Tree.prototype.after = function after (targetNode, sourceNode) {
+    targetNode = this.find(targetNode);
+
+    var position = this.index(targetNode, true);
+    var node = this.objectToNode(sourceNode);
+
+    if (!~position.index) {
+      return false;
+    }
+
+    position.target.splice(position.index + 1, 0, node);
+
+    node.parent = targetNode.parent;
+    this.$emit("node:added", node);
+
+    return node;
+  };
+
+  Tree.prototype.addNode = function addNode (node) {
+    var index = this.model.length;
+
+    node = objectToNode(node);
+
+    this.model.splice(index, 0, node);
+    this.$emit("node:added", node);
+
+    return node;
+  };
+
+  Tree.prototype.remove = function remove (criteria, multiple) {
+    return this.removeNode(this.find(criteria, multiple));
+  };
+
+  Tree.prototype.removeNode = function removeNode (node) {
+    if (node instanceof Selection) {
+      return node.remove();
+    }
+
+    if (!node) {
+      return false;
+    }
+
+    if (!node.parent) {
+      if (~this.model.indexOf(node)) {
+        this.model.splice(this.model.indexOf(node), 1);
+      }
+    } else {
+      var children = node.parent.children;
+
+      if (~children.indexOf(node)) {
+        children.splice(children.indexOf(node), 1);
+      }
+    }
+
+    if (node.parent) {
+      if (node.parent.indeterminate() && !node.parent.hasChildren()) {
+        node.parent.state("indeterminate", false);
+      }
+    }
+
+    if (this.activeElement !== null) {
+      if (node.id === this.activeElement.id) {
+        this.activeElement = null;
+      }
+    }
+
+    node.parent = null;
+
+    this.$emit("node:removed", node);
+
+    this.selectedNodes.remove(node);
+    this.checkedNodes.remove(node);
+
+    var matches = this.vm.matches;
+
+    if (matches && matches.length) {
+      if (matches.includes(node)) {
+        matches.splice(matches.indexOf(node), 1);
+      }
+    }
+
+    return node;
+  };
+
+  Tree.prototype.isNode = function isNode (node) {
+    return node instanceof Node;
+  };
+
+  Tree.prototype.find = function find$1 (criteria, multiple) {
+    if (this.isNode(criteria)) {
+      return criteria;
+    }
+
+    var result = find(this.model, criteria);
+
+    if (!result || !result.length) {
+      return new Selection(this, []);
+    }
+
+    if (multiple === true) {
+      return new Selection(this, result);
+    }
+
+    return new Selection(this, [result[0]]);
+  };
+
+  Tree.prototype.updateData = function updateData (criteria, callback) {
+    var nodes = this.find(criteria);
+
+    nodes.forEach(function (node) { return node.setData(callback(node)); });
+
+    return nodes;
+  };
+
+  Tree.prototype.getNodeById = function getNodeById (id) {
+    var targetNode = null;
+
+    recurseDown(this.model, function (node) {
+      if ("" + node.id === id) {
+        targetNode = node;
+        return false;
+      }
+    });
+
+    return targetNode;
+  };
+
+  Tree.prototype.getNode = function getNode (node) {
+    if (this.isNode(node)) {
+      return node;
+    }
+
+    return null;
+  };
+
+  Tree.prototype.objectToNode = function objectToNode$1 (obj) {
+    return objectToNode(this, obj);
+  };
+
+  Tree.prototype.parse = function parse (data, options) {
+    if (!options) {
+      options = this.options.propertyNames;
+    }
+
+    try {
+      return TreeParser.parse(data, this, options);
+    } catch (e) {
+      return [];
+    }
+  };
+
+  var keyCodes = {
+    'ARROW_LEFT': 37,
+    'ARROW_TOP': 38,
+    'ARROW_RIGHT': 39,
+    'ARROW_BOTTOM': 40,
+    'SPACE': 32,
+    'DELETE': 46,
+    'ENTER': 13,
+    'ESC': 27
+  };
+
+  var codesArr = [37, 38, 39, 40, 32];
+
+  function focusUp (tree, node) {
+    var prevNode = tree.prevVisibleNode(node);
+
+    if (!prevNode) {
+      return
+    }
+
+    if (prevNode.disabled()) {
+      return focusUp(tree, prevNode)
+    }
+
+    prevNode.focus();
+  }
+
+  function focusdDown (tree, node) {
+    var nextNode = tree.nextVisibleNode(node);
+
+    if (!nextNode) {
+      return
+    }
+
+    if (nextNode.disabled()) {
+      return focusdDown(tree, nextNode)
+    }
+
+    nextNode.focus();
+  }
+
+  function checkNode (tree, node) {
+    if (!tree.options.checkbox) {
+      return
+    }
+
+    if (node.checked()) {
+      node.uncheck();
+    } else {
+      node.check();
+    }
+  }
+
+  function leftArrow (tree, node) {
+    if (node.expanded()) {
+      node.collapse();
+    } else {
+      var parent = node.parent;
+
+      if (parent) {
+        parent.focus();
+      }
+    }
+  }
+
+  function rightArrow (tree, node) {
+    if (node.collapsed()) {
+      node.expand();
+    } else {
+      var first = node.first();
+
+      if (first) {
+        first.focus();
+      }
+    }
+  }
+
+  function deleteNode (tree, node) {
+    var deletion = tree.options.deletion;
+
+    if (deletion) {
+      if (typeof deletion === 'function') {
+        if (deletion(node) === true) {
+          node.remove();
+        }
+      } else if (deletion === true) {
+        node.remove();
+      }
+    }
+  }
+
+  function initKeyboardNavigation (tree) {
+    var vm = tree.vm;
+    var $el = vm.$el;
+
+    $el.addEventListener('keydown', function (e) {
+      var code = e.keyCode;
+      var node = tree.activeElement;
+
+      if (!tree.isNode(node)) {
+        return
+      }
+
+      if (node.isEditing) {
+        switch (code) {
+          case keyCodes.ESC: return node.stopEditing(false)
+        }
+      } else {
+        if (codesArr.includes(code)) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        switch (code) {
+          case keyCodes.ARROW_LEFT: return leftArrow(tree, node)
+          case keyCodes.ARROW_RIGHT: return rightArrow(tree, node)
+          case keyCodes.ARROW_TOP: return focusUp(tree, node)
+          case keyCodes.ARROW_BOTTOM: return focusdDown(tree, node)
+          case keyCodes.SPACE:
+          case keyCodes.ENTER: return checkNode(tree, node)
+          case keyCodes.DELETE: return deleteNode(tree, node)
+        }
+      }
+    }, true);
+  }
+
+  function assert (truth, message) {
+    if (truth === false) {
+      throw new Error(message)
+    }
+  }
+
+  function initEvents(vm) {
+    var ref = vm.opts;
+    var multiple = ref.multiple;
+    var checkbox = ref.checkbox;
+    var tree = vm.tree;
+
+    var emitter = function (obj) {
+      var selected = vm.selected();
+
+      if (!checkbox) {
+        vm.$emit("update:model-value", multiple ? selected : selected[0] || null);
+      } else {
+        vm.$emit("update:model-value", {
+          selected: multiple ? selected : selected[0] || null,
+          checked: vm.checked(),
+        });
+      }
+    };
+
+    emitter();
+
+    tree.$on("node:selected", emitter);
+    tree.$on("node:unselected", emitter);
+
+    if (checkbox) {
+      tree.$on("node:checked", emitter);
+      tree.$on("node:unchecked", emitter);
+    }
+
+    tree.$on("node:added", function (targetNode, newNode) {
+      var node = newNode || targetNode;
+
+      if (checkbox) {
+        if (node.state("checked") && !tree.checkedNodes.has(node)) {
+          tree.checkedNodes.add(node);
+        }
+
+        node.refreshIndeterminateState();
+      }
+
+      if (node.state("selected") && !tree.selectedNodes.has(node)) {
+        tree.select(node);
+      }
+
+      emitter();
+    });
+  }
+
+  var TreeMixin = {
+    emits: [
+      "tree:mounted",
+      "tree:filtered",
+      "node:selected",
+      "node:unselected",
+      "node:checked",
+      "node:unchecked",
+      "node:added" ],
+    mounted: function mounted() {
+      var this$1$1 = this;
+
+      var tree = new Tree(this);
+      var dataProvider;
+
+      this.tree = tree;
+      // this._provided.tree = tree;
+
+      if (!this.data && this.opts.fetchData) {
+        // Get initial data if we don't have a data directly
+        // In this case we call 'fetcher' with node.id == 'root' && node.name == 'root'
+        dataProvider = tree.fetchInitData();
+      } else if (this.data && this.data.then) {
+        // Yeah... nice check!
+        dataProvider = this.data;
+        this.loading = true;
+      } else {
+        dataProvider = Promise.resolve(this.data);
+      }
+
+      dataProvider.then(function (data) {
+        if (!data) {
+          data = [];
+        }
+
+        if (this$1$1.opts.store) {
+          this$1$1.connectStore(this$1$1.opts.store);
+        } else {
+          this$1$1.tree.setModel(data);
+        }
+
+        if (this$1$1.loading) {
+          this$1$1.loading = false;
+        }
+
+        this$1$1.$emit("tree:mounted", this$1$1);
+
+        initEvents(this$1$1);
+      });
+
+      if (this.opts.keyboardNavigation !== false) {
+        initKeyboardNavigation(tree);
+      }
+    },
+
+    methods: {
+      connectStore: function connectStore(store) {
+        var this$1$1 = this;
+
+        var Store = store.store;
+        var mutations = store.mutations;
+        var getter = store.getter;
+        var dispatcher = store.dispatcher;
+
+        assert(typeof getter === "function", "`getter` must be a function");
+        assert(
+          typeof dispatcher === "function",
+          "`dispatcher` must be a function"
+        );
+
+        if (undefined !== mutations) {
+          assert(Array.isArray(mutations), "`mutations` must be an array");
+        }
+
+        Store.subscribe(function (action, state) {
+          if (!mutations) {
+            this$1$1.tree.setModel(getter());
+          } else if (mutations.includes(action.type)) {
+            this$1$1.tree.setModel(getter());
+          }
+        });
+
+        this.tree.setModel(getter());
+
+        this.tree.$on("LIQUOR_NOISE", function () {
+          vue.nextTick(function (_) {
+            dispatcher(this$1$1.toJSON());
+          });
+        });
+      },
+
+      recurseDown: function recurseDown(fn) {
+        this.tree.recurseDown(fn);
+      },
+
+      selected: function selected() {
+        return this.tree.selected();
+      },
+
+      checked: function checked() {
+        return this.tree.checked();
+      },
+
+      append: function append(criteria, node) {
+        // append to model
+        if (!node) {
+          return this.tree.addToModel(criteria, this.tree.model.length);
+        }
+
+        return this.tree.append(criteria, node);
+      },
+
+      prepend: function prepend(criteria, node) {
+        if (!node) {
+          return this.tree.addToModel(criteria, 0);
+        }
+
+        return this.tree.prepend(criteria, node);
+      },
+
+      addChild: function addChild(criteria, node) {
+        return this.append(criteria, node);
+      },
+
+      remove: function remove(criteria, multiple) {
+        return this.tree.remove(criteria, multiple);
+      },
+
+      before: function before(criteria, node) {
+        if (!node) {
+          return this.prepend(criteria);
+        }
+
+        return this.tree.before(criteria, node);
+      },
+
+      after: function after(criteria, node) {
+        if (!node) {
+          return this.append(criteria);
+        }
+
+        return this.tree.after(criteria, node);
+      },
+
+      find: function find(criteria, multiple) {
+        return this.tree.find(criteria, multiple);
+      },
+
+      findAll: function findAll(criteria) {
+        return this.tree.find(criteria, true);
+      },
+
+      expandAll: function expandAll() {
+        return this.tree.expandAll();
+      },
+
+      updateData: function updateData(criteria, callback) {
+        return this.tree.updateData(criteria, callback);
+      },
+
+      collapseAll: function collapseAll() {
+        return this.tree.collapseAll();
+      },
+
+      sortTree: function sortTree(compareFn, deep) {
+        return this.tree.sortTree(compareFn, deep);
+      },
+
+      sort: function sort() {
+        var ref;
+
+        var args = [], len = arguments.length;
+        while ( len-- ) args[ len ] = arguments[ len ];
+        return (ref = this.tree).sort.apply(ref, args);
+      },
+
+      setModel: function setModel(data) {
+        return this.tree.setModel(data);
+      },
+
+      getRootNode: function getRootNode() {
+        return this.tree.model.length === 1
+          ? this.tree.model[0]
+          : this.tree.model;
+      },
+
+      toJSON: function toJSON() {
+        return JSON.parse(JSON.stringify(this.model));
+      },
+    },
+
+    /*eslint semi: 0 */
+    /* https://github.com/vuejs/rollup-plugin-vue/issues/169 */
+  };
+
+  var DropPosition = {
+    ABOVE: "drag-above",
+    BELOW: "drag-below",
+    ON: "drag-on",
+  };
+
+  function isMovingStarted(event, start) {
+    return (
+      Math.abs(event.clientX - start[0]) > 5 ||
+      Math.abs(event.clientY - start[1]) > 5
+    );
+  }
+
+  function composedPath(event) {
+    var el = event.target;
+    var path = [];
+
+    while (el) {
+      path.push(el);
+
+      if (el.tagName === "HTML") {
+        path.push(document);
+        path.push(window);
+
+        return path;
+      }
+
+      el = el.parentElement;
+    }
+
+    return path;
+  }
+
+  function getPath(event) {
+    if (event.path) {
+      return event.path;
+    }
+
+    if (event.composedPath) {
+      return event.composedPath();
+    }
+
+    return composedPath(event);
+  }
+
+  function getSelectedNode(event) {
+    var className;
+    var i = 0;
+
+    var path = getPath(event);
+
+    for (; i < path.length; i++) {
+      className = path[i].className || "";
+
+      if (/tree-node/.test(className)) {
+        return path[i];
+      }
+    }
+
+    return null;
+  }
+
+  function getDropDestination(e) {
+    var selectedNode = getSelectedNode(e);
+
+    if (!selectedNode) {
+      return null;
+    }
+
+    return selectedNode;
+  }
+
+  function updateHelperClasses(target, classes) {
+    if (!target) {
+      return;
+    }
+
+    var className = target.className;
+
+    if (!classes) {
+      for (var i in DropPosition) {
+        className = className.replace(DropPosition[i], "");
+      }
+
+      className.replace("dragging", "");
+    } else if (!new RegExp(classes).test(className)) {
+      className += " " + classes;
+    }
+
+    target.className = className.replace(/\s+/g, " ");
+  }
+
+  function getDropPosition(e, element) {
+    var coords = element.getBoundingClientRect();
+    var nodeSection = coords.height / 3;
+
+    var dropPosition = DropPosition.ON;
+
+    if (coords.top + nodeSection >= e.clientY) {
+      dropPosition = DropPosition.ABOVE;
+    } else if (coords.top + nodeSection * 2 <= e.clientY) {
+      dropPosition = DropPosition.BELOW;
+    }
+
+    return dropPosition;
+  }
+
+  function callDndCb(args, opts, method) {
+    if (!opts || !opts[method] || typeof opts[method] !== "function") {
+      return;
+    }
+
+    return opts[method].apply(opts, args) !== false;
+  }
+
+  function clearDropClasses(parent) {
+    for (var key in DropPosition) {
+      var el = parent.querySelectorAll(("." + (DropPosition[key])));
+
+      for (var i = 0; i < el.length; i++) {
+        updateHelperClasses(el[i]);
+      }
+    }
+  }
+
+  var TreeDnd = {
+    methods: {
+      onDragStart: function onDragStart(e) {
+        e.preventDefault();
+      },
+
+      startDragging: function startDragging(node, event) {
+        if (
+          !node.isDraggable() ||
+          callDndCb([node], this.tree.options.dnd, "onDragStart") === false
+        ) {
+          return;
+        }
+
+        this.$$startDragPosition = [event.clientX, event.clientY];
+        this.$$possibleDragNode = node;
+
+        this.initDragListeners();
+      },
+
+      initDragListeners: function initDragListeners() {
+        var this$1$1 = this;
+
+        var dropPosition;
+
+        var removeListeners = function () {
+          window.removeEventListener("mouseup", onMouseUp, true);
+          window.removeEventListener("mousemove", onMouseMove, true);
+        };
+
+        var onMouseUp = function (e) {
+          if (!this$1$1.$$startDragPosition) {
+            e.stopPropagation();
+          }
+
+          if (this$1$1.draggableNode) {
+            this$1$1.draggableNode.node.state("dragging", false);
+          }
+
+          if (
+            this$1$1.$$dropDestination &&
+            this$1$1.tree.isNode(this$1$1.$$dropDestination) &&
+            this$1$1.$$dropDestination.vm
+          ) {
+            updateHelperClasses(this$1$1.$$dropDestination.vm.$el, null);
+
+            var cbResult = callDndCb(
+              [this$1$1.draggableNode.node, this$1$1.$$dropDestination, dropPosition],
+              this$1$1.tree.options.dnd,
+              "onDragFinish"
+            );
+
+            if (
+              cbResult !== false &&
+              !(
+                (!this$1$1.$$dropDestination.isDropable() &&
+                  dropPosition === DropPosition.ON) ||
+                !dropPosition
+              )
+            ) {
+              this$1$1.draggableNode.node.finishDragging(
+                this$1$1.$$dropDestination,
+                dropPosition
+              );
+              this$1$1.draggableNode.node.parent = this$1$1.$$dropDestination;
+            }
+
+            this$1$1.$$dropDestination = null;
+          }
+
+          this$1$1.$$possibleDragNode = null;
+          this$1$1.draggableNode = null;
+
+          removeListeners();
+        };
+
+        var onMouseMove = function (e) {
+          if (
+            this$1$1.$$startDragPosition &&
+            !isMovingStarted(e, this$1$1.$$startDragPosition)
+          ) {
+            return;
+          } else {
+            this$1$1.$$startDragPosition = null;
+          }
+
+          if (this$1$1.$$possibleDragNode) {
+            if (this$1$1.$$possibleDragNode.startDragging() === false) {
+              removeListeners();
+              this$1$1.$$possibleDragNode = null;
+
+              return;
+            }
+
+            this$1$1.draggableNode = {
+              node: this$1$1.$$possibleDragNode,
+              left: 0,
+              top: 0,
+            };
+            this$1$1.$$possibleDragNode = null;
+          }
+
+          this$1$1.draggableNode.left = e.clientX;
+          this$1$1.draggableNode.top = e.clientY;
+
+          var dropDestination = getDropDestination(e);
+
+          clearDropClasses(this$1$1.$el);
+
+          if (dropDestination) {
+            var dropDestinationId = dropDestination.getAttribute("data-id");
+
+            if (this$1$1.draggableNode.node.id === dropDestinationId) {
+              return;
+            }
+
+            if (
+              !this$1$1.$$dropDestination ||
+              this$1$1.$$dropDestination.id !== dropDestinationId
+            ) {
+              this$1$1.$$dropDestination = this$1$1.tree.getNodeById(dropDestinationId);
+            }
+
+            if (this$1$1.$$dropDestination && this$1$1.draggableNode.node) {
+              var path = this$1$1.$$dropDestination.getPath();
+
+              if (path.includes(this$1$1.draggableNode.node)) {
+                this$1$1.$$dropDestination = null;
+                return;
+              }
+            }
+
+            dropPosition = getDropPosition(e, dropDestination);
+
+            var cbResult = callDndCb(
+              [this$1$1.draggableNode.node, this$1$1.$$dropDestination, dropPosition],
+              this$1$1.tree.options.dnd,
+              "onDragOn"
+            );
+
+            var isDropable =
+              this$1$1.$$dropDestination.isDropable() && cbResult !== false;
+
+            if (!isDropable && dropPosition === DropPosition.ON) {
+              dropPosition = null;
+            }
+
+            updateHelperClasses(dropDestination, dropPosition);
+          }
+        };
+
+        window.addEventListener("mouseup", onMouseUp, true);
+        window.addEventListener("mousemove", onMouseMove, true);
+      },
+    },
+  };
+
+  var css_248z = "\n.tree {\n  overflow: auto;\n}\n.tree-root,\n.tree-children {\n  list-style: none;\n  padding: 0;\n}\n.tree > .tree-root,\n.tree > .tree-filter-empty {\n  padding: 3px;\n  box-sizing: border-box;\n}\n.tree.tree--draggable .tree-node:not(.selected) > .tree-content:hover {\n  background: transparent;\n}\n.drag-above,\n.drag-below,\n.drag-on {\n  position: relative;\n  z-index: 1;\n}\n.drag-on > .tree-content {\n  background: #fafcff;\n  outline: 1px solid #7baff2;\n}\n.drag-above > .tree-content::before,\n.drag-below > .tree-content::after {\n  display: block;\n  content: \"\";\n  position: absolute;\n  height: 8px;\n  left: 0;\n  right: 0;\n  z-index: 2;\n  box-sizing: border-box;\n  background-color: #3367d6;\n  border: 3px solid #3367d6;\n  background-clip: padding-box;\n  border-bottom-color: transparent;\n  border-top-color: transparent;\n  border-radius: 0;\n}\n.drag-above > .tree-content::before {\n  top: 0;\n  transform: translateY(-50%);\n}\n.drag-below > .tree-content::after {\n  bottom: 0;\n  transform: translateY(50%);\n}\n";
+  styleInject(css_248z);
+
+  var defaults = {
+    direction: "ltr",
+    multiple: true,
+    checkbox: false,
+    checkOnSelect: false,
+    autoCheckChildren: true,
+    autoDisableChildren: true,
+    checkDisabledChildren: true,
+    parentSelect: false,
+    keyboardNavigation: true,
+    nodeIndent: 24,
+    minFetchDelay: 0,
+    fetchData: null,
+    propertyNames: null,
+    deletion: false,
+    dnd: false,
+    editing: false,
+    onFetchError: function (err) {
+      throw err;
+    },
+  };
+
+  var filterDefaults = {
+    emptyText: "Nothing found!",
+    matcher: function matcher(query, node) {
+      var isMatched = new RegExp(query, "i").test(node.text);
+
+      if (isMatched) {
+        if (node.parent && new RegExp(query, "i").test(node.parent.text)) {
+          return false;
+        }
+      }
+
+      return isMatched;
+    },
+    plainList: false,
+    showChildren: true,
+  };
+
+  var _sfc_main = {
+    name: "Tree",
+    components: {
+      TreeNode: TreeNode$1,
+      DraggableNode: DraggableNode,
+    },
+
+    mixins: [TreeMixin, TreeDnd],
+
+    provide: function provide() {
+      var this$1$1 = this;
+
+      return {
+        tree: vue.computed(function () { return this$1$1.tree; }),
+      };
+    },
+
+    props: {
+      data: {
+        type: Object,
+        default: function (_) { return ({}); },
+      },
+
+      options: {
+        type: Object,
+        default: function (_) { return ({}); },
+      },
+
+      filter: { type: String, default: "" },
+
+      tag: {
+        type: String,
+        default: "div",
+      },
+      modelValue: {
+        type: [Object, Array],
+        default: undefined,
+      },
+    },
+    emits: ["update:model-value"],
+    data: function data() {
+      // we should not mutating a prop directly...
+      // that's why we have to create a new object
+      // TODO: add method for changing options
+      var opts = Object.assign({}, defaults, this.options);
+
+      opts.filter = Object.assign({}, filterDefaults, opts.filter);
+
+      return {
+        model: [],
+        tree: null,
+        loading: false,
+        opts: opts,
+        matches: [],
+        draggableNode: null,
+      };
+    },
+
+    computed: {
+      visibleModel: function visibleModel() {
+        return this.model.filter(function (node) {
+          return node && node.visible();
+        });
+      },
+      visibleMatches: function visibleMatches() {
+        return this.matches.filter(function (node) {
+          return node && node.visible();
+        });
+      },
+    },
+
+    watch: {
+      filter: function filter(term) {
+        this.tree.filter(term);
+      },
+    },
+  };
+
+  var _hoisted_1 = ["innerHTML"];
+
+  function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
+    var _component_TreeNode = vue.resolveComponent("TreeNode");
+    var _component_DraggableNode = vue.resolveComponent("DraggableNode");
+
+    return (vue.openBlock(), vue.createBlock(vue.resolveDynamicComponent($props.tag), {
+      role: "tree",
+      class: vue.normalizeClass({
+        tree: true,
+        'tree-loading': $data.loading,
+        'tree--draggable': !!$data.draggableNode,
+      })
+    }, {
+      default: vue.withCtx(function () { return [
+        ($props.filter && $data.matches.length == 0)
+          ? (vue.openBlock(), vue.createElementBlock("div", {
+              key: 0,
+              class: "tree-filter-empty",
+              innerHTML: $data.opts.filter.emptyText
+            }, null, 8 /* PROPS */, _hoisted_1))
+          : (vue.openBlock(), vue.createElementBlock("ul", {
+              key: 1,
+              class: "tree-root",
+              onDragstart: _cache[0] || (_cache[0] = function () {
+                var args = [], len = arguments.length;
+                while ( len-- ) args[ len ] = arguments[ len ];
+
+                return (_ctx.onDragStart && _ctx.onDragStart.apply(_ctx, args));
+        })
+            }, [
+              ($data.opts.filter.plainList && $data.matches.length > 0)
+                ? (vue.openBlock(true), vue.createElementBlock(vue.Fragment, { key: 0 }, vue.renderList($options.visibleMatches, function (node) {
+                    return (vue.openBlock(), vue.createBlock(_component_TreeNode, {
+                      key: node.id,
+                      node: node,
+                      options: $data.opts
+                    }, null, 8 /* PROPS */, ["node", "options"]))
+                  }), 128 /* KEYED_FRAGMENT */))
+                : (vue.openBlock(true), vue.createElementBlock(vue.Fragment, { key: 1 }, vue.renderList($options.visibleModel, function (node) {
+                    return (vue.openBlock(), vue.createBlock(_component_TreeNode, {
+                      key: node.id,
+                      node: node,
+                      options: $data.opts
+                    }, null, 8 /* PROPS */, ["node", "options"]))
+                  }), 128 /* KEYED_FRAGMENT */))
+            ], 32 /* NEED_HYDRATION */)),
+        ($data.draggableNode)
+          ? (vue.openBlock(), vue.createBlock(_component_DraggableNode, {
+              key: 2,
+              target: $data.draggableNode
+            }, null, 8 /* PROPS */, ["target"]))
+          : vue.createCommentVNode("v-if", true)
+      ]; }),
+      _: 1 /* STABLE */
+    }, 8 /* PROPS */, ["class"]))
+  }
+  var TreeRoot = /*#__PURE__*/_export_sfc(_sfc_main, [['render',_sfc_render]]);
+
+  // TreeRoot.install = install;
+
+  // if (typeof window !== 'undefined' && window.Vue) {
+  //   window.Vue.use(TreeRoot);
+  // }
+
+  var main = {
+    install: function install(app) {
+      // app.config.globalProperties.$emitter = emitter;
+      app.component(TreeRoot.name, TreeRoot);
+    },
+  };
+
+  return main;
+
+}));
 //# sourceMappingURL=liquor-tree.umd.js.map
