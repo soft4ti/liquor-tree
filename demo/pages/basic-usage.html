@@ -93,6 +93,7 @@
 
     <script>
       const app = Vue.createApp({
+        components: { Tree: LiquorTree },
         data() {
           return {
             /* example 0 */
@@ -135,7 +136,7 @@
           },
         },
       });
-      app.use(LiquorTree);
+      // app.use(LiquorTree);
       app.mount("#app");
 
       function getTreeData0() {

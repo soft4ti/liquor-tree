@@ -3233,20 +3233,13 @@
   }
   var TreeRoot = /*#__PURE__*/_export_sfc(_sfc_main, [['render',_sfc_render]]);
 
-  // TreeRoot.install = install;
-
-  // if (typeof window !== 'undefined' && window.Vue) {
-  //   window.Vue.use(TreeRoot);
-  // }
-
-  var main = {
-    install: function install(app) {
-      // app.config.globalProperties.$emitter = emitter;
-      app.component(TreeRoot.name, TreeRoot);
-    },
+  var install = function (app) {
+    app.component(TreeRoot.name, TreeRoot);
   };
 
-  return main;
+  TreeRoot.install = install;
+
+  return TreeRoot;
 
 }));
 //# sourceMappingURL=liquor-tree.umd.js.map
