@@ -1,15 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8" />
     <title>Liquor Tree: Filtering</title>
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css" />
     <script src="../assets/menu.js"></script>
 
     <!-- first import Vue -->
-    <!-- <script src="https://unpkg.com/vue/dist/vue.js"></script> -->
-    <script src="../assets/vue.js"></script>
+    <script src="https://unpkg.com/vue"></script>
     <script src="/liquor-tree.umd.js"></script>
 
     <style>
@@ -39,83 +38,100 @@
       <div class="examples">
         <div class="example">
           <div class="example-description">
-            <input type="text" placeholder="Type to filter..." v-model="treeFilter0" class="filter-field">
+            <input
+              type="text"
+              placeholder="Type to filter..."
+              v-model="treeFilter0"
+              class="filter-field"
+            />
           </div>
           <div class="example-tree">
             <tree
               class="tree-highlights"
               :filter="treeFilter0"
-              :options="treeOptions0" />
+              :options="treeOptions0"
+            />
           </div>
         </div>
 
         <div class="example">
           <div class="example-description">
             <p>
-              Custom matcher. Also we hide children if node has ones. Select complexity:
+              Custom matcher. Also we hide children if node has ones. Select
+              complexity:
               <select v-model="treeFilter1">
-                <option v-for="item in new Array(20).fill('').map((a, i) => i)">{{ item }}</option>
+                <option v-for="item in new Array(20).fill('').map((a, i) => i)">
+                  {{ item }}
+                </option>
               </select>
             </p>
           </div>
           <div class="example-tree">
-            <tree :filter="treeFilter1" :options="treeOptions1" >
-              <div slot-scope="{ node }" class="node-info">
-                <span class="node-name">{{ node.text }}</span>
-                <span class="node-complexity">{{ node.data.complexity }}</span>
-              </div>
+            <tree :filter="treeFilter1" :options="treeOptions1">
+              <template v-slot="{ node }">
+                <div class="node-info">
+                  <span class="node-name">{{ node.text }}</span>
+                  <span class="node-complexity"
+                    >{{ node.data.complexity }}</span
+                  >
+                </div>
+              </template>
             </tree>
           </div>
         </div>
 
         <div class="example">
           <div class="example-description">
-            <input type="text" placeholder="Type to filter..." v-model="treeFilter2" class="filter-field">
+            <input
+              type="text"
+              placeholder="Type to filter..."
+              v-model="treeFilter2"
+              class="filter-field"
+            />
           </div>
           <div class="example-tree">
-            <tree
-              :filter="treeFilter2"
-              :options="treeOptions2" />
+            <tree :filter="treeFilter2" :options="treeOptions2" />
           </div>
         </div>
       </div>
     </div>
 
     <script>
-      new Vue({
-        el: '#app',
-        data: () => ({
-          treeFilter0: '',
-          treeOptions0: {
-            fetchData: '/assets/data/filtering.json',
-            filter: {
-              emptyText: '<b>~~Overrided empty text as HTML~~</b>'
-            }
-          },
-
-          treeFilter1: '',
-          treeOptions1: {
-            filter: {
-              matcher(query, node) {
-                return query == node.data.complexity
+      const app = Vue.createApp({
+        data() {
+          return {
+            treeFilter0: "",
+            treeOptions0: {
+              fetchData: "/assets/data/filtering.json",
+              filter: {
+                emptyText: "<b>~~Overrided empty text as HTML~~</b>",
               },
-              showChildren: false
             },
-            fetchData: '/assets/data/filtering-custom.json'
-          },
 
-          treeFilter2: '',
-          treeOptions2: {
-            checkbox: true,
-            fetchData: '/assets/data/filtering.json',
-            filter: {
-              plainList: true
-            }
-          },
+            treeFilter1: "",
+            treeOptions1: {
+              filter: {
+                matcher(query, node) {
+                  return query == node.data.complexity;
+                },
+                showChildren: false,
+              },
+              fetchData: "/assets/data/filtering-custom.json",
+            },
 
-        })
-      })
+            treeFilter2: "",
+            treeOptions2: {
+              checkbox: true,
+              fetchData: "/assets/data/filtering.json",
+              filter: {
+                plainList: true,
+              },
+            },
+          };
+        },
+      });
+      app.use(LiquorTree);
+      app.mount("#app");
     </script>
-
   </body>
 </html>

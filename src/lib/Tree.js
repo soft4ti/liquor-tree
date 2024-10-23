@@ -34,19 +34,19 @@ export default class Tree {
   $on(name, ...args) {
     // this.vm.$on(name, ...args);
     this.emitter.on(name, ...args);
-    console.log("era pra ter um on aqui");
+    // console.log("era pra ter um on aqui");
   }
 
   $once(name, ...args) {
     // this.vm.$once(name, ...args);
     this.emitter.once(name, ...args);
-    console.log("era pra ter um once aqui");
+    // console.log("era pra ter um once aqui");
   }
 
   $off(name, ...args) {
     // this.vm.$off(name, ...args);
     this.emitter.off(name, ...args);
-    console.log("era pra ter um off aqui");
+    // console.log("era pra ter um off aqui");
   }
 
   $emit(name, ...args) {

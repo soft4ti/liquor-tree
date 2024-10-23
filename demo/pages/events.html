@@ -68,6 +68,7 @@
       }
 
       .node-controls a {
+        padding: 0 5px;
         color: #ff14ce;
       }
     </style>
@@ -93,14 +94,16 @@
               :filter="filter"
               ref="treeExample"
             >
-              <div slot-scope="{ node }" class="node-container">
-                <div class="node-text">{{ node.text }}</div>
-                <div class="node-controls">
-                  <a href="#" @mouseup.stop="editNode(node)">Edit</a>
-                  <a href="#" @mouseup.stop="removeNode(node)">Remove</a>
-                  <a href="#" @mouseup.stop="addChildNode(node)">Add child</a>
+              <template v-slot="{ node }">
+                <div class="node-container">
+                  <div class="node-text">{{ node.text }}</div>
+                  <div class="node-controls">
+                    <a href="#" @mouseup.stop="editNode(node)">Edit</a>
+                    <a href="#" @mouseup.stop="removeNode(node)">Remove</a>
+                    <a href="#" @mouseup.stop="addChildNode(node)">Add child</a>
+                  </div>
                 </div>
-              </div>
+              </template>
             </tree>
           </div>
         </div>

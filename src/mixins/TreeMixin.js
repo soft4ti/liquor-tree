@@ -50,7 +50,15 @@ function initEvents(vm) {
 }
 
 export default {
-  emits: ['tree:mounted', "node:selected", "node:unselected", "node:checked", "node:unchecked", "node:added"],
+  emits: [
+    "tree:mounted",
+    "tree:filtered",
+    "node:selected",
+    "node:unselected",
+    "node:checked",
+    "node:unchecked",
+    "node:added",
+  ],
   mounted() {
     const tree = new Tree(this);
     let dataProvider;
@@ -119,7 +127,7 @@ export default {
 
       this.tree.setModel(getter());
 
-      this.$on("LIQUOR_NOISE", () => {
+      this.tree.$on("LIQUOR_NOISE", () => {
         nextTick((_) => {
           dispatcher(this.toJSON());
         });

@@ -1,17 +1,15 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8" />
     <title>Liquor Tree: Basic Usage</title>
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css" />
     <script src="../assets/menu.js"></script>
 
     <!-- first import Vue -->
-    <!-- <script src="https://unpkg.com/vue/dist/vue.js"></script> -->
-    <script src="../assets/vue.js"></script>
+    <script src="https://unpkg.com/vue"></script>
     <script src="/liquor-tree.umd.js"></script>
-
 
     <style>
       .demo-tree {
@@ -26,9 +24,7 @@
     </style>
   </head>
   <body>
-    <div class="hello">
-      Basic Usage.
-    </div>
+    <div class="hello">Basic Usage.</div>
 
     <div id="app">
       <div class="examples">
@@ -43,9 +39,7 @@
         </div>
 
         <div class="example">
-          <div class="example-description">
-            Copied Tree from the right
-          </div>
+          <div class="example-description">Copied Tree from the right</div>
           <div class="example-tree">
             <tree ref="targetTree" />
           </div>
@@ -54,115 +48,118 @@
     </div>
 
     <script>
-      let copyObject = obj => JSON.parse(JSON.stringify(obj))
+      let copyObject = (obj) => JSON.parse(JSON.stringify(obj));
 
-      new Vue({
-        el: '#app',
-        data: () => ({
-          treeData: getTreeData()
-        }),
+      const app = Vue.createApp({
+        data() {
+          return {
+            treeData: getTreeData(),
+          };
+        },
 
         methods: {
           exportTree() {
-            let exportedTreeData = copyObject(
-              this.$refs.sourceTree.toJSON()
-            )
+            let exportedTreeData = copyObject(this.$refs.sourceTree.toJSON());
 
-            let targetTree = this.$refs.targetTree.tree
+            let targetTree = this.$refs.targetTree.tree;
 
-            targetTree.setModel(exportedTreeData)
+            targetTree.setModel(exportedTreeData);
           },
 
           addRandomNode() {
-            this.$refs.sourceTree.append(
-              `New Node ${Math.random()}`
-            )
-          }
-        }
-      })
+            this.$refs.sourceTree.append(`New Node ${Math.random()}`);
+          },
+        },
+      });
+      app.use(LiquorTree);
+      app.mount("#app");
 
       function getTreeData() {
-        return [{
-            text: 'Item 1',
-            state: {
-              selected: true
-            }
-          },
-
+        return [
           {
-            text: 'Item 2',
+            text: "Item 1",
             state: {
-              expanded: true
+              selected: true,
             },
-            children: [{
-                text: '<b>Item 2.1</b>',
-                state: {
-                  checked: true
-                }
-              },
-              {
-                text: 'Item 2.2'
-              },
-              {
-                text: 'Item 2.3',
-                children: [{
-                    text: 'Item 2.2.3.1'
-                  },
-                  {
-                    text: 'Item 2.2.3.2'
-                  },
-                  {
-                    text: 'Item 2.2.3.3'
-                  },
-                  {
-                    text: 'Item 2.2.3.4',
-                    children: [{
-                        text: 'Item 2.2.3.4.1'
-                      },
-                      {
-                        text: 'Item 2.2.3.4.2'
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                text: 'Item 2.4'
-              }
-            ]
           },
 
           {
-            text: 'Item 3',
-            state: {
-              selected: true
-            }
-          },
-
-          {
-            text: 'Item 4'
-          },
-
-          {
-            text: 'Item 5',
+            text: "Item 2",
             state: {
               expanded: true,
-              disabled: true
             },
-            children: [{
-                text: 'Item 5.1'
+            children: [
+              {
+                text: "<b>Item 2.1</b>",
+                state: {
+                  checked: true,
+                },
               },
               {
-                text: 'Item 5.2'
+                text: "Item 2.2",
               },
               {
-                text: 'Item 5.3'
-              }
-            ]
-          }
-        ]
+                text: "Item 2.3",
+                children: [
+                  {
+                    text: "Item 2.2.3.1",
+                  },
+                  {
+                    text: "Item 2.2.3.2",
+                  },
+                  {
+                    text: "Item 2.2.3.3",
+                  },
+                  {
+                    text: "Item 2.2.3.4",
+                    children: [
+                      {
+                        text: "Item 2.2.3.4.1",
+                      },
+                      {
+                        text: "Item 2.2.3.4.2",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                text: "Item 2.4",
+              },
+            ],
+          },
+
+          {
+            text: "Item 3",
+            state: {
+              selected: true,
+            },
+          },
+
+          {
+            text: "Item 4",
+          },
+
+          {
+            text: "Item 5",
+            state: {
+              expanded: true,
+              disabled: true,
+            },
+            children: [
+              {
+                text: "Item 5.1",
+              },
+              {
+                text: "Item 5.2",
+              },
+              {
+                text: "Item 5.3",
+              },
+            ],
+          },
+        ];
       }
     </script>
-
   </body>
 </html>

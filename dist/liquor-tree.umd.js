@@ -1685,7 +1685,7 @@
       while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
     // this.vm.$on(name, ...args);
     (ref = this.emitter).on.apply(ref, [ name ].concat( args ));
-    console.log("era pra ter um on aqui");
+    // console.log("era pra ter um on aqui");
   };
 
   Tree.prototype.$once = function $once (name) {
@@ -1695,7 +1695,7 @@
       while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
     // this.vm.$once(name, ...args);
     (ref = this.emitter).once.apply(ref, [ name ].concat( args ));
-    console.log("era pra ter um once aqui");
+    // console.log("era pra ter um once aqui");
   };
 
   Tree.prototype.$off = function $off (name) {
@@ -1705,7 +1705,7 @@
       while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
     // this.vm.$off(name, ...args);
     (ref = this.emitter).off.apply(ref, [ name ].concat( args ));
-    console.log("era pra ter um off aqui");
+    // console.log("era pra ter um off aqui");
   };
 
   Tree.prototype.$emit = function $emit (name) {
@@ -2578,7 +2578,14 @@
   }
 
   var TreeMixin = {
-    emits: ['tree:mounted', "node:selected", "node:unselected", "node:checked", "node:unchecked", "node:added"],
+    emits: [
+      "tree:mounted",
+      "tree:filtered",
+      "node:selected",
+      "node:unselected",
+      "node:checked",
+      "node:unchecked",
+      "node:added" ],
     mounted: function mounted() {
       var this$1$1 = this;
 
@@ -2654,7 +2661,7 @@
 
         this.tree.setModel(getter());
 
-        this.$on("LIQUOR_NOISE", function () {
+        this.tree.$on("LIQUOR_NOISE", function () {
           vue.nextTick(function (_) {
             dispatcher(this$1$1.toJSON());
           });
